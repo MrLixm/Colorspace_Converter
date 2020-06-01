@@ -1,0 +1,39 @@
+
+QTreeView {
+	border-radius: 4px;
+	background-color: rgb(30, 30, 30);
+	alternate-background-color: rgb(25, 25, 25);
+	color: #fafafa;
+}
+QTreeView::item:selected {
+	background-color: rgb(40, 60, 80);
+	border: 2px red;
+}
+
+.QWidget {
+	background: rgb(40, 40, 40);
+}
+
+QToolBar {
+
+	background-color: rgb(30, 30, 30);
+	border: none;
+	padding: 3px;
+    min-width: 25px;
+    min-height: 25px;
+}
+
+QPushButton {
+
+	border-radius: 4px;
+    background-color: rgb(30, 30, 30);
+    color: #fafafa;
+    min-width: 30px;
+    min-height: 30px;
+
+}
+
+QPushButton::hover {
+    background-color: #64b4e8;
+}
+
