@@ -1,50 +1,76 @@
 import os
+from pprint import pprint
 
 import colour
 from oiio import OpenImageIO as oiio
 
-from OIIO import ImageInput, ImageOutput
-
 
 class Converter:
-    def __init__(self):
-        pass
+    def __init__(self, in_img, out_location, out_format='exr', out_bitdepth=None, in_cs=None, out_cs=None):
+        """
+        Args:
+            in_img: path\name.ext of the file
+            out_location: 'file' or 'folder'
+            out_bitdepth: 'bitdepth for the output file
+            in_cs: source colorspace
+            out_cs: target colorspace
+        """
 
-    def image_processing(self, img_path, bit_depth):
-        image_RGB = colour.read_image(img_path)
+        self.out_filePath = self.pathGeneration(in_img, out_location, out_format)
+        ip_result = self.imageProcessing(in_img, self.out_filePath, in_cs, out_cs, out_bitdepth)
+
+    def imageProcessing(self, filepath, outpath, in_cs, out_cs, out_bitdepth):
+        in_img = oiio.ImageInput.open(filepath)
+        if not in_img:
+            return oiio.geterror()
+        spec = in_img.spec()
+        pixels = in_img.read_image()
+        in_img.close()
+
+        print("resolution ", spec.width, "x", spec.height)
+
+        converted_rgb = self.colourConversion(pixels)
+        final_image = converted_rgb
+
+        output = oiio.ImageOutput.create(outpath)
+        output.open(outpath, spec)
+        output.write_image(converted_rgb)
+        output.close()
+
+    @staticmethod
+    def colourConversion(in_rgb, cctf=False):
         input_colourspace = colour.RGB_COLOURSPACES['sRGB']
         output_colourspace = colour.RGB_COLOURSPACES['ACEScg']
-
-        # image_XYZ = colour.sRGB_to_XYZ(image_RGB)
-        converted = self.rgb_to_rgb_conversion(image_RGB, input_colourspace, output_colourspace)
-        result = colour.io.convert_bit_depth(converted, bit_depth=bit_depth)
-        final_image = result
-        # final_image = image_XYZ
-        out_path = os.path.join(os.path.dirname(img_path), "testBobRoss_acesccg_lin_f16.exr")
-        self.result = colour.io.write_image_Imageio(final_image, out_path)
-
-    @staticmethod
-    def rgb_to_rgb_conversion(in_rgb, in_cs, out_cs, cat='CAT02', cctf_decode=True):
-        result = colour.RGB_to_RGB(in_rgb, in_cs, out_cs, chromatic_adaptation_transform=cat,
-                                   apply_cctf_decoding=cctf_decode)
+        cat = 'CAT02'
+        result = colour.RGB_to_RGB(in_rgb, input_colourspace, output_colourspace, chromatic_adaptation_transform=cat,
+                                   apply_cctf_decoding=cctf)
         return result
 
-    def compute_image(self, image_path, out_name='default.exr', w_format=oiio.UNKNOWN):
-        img_in = ImageInput.open(image_path)
-        img_specs = img_in.spec()
-        rgb_data = img_in.read_image()
-        self.write_image(rgb_data, out_name, w_format, img_specs)
-        img_in.close()
+    def pathGeneration(self, in_path, out_location='file', out_format='.exr'):
+        file_folder_path = os.path.dirname(in_path)
+        filename_original = os.path.splitext(os.path.basename(in_path))[0]
+        file_ext = os.path.splitext(in_path)[1]
+        if out_format == 'original':
+            out_ext = file_ext
+        else:
+            out_ext = out_format
+        out_file_name = filename_original + '_ACEScg' + out_ext
 
-    @staticmethod
-    def write_image(rgb_data, filename, w_format, spec):
-        output = ImageOutput.create(filename=filename)
-        output.open(filename, spec)
-        output.write(rgb_data, w_format)
-        output.close()
+        if out_location == 'file':
+            output_path = os.path.join(file_folder_path, out_file_name)
+            return output_path
+        if out_location == 'folder':
+            acesFolder_path = os.path.join(file_folder_path, 'ACEScg')
+            if not os.path.exists(acesFolder_path):
+                os.makedirs(acesFolder_path)
+            output_path = os.path.join(acesFolder_path, out_file_name)
+            return output_path
 
 
 if __name__ == '__main__':
-    img_path = r"E:\Images\bob-ross-9464216-1-402.jpg"
-    c = Converter()
-    c.compute_image(img_path, 'bobross.exr', oiio.FLOAT)
+    filename = r"E:\Images\artist_workshop_4k.hdr"
+    out_path = r"E:\Images\artist_workshop_oiio_acescg_v1.exr"
+    # c = Converter(filename, out_path)
+    list = colour.models.rgb.__all__
+    index = list.index('RGB_COLOURSPACES')
+    pprint(list[index:])
