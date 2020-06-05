@@ -1,28 +1,29 @@
 import os
+from oiio import OpenImageIO as oiio
 
 
-def test_func(in_path, out_format, out_location):
-    file_folder_path = os.path.dirname(in_path)
-    filename_original = os.path.splitext(os.path.basename(in_path))[0]
-    file_ext = os.path.splitext(in_path)[1]
-    if out_format == 'original':
-        out_ext = file_ext
-    else:
-        out_ext = out_format
-    out_file_name = filename_original + '_ACEScg' + out_ext
+def test_func(filepath, outpath):
+    in_img = oiio.ImageInput.open(filepath)
+    if not in_img:
+        return oiio.geterror()
+    spec = in_img.spec()
+    pixels = in_img.read_image()
+    in_img.close()
 
-    if out_location == 'file':
-        output_path = os.path.join(file_folder_path, out_file_name)
-        return output_path
-    if out_location == 'folder':
-        acesFolder_path = os.path.join(file_folder_path, 'ACEScg')
-        if not os.path.exists(acesFolder_path):
-            os.makedirs(acesFolder_path)
-        output_path = os.path.join(acesFolder_path, out_file_name)
-        return output_path
+    print(f"resolution {spec.width} x {spec.height}")
+
+    converted_rgb = pixels
+    final_image = converted_rgb
+
+    spec.format = 'half'
+    output = oiio.ImageOutput.create(outpath)
+    output.open(outpath, spec)
+    output.write_image(converted_rgb)
+    output.close()
+    return spec
 
 
 if __name__ == '__main__':
-    path = r"E:\Images\artist_workshop4k.hdr"
-    print(test_func(path, '.exr', 'file'))
-    print(test_func(path, '.exr', 'folder'))
+    in_path = r"L:\SCRIPT\Colour\OCIO_converter\tests\ber_hdri\ber_terminal_original.hdr"
+    out_path = r"L:\SCRIPT\Colour\OCIO_converter\tests\ber_hdri\oiio_ber_v2_half.exr"
+    print(test_func(in_path, out_path).format)
