@@ -1,4 +1,6 @@
 import os
+from pprint import pprint
+
 from oiio import OpenImageIO as oiio
 import colour
 
@@ -28,4 +30,4 @@ if __name__ == '__main__':
     in_path = r"L:\SCRIPT\Colour\OCIO_converter\tests\ber_hdri\ber_terminal_original.hdr"
     out_path = r"L:\SCRIPT\Colour\OCIO_converter\tests\ber_hdri\oiio_ber_v2_half.exr"
     # print(test_func(in_path, out_path).format)
-    print(colour.RGB_COLOURSPACES)
+    pprint(colour.RGB_COLOURSPACES['REDcolor'])

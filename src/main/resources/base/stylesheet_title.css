@@ -2,8 +2,9 @@
 QLabel{
     background-color: transparent;
     color: rgb(60,60,60);
-    font-style: bold;
-    font-size: 15px;
-    font-weight: bold;
-    font-family:"Source Sans Pro";
+    font-style: normal;
+    font-size: 20px;
+    font-weight: normal;
+    font-family:"Etna";
+    padding-bottom: 8px;
  }

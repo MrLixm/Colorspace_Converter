@@ -1,5 +1,3 @@
-from functools import partial
-
 from PySide2 import QtWidgets, QtCore, QtGui
 
 
@@ -7,6 +5,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, ctx):
         super().__init__()
 
+        self.colorspace_target_list = ['ACEScg', 'ACES2065-1', 'ACEScc', 'ACEScct', 'sRGB', 'Adobe Wide Gamut RGB',
+                                       'ITU-R BT.2020', ]
         self.ctx = ctx
 
         self.setWindowTitle("PYCO ColorSpace")
@@ -32,7 +32,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.frm_right = QtWidgets.QFrame()
         self.grpbox_target = QtWidgets.QGroupBox("Target Colorspace")
         self.cbb_target_cs = QtWidgets.QComboBox()
-
 
         # Toolbar items
         self.lbl_title = QtWidgets.QLabel(' IMAGE COLORSPACE CONVERTER')
@@ -95,5 +94,5 @@ class MainWindow(QtWidgets.QMainWindow):
         return content
 
     def add_cbb_items(self):
-        self.colorspace_target_list = ['ACEScg']
-        self.cbb_target_cs.addItems()
+        self.cbb_target_cs.addItems(self.colorspace_target_list)
+        # self.cbb_target_cs.setMaximumHeight()

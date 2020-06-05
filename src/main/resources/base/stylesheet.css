@@ -76,13 +76,33 @@ QComboBox {
     QCOMBO BOX
 ###########################*/
 
-QComboBox:!editable, QComboBox::drop-down:editable {
+QComboBox, QComboBox::drop-down:editable {
      background:rgb(45,45,45);
+     padding-left: 20px;
+     font-family: "Source Sans Pro";
+     font-weight: 100;
+
 }
 
 /* QComboBox gets the "on" state when the popup is open */
 QComboBox:!editable:on, QComboBox::drop-down:editable:on {
     background:rgb(79, 77, 58);
+    padding-left: 20px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: rgb(79, 77, 58);
+    color: #fafafa;
+
+    outline: 2px;
+    outline-offset:5px;
+    border-top:5px solid rgb(20,20,20);
+    border-top-left-radius:0px;
+    border-top-right-radius:0px;
+    padding: 5px;
+
+    selection-background-color: #516A83;
+    selection-color: rgb(200, 200, 200);
 }
 
 QComboBox:on { /* shift the text when the popup opens */
@@ -92,7 +112,7 @@ QComboBox:on { /* shift the text when the popup opens */
 
 QComboBox::drop-down {
 
-	background-color:  rgb(60,60,60);
+	background-color:  #E0D43D;
     subcontrol-origin: padding;
     subcontrol-position: top right;
     width: 20px;
@@ -101,7 +121,9 @@ QComboBox::drop-down {
 }
 
 QComboBox::down-arrow {
-image: url(:/icons/arrow.png)
+    image: url(:/icons/down_arrow.png);
+    width: 7px;
+    height: 5px;
 }
 
 QComboBox::down-arrow:on { /* shift the arrow when popup is open */
