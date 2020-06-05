@@ -6,18 +6,20 @@ from oiio import OpenImageIO as oiio
 
 
 class Converter:
-    def __init__(self, in_img, out_location, out_format='exr', out_bitdepth=None, in_cs=None, out_cs=None):
+    def __init__(self, in_img, out_location, out_format='.exr', out_bitdepth=None, in_cs=None, out_cs=None):
         """
         Args:
             in_img: path\name.ext of the file
             out_location: 'file' or 'folder'
-            out_bitdepth: 'bitdepth for the output file
+            out_format: file extension like '.jpg'
+            out_bitdepth: 'bitdepth for the output file: uint8,uint16,half,float
             in_cs: source colorspace
             out_cs: target colorspace
         """
 
         self.out_filePath = self.pathGeneration(in_img, out_location, out_format)
-        ip_result = self.imageProcessing(in_img, self.out_filePath, in_cs, out_cs, out_bitdepth)
+        ip_result = self.imageProcessing(filepath=in_img, outpath=self.out_filePath, in_cs=in_cs, out_cs=out_cs,
+                                         out_bitdepth=out_bitdepth)
 
     def imageProcessing(self, filepath, outpath, in_cs, out_cs, out_bitdepth):
         in_img = oiio.ImageInput.open(filepath)
@@ -34,7 +36,8 @@ class Converter:
 
         output = oiio.ImageOutput.create(outpath)
         output.open(outpath, spec)
-        output.write_image(converted_rgb)
+        final_image.set_write_format("uint16")
+        output.write_image(final_image)
         output.close()
 
     @staticmethod
@@ -46,7 +49,8 @@ class Converter:
                                    apply_cctf_decoding=cctf)
         return result
 
-    def pathGeneration(self, in_path, out_location='file', out_format='.exr'):
+    @staticmethod
+    def pathGeneration(in_path, out_location='file', out_format='.exr'):
         file_folder_path = os.path.dirname(in_path)
         filename_original = os.path.splitext(os.path.basename(in_path))[0]
         file_ext = os.path.splitext(in_path)[1]
