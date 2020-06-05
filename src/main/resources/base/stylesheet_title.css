@@ -1,0 +1,9 @@
+
+QLabel{
+    background-color: transparent;
+    color: rgb(5,5,5);
+    font-style: bold;
+    font-size: 15px;
+    font-weight: 900;
+    font-family:"Arial";
+ }

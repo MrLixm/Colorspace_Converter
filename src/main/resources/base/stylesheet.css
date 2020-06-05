@@ -1,7 +1,12 @@
+/*
+yellow: E0D43D
+darkgrey: 30,30,32
+mediumgre: 40,40,42
+*/
 
 QTreeView {
 	border-radius: 4px;
-	background-color: rgb(30, 30, 30);
+	background-color: rgb(30, 30, 32);
 	alternate-background-color: rgb(25, 25, 25);
 	color: #fafafa;
 }
@@ -10,15 +15,15 @@ QTreeView::item:selected {
 	border: 2px red;
 }
 
-.QWidget {
-	background: rgb(40, 40, 40);
-}
+
 
 QToolBar {
 
-	background-color: rgb(30, 30, 30);
+	background-color: #E0D43d;
+    color: #090909;
 	border: none;
-	padding: 3px;
+	border-top: 2px solid #E0D43D;
+	padding: 6px;
     min-width: 25px;
     min-height: 25px;
 }
@@ -34,6 +39,21 @@ QPushButton {
 }
 
 QPushButton::hover {
-    background-color: #64b4e8;
+    background-color: rgb(150,50,90);
 }
 
+QStatusBar {
+    background-color: rgb(30, 30, 32);
+    color: #fafafa;
+}
+
+QFrame{
+	border-radius: 4px;
+	background-color: rgb(30, 30, 32);
+	alternate-background-color: rgb(25, 25, 25);
+	color: #fafafa;
+}
+
+QLabel{
+    color: #fafafa
+}
