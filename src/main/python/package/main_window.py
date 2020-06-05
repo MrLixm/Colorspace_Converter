@@ -19,6 +19,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.add_widgets_to_layouts()
         self.setup_connections()
         self.add_actions_to_toolbar()
+        self.add_cbb_items()
 
     def create_widgets(self):
         self.main_widget = QtWidgets.QWidget()
@@ -26,7 +27,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.status_bar = QtWidgets.QStatusBar()
 
         self.treeview = QtWidgets.QTreeWidget()
+
+        # Frame items
         self.frm_right = QtWidgets.QFrame()
+        self.grpbox_target = QtWidgets.QGroupBox("Target Colorspace")
+        self.cbb_target_cs = QtWidgets.QComboBox()
+
 
         # Toolbar items
         self.lbl_title = QtWidgets.QLabel(' IMAGE COLORSPACE CONVERTER')
@@ -49,10 +55,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Right Frame
         self.frm_right.setMinimumSize(QtCore.QSize(250, 80))
+        self.grpbox_target.setMinimumSize(QtCore.QSize(20, 80))
+        self.grpbox_target.setMaximumHeight(80)
 
     def create_layouts(self):
         self.lyt_main = QtWidgets.QHBoxLayout(self.main_widget)
         self.lyt_rFrame = QtWidgets.QVBoxLayout(self.frm_right)
+        self.lyt_grid_frame = QtWidgets.QGridLayout()
+        self.lyt_grpbox_target = QtWidgets.QVBoxLayout(self.grpbox_target)
 
     def add_widgets_to_layouts(self):
         self.setCentralWidget(self.main_widget)
@@ -61,7 +71,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.toolbar.addWidget(self.lbl_title)
 
         self.lyt_main.addWidget(self.treeview)
+
         self.lyt_main.addWidget(self.frm_right)
+        self.lyt_rFrame.addLayout(self.lyt_grid_frame)
+        self.lyt_grid_frame.addWidget(self.grpbox_target)
+        self.lyt_grpbox_target.addWidget(self.cbb_target_cs)
 
     def setup_connections(self):
         pass
@@ -79,3 +93,7 @@ class MainWindow(QtWidgets.QMainWindow):
         with open(css_file, "r") as f:
             content = f.read()
         return content
+
+    def add_cbb_items(self):
+        self.colorspace_target_list = ['ACEScg']
+        self.cbb_target_cs.addItems()
