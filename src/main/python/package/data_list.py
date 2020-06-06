@@ -1,7 +1,8 @@
 CS_TARGET_LIST = ['ACEScg', 'ACES2065-1', 'ACEScc', 'ACEScct', 'sRGB', 'Adobe Wide Gamut RGB',
                   'ITU-R BT.2020', ]
 
-FORMAT_LIST = [".exr", ".jpg", ".png"]
+FORMAT_LIST = [".exr", ".jpg", ".png", "original"]
+
 BITDEPTH_DICO = {
     "8bit Int": "uint8",
     "16bit Int": "uint16",
