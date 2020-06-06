@@ -6,8 +6,8 @@ mediumgre: 40,40,42
 
 QTreeView {
 	border-radius: 4px;
-	background-color: rgb(30, 30, 32);
-	alternate-background-color: rgb(25, 25, 25);
+	background-color: rgb(30, 30, 52);
+	alternate-background-color: rgb(25, 150, 25);
 	color: #fafafa;
 }
 QTreeView::item:selected {
@@ -47,7 +47,7 @@ QStatusBar {
     color: #fafafa;
 }
 
-QFrame{
+.QFrame{
 	border-radius: 4px;
 	background-color: rgb(30, 30, 32);
 	alternate-background-color: rgb(25, 25, 25);
@@ -58,30 +58,24 @@ QLabel{
     color: #fafafa
 }
 
-QComboBox {
-    border: none;
-	color: rgb(250,250,250);
-	background-color: transparent;
-    border-radius: 3px;
-    padding: 1px 18px 1px 3px;
-    min-width: 6em;
-	min-height: 3em;
-
-	font-size: 12px;
-	font-weight: 900;
-}
-
 
 /*###########################
     QCOMBO BOX
 ###########################*/
 
-QComboBox, QComboBox::drop-down:editable {
-     background:rgb(45,45,45);
-     padding-left: 20px;
-     font-family: "Source Sans Pro";
-     font-weight: 100;
+QComboBox {
+    border: none;
+	color: rgb(250,250,250);
+    background:rgb(45,45,45);
+    border-radius: 3px;
+    padding: 1px 18px 1px 3px;
+    padding-left: 20px;
+    min-width: 6em;
+	min-height: 3em;
 
+    font-family: "Source Sans Pro";
+	font-size: 12px;
+	font-weight: 100;
 }
 
 /* QComboBox gets the "on" state when the popup is open */
@@ -103,11 +97,6 @@ QComboBox QAbstractItemView {
 
     selection-background-color: #516A83;
     selection-color: rgb(200, 200, 200);
-}
-
-QComboBox:on { /* shift the text when the popup opens */
-    padding-top: 3px;
-    padding-left: 4px;
 }
 
 QComboBox::drop-down {
@@ -245,4 +234,22 @@ QGroupBox::title {
 	subcontrol-origin: margin;
     subcontrol-position: top left;
 
+}
+
+QSplitter::handle:horizontal{
+    background-color: rgb(60,60,62);
+    width: 8px;
+    border:none;
+    border-radius: 6px;
+    padding: 3px;
+    margin: 3px;
+}
+QSplitter{
+    margin: 4px;
+    padding: 6px;
+    border-radius: 6px;
+
+}
+QSplitter::handle:pressed {
+    background-color: rgb(79, 77, 58 );
 }
