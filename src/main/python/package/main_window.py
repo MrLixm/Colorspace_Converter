@@ -1,12 +1,15 @@
+"""
+Create the GUI
+"""
+
 from PySide2 import QtWidgets, QtCore, QtGui
+from package.data_list import CS_TARGET_LIST, FORMAT_LIST, BITDEPTH_DICO
 
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, ctx):
         super().__init__()
 
-        self.colorspace_target_list = ['ACEScg', 'ACES2065-1', 'ACEScc', 'ACEScct', 'sRGB', 'Adobe Wide Gamut RGB',
-                                       'ITU-R BT.2020', ]
         self.ctx = ctx
 
         self.setWindowTitle("PYCO ColorSpace")
@@ -39,6 +42,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lbl_cbb_target = QtWidgets.QLabel('TARGET COLORSPACE')
         self.cbb_target_cs = QtWidgets.QComboBox()
 
+        self.lbl_exportOptions = QtWidgets.QLabel("Global Export Options")
+        self.cbb_exprt_format = QtWidgets.QComboBox()
+        self.cbb_exprt_bit = QtWidgets.QComboBox()
+
+
         # Toolbar items
         self.lbl_title = QtWidgets.QLabel(' IMAGE COLORSPACE CONVERTER')
         self.widget_spacer = QtWidgets.QWidget()
@@ -46,16 +54,13 @@ class MainWindow(QtWidgets.QMainWindow):
     def modify_widgets(self):
         # Styling controls
         self.setStyleSheet(self.stylesheetContent('stylesheet'))
-        self.lbl_title.setStyleSheet(self.stylesheetContent('stylesheet_title'))
         self.main_widget.setStyleSheet(""".QWidget{background: rgb(40, 40, 42);}""")
-        self.frm_right_top.setStyleSheet("""QFrame{background-color: #E0D43D;} """)
-
-        self.lbl_cbb_target.setStyleSheet(self.stylesheetContent('stylesheet_variations'))
-        self.cbb_target_cs.setStyleSheet(self.stylesheetContent('stylesheet_variations'))
-
         self.status_bar.showMessage("Status Bar Is Ready", 3000)
 
         # ToolBar
+        self.lbl_title.setEnabled(False)
+        print(self.lbl_title.isEnabled())
+        self.lbl_title.setStyleSheet(self.stylesheetContent('stylesheet_title'))
         self.widget_spacer.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.toolbar.setMovable(False)
 
@@ -65,8 +70,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.spltr_middle.addWidget(self.frm_left)
         self.spltr_middle.addWidget(self.frm_right)
         self.spltr_middle.setSizes([200, 200])
+        self.spltr_middle.setHandleWidth(5)
 
         # Right Frame
+        self.lbl_cbb_target.setStyleSheet(self.stylesheetContent('stylesheet_title'))
+        self.cbb_target_cs.setStyleSheet(self.stylesheetContent('stylesheet_variations'))
+        self.frm_right_top.setStyleSheet("""QFrame{background-color: #E0D43D;} """)
         self.lyt_rFrame.insertStretch(-1)
         self.frm_right.setMinimumSize(QtCore.QSize(250, 400))
         self.frm_left.setMinimumSize(QtCore.QSize(250, 400))
@@ -78,6 +87,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lyt_rFrame = QtWidgets.QVBoxLayout(self.frm_right)
         self.lyt_rFrame.setContentsMargins(QtCore.QMargins(0, 0, 0, 0))
         self.lyt_rFrame_top = QtWidgets.QVBoxLayout(self.frm_right_top)
+        self.lyt_exportOpt_grid = QtWidgets.QGridLayout()
+        self.lyt_exportOpt_grid.setContentsMargins(QtCore.QMargins(9, 9, 9, 9))
+
 
     def add_widgets_to_layouts(self):
         self.setCentralWidget(self.main_widget)
@@ -91,6 +103,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lyt_rFrame.addWidget(self.frm_right_top)
         self.lyt_rFrame_top.addWidget(self.lbl_cbb_target)
         self.lyt_rFrame_top.addWidget(self.cbb_target_cs)
+        self.lyt_rFrame.addLayout(self.lyt_exportOpt_grid)
+
+        self.lyt_exportOpt_grid.addWidget(self.lbl_exportOptions, 0, 0)
+        self.lyt_exportOpt_grid.addWidget(self.cbb_exprt_format, 1, 0)
+        self.lyt_exportOpt_grid.addWidget(self.cbb_exprt_bit, 1, 1)
 
     def setup_connections(self):
         pass
@@ -110,7 +127,8 @@ class MainWindow(QtWidgets.QMainWindow):
         return content
 
     def add_cbb_items(self):
-        self.cbb_target_cs.addItems(self.colorspace_target_list)
+        self.cbb_target_cs.addItems(CS_TARGET_LIST)
+        self.cbb_exprt_format.addItems()
         # self.cbb_target_cs.setMaximumHeight()
 
     def load_fonts(self):

@@ -1,5 +1,14 @@
 
-QLabel{
+
+QLabel[enabled="true"] {
+    background-color: transparent;
+    color: rgb(20,20,20);
+    font-size: 12px;
+    /*font-weight: bold;*/
+    font-family: Josefin Sans;
+ }
+
+QLabel[enabled="false"] {
     background-color: transparent;
     color: rgb(60,60,60);
     font-size: 20px;
