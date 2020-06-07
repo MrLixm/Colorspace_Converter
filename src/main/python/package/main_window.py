@@ -39,6 +39,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.spltr_middle = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
 
+        self.widget_rightSide = QtWidgets.QWidget()  # Widget which contain the 2 frame on the right side
         # Right Frame
         self.frm_right = QtWidgets.QFrame()
         self.frm_right_top = QtWidgets.QFrame()
@@ -57,6 +58,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.rb_exprt_file = QtWidgets.QRadioButton('Export at the same location')
 
         # Input Options
+        self.frm_right_input = QtWidgets.QFrame()
         self.lbl_in_title = QtWidgets.QLabel("File Input Options")
         self.lbl_in_idt = QtWidgets.QLabel("Source ColorSpace (IDT)")
         self.cbb_in_idt = QtWidgets.QComboBox()
@@ -85,33 +87,48 @@ class MainWindow(QtWidgets.QMainWindow):
         self.toolbar_opt.setIconSize(QtCore.QSize(40, 40))
 
         # TreeView
+        self.frm_left.setAcceptDrops(True)
+        # self.frm_left.dropEvent(QtGui.QDropEvent())
         self.treeview.setHeaderHidden(False)
 
         self.spltr_middle.addWidget(self.frm_left)
-        self.spltr_middle.addWidget(self.frm_right)
+        self.spltr_middle.addWidget(self.widget_rightSide)
         self.spltr_middle.setSizes([400, 200])
         self.spltr_middle.setHandleWidth(5)
         self.spltr_middle.setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding,
                                         QtWidgets.QSizePolicy.MinimumExpanding, )
+
         # Right Frame
         self.lbl_cbb_target.setStyleSheet(self.stylesheetContent('stylesheet_title'))
         self.cbb_target_cs.setStyleSheet(self.stylesheetContent('stylesheet_variations'))
+        self.cbb_target_cs.setMinimumHeight(50)
         self.frm_right_top.setStyleSheet(
             """.QFrame{background-color: rgb(40,40,40) ;margin:5px; border-left: 3px solid #E0D43D;} """)
         self.lyt_rFrame.insertStretch(-1)
-        self.frm_right.setMinimumSize(QtCore.QSize(250, 400))
-        self.frm_left.setMinimumSize(QtCore.QSize(250, 400))
         self.lbl_exportOptions.setStyleSheet(self.stylesheetContent('stylesheet_variations'))
-        self.cbb_exprt_format.setMaximumWidth(50)
+        self.cbb_exprt_format.setMaximumWidth(90)
         self.cbb_exprt_bit.setMaximumWidth(150)
+        self.cbb_exprt_format.setMinimumHeight(30)
+        self.cbb_exprt_bit.setMinimumHeight(30)
+        self.cbb_exprt_odt.setMinimumHeight(30)
+        # self.rb_exprt_folder.setIconSize(QtCore.QSize(90,50))
+        # self.rb_exprt_file.setFixedSize(25, 25)
+
         self.rb_exprt_file.setChecked(QtCore.Qt.Checked)
 
         self.lbl_in_title.setStyleSheet(self.stylesheetContent('stylesheet_variations'))
+        self.cbb_in_idt.setMinimumHeight(30)
+        self.lyt_in_grid.setRowStretch(4,1)
+
 
     def create_layouts(self):
         self.lyt_main = QtWidgets.QHBoxLayout(self.main_widget)
         self.lyt_main.setMargin(0)
         self.lyt_lFrame = QtWidgets.QVBoxLayout(self.frm_left)
+        self.lyt_rightSide = QtWidgets.QVBoxLayout(self.widget_rightSide)
+        self.lyt_rightSide.setContentsMargins(QtCore.QMargins(0, 0, 0, 0))
+
+
         self.lyt_rFrame = QtWidgets.QVBoxLayout(self.frm_right)
         self.lyt_rFrame.setContentsMargins(QtCore.QMargins(0, 0, 0, 0))
         self.lyt_rFrame_top = QtWidgets.QVBoxLayout(self.frm_right_top)
@@ -119,7 +136,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lyt_exportOpt_grid.setContentsMargins(QtCore.QMargins(9, 9, 9, 9))
         self.lyt_exportOpt_grid.setVerticalSpacing(0)
         self.lyt_exportOpt_grid.setRowMinimumHeight(3, 65)
-        self.lyt_in_grid = QtWidgets.QGridLayout()
+        self.lyt_in_grid = QtWidgets.QGridLayout(self.frm_right_input)
         self.lyt_in_grid.setContentsMargins(QtCore.QMargins(9, 9, 9, 9))
 
     def add_widgets_to_layouts(self):
@@ -134,6 +151,8 @@ class MainWindow(QtWidgets.QMainWindow):
         # self.lyt_lFrame.addWidget(self.treeview)
         self.lyt_lFrame.addWidget(self.lbl_placeholder)
         self.lyt_lFrame.setAlignment(QtCore.Qt.AlignHCenter)
+
+        self.lyt_rightSide.addWidget(self.frm_right)
 
         self.lyt_rFrame.addWidget(self.frm_right_top)
         self.lyt_rFrame_top.addWidget(self.lbl_cbb_target)
@@ -150,7 +169,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lyt_exportOpt_grid.addWidget(self.rb_exprt_folder, 3, 1, 1, 1)
         self.lyt_exportOpt_grid.addWidget(self.rb_exprt_file, 3, 2, 1, 1)
 
-        self.lyt_rFrame.addLayout(self.lyt_in_grid)
+        self.lyt_rightSide.addWidget(self.frm_right_input)
         self.lyt_in_grid.addWidget(self.lbl_in_title, 0, 0, 1, 1)
         self.lyt_in_grid.addWidget(self.lbl_in_idt, 1, 0)
         self.lyt_in_grid.addWidget(self.cbb_in_idt, 2, 0)

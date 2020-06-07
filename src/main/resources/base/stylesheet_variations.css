@@ -16,7 +16,7 @@ QLabel{
     font-size: 13px;
     /*font-weight: bold;*/
     font-family: Josefin Sans;
-    min-height: 29px;
+    /*min-height: 29px;*/
     margin-bottom: 8px;
  }
 
@@ -26,8 +26,6 @@ QToolBar {
     color: #fafafa;
 	border: none;
 	padding: 8px;
-    min-width: 35px;
-    min-height: 25px;
     margin: 0px;
 }
 
