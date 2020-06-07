@@ -24,8 +24,8 @@ QTreeView::item:selected {
 
 QToolBar {
 
-	background-color: #E0D43d;
-    color: #090909;
+	background-color: rgb(30,30,30);
+    color: #fafafa;
 	border: none;
 	border-top: 2px solid #E0D43D;
 	padding: 6px;
@@ -54,6 +54,9 @@ QStatusBar {
 
 .QFrame{
 	border-radius: 4px;
+    border-left: 3px solid rgb(60,60,64);
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
 	background-color: rgb(30, 30, 32);
 	alternate-background-color: rgb(25, 25, 25);
 	color: #fafafa;

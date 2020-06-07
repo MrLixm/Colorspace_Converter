@@ -80,7 +80,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # Right Frame
         self.lbl_cbb_target.setStyleSheet(self.stylesheetContent('stylesheet_title'))
         self.cbb_target_cs.setStyleSheet(self.stylesheetContent('stylesheet_variations'))
-        self.frm_right_top.setStyleSheet("""QFrame{background-color: #E0D43D;} """)
+        self.frm_right_top.setStyleSheet(""".QFrame{background-color: rgb(40,40,40) ;margin:5px; border-left: 3px solid #E0D43D;} """)
         self.lyt_rFrame.insertStretch(-1)
         self.frm_right.setMinimumSize(QtCore.QSize(250, 400))
         self.frm_left.setMinimumSize(QtCore.QSize(250, 400))

@@ -2,7 +2,7 @@
 
 QLabel[enabled="true"] {
     background-color: transparent;
-    color: rgb(20,20,20);
+    color: rgb(250,250,250);
     font-size: 12px;
     /*font-weight: bold;*/
     font-family: Josefin Sans;
@@ -10,7 +10,7 @@ QLabel[enabled="true"] {
 
 QLabel[enabled="false"] {
     background-color: transparent;
-    color: rgb(60,60,60);
+    color: rgb(250,250,250);
     font-size: 20px;
     font-family: Josefin Sans;
     padding-bottom: 8px;
