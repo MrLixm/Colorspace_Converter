@@ -4,6 +4,7 @@ darkgrey: 30,30,32
 mediumgre: 40,40,42
 */
 
+
 QToolButton:hover {
     background-color: rgba(250,250,250,150);
     border-radius: 3px;
@@ -27,10 +28,11 @@ QToolBar {
 	background-color: rgb(30,30,30);
     color: #fafafa;
 	border: none;
-	border-top: 2px solid #E0D43D;
-	padding: 6px;
-    min-width: 25px;
-    min-height: 25px;
+	outline-top: 5px solid rgb(50,50,50);
+	padding: 10px;
+    /*min-width: 25px;
+    min-height: 25px;*/
+    margin: 0px;
 }
 
 QPushButton {
@@ -64,7 +66,7 @@ QStatusBar {
 
 QLabel{
     background-color: transparent;
-    color: rgb(250,250,250);
+    color: rgb(150,150,150);
     font-size: 12px;
     /*font-weight: bold;*/
     font-family: Josefin Sans;
@@ -81,13 +83,15 @@ QComboBox {
     border-radius: 5px;
     padding: 1px 18px 1px 3px;
     padding-left: 20px;
+/*
     min-width: 4em;
 	min-height: 2.5em;
+*/
 	outline-style:none;
 
-    font-family: "Josefin Sans";
+    font-family: Josefin Sans ;
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: normal;
 }
 
 QComboBox QAbstractItemView {
@@ -126,10 +130,15 @@ QComboBox::drop-down {
 	margin: 3px;
 	border-radius: 5px;
 }
-QComboBox::down-arrow {
-    /*image: url(:/icons/down_arrow.png);*/
-    width: 7px;
-    height: 5px;
+QComboBox::down-arrow:!on {
+    image: url(":/cbb/icon_cbb_open_dark.png");
+    width: 10px;
+    height: 10px;
+}
+QComboBox::down-arrow:on {
+    image: url(":/cbb/icon_cbb_close_dark.png");
+    width: 10px;
+    height: 10px;
 }
 
 
@@ -249,7 +258,7 @@ QGroupBox::title {
 }
 
 QSplitter::handle:horizontal{
-    background-color: rgb(60,60,62);
+    background-color: transparent;
     border:none;
     border-radius: 0px;
 
@@ -260,11 +269,31 @@ QSplitter::handle:horizontal{
 }
 
 QSplitter{
-    margin: 4px;
+    margin: 15px;
     padding: 6px;
     border-radius: 6px;
 
 }
+/*
 QSplitter::handle:pressed {
     background-color: rgb(79, 77, 58 );
+}*/
+
+QRadioButton{
+    color: #fafafa;
+    font-family: Josefin Sans;
+}
+QRadioButton::indicator {
+    /*width: 20px;
+    height: 20px;*/
+    border: 2px solid rgb(50,50,52);
+    border-radius: 11px;
+}
+QRadioButton::indicator::unchecked {
+    background-color: rgb(25,25,27);
+
+}
+QRadioButton::indicator::checked {
+    background-color: rgb(224,212,61);
+
 }

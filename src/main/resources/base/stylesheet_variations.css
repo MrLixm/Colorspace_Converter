@@ -1,11 +1,17 @@
+/*
 
+Purple: rgb(115,101,209)
+*/
 
 /*Implemanted for category title, */
 QLabel{
     background-color: rgb(80,80,82);
     padding-left:5px;
     padding-bottom: 2px;
-    border-radius: 9px;
+    border-radius: 4px;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-left: 3px solid rgb(115,101,209);
     color: rgb(250,250,250);
     font-size: 13px;
     /*font-weight: bold;*/
@@ -14,23 +20,25 @@ QLabel{
     margin-bottom: 8px;
  }
 
-QToolBar{
+QToolBar {
 
 	background-color: rgb(20,20,22);
     color: #fafafa;
 	border: none;
-	padding: 0px;
+	padding: 8px;
     min-width: 35px;
     min-height: 25px;
+    margin: 0px;
 }
 
-QToolBar::handle{
+/*QToolBar::handle{
     border-top: 2px dotted rgb(50,50,50);
     border-left: 2px dotted rgb(50,50,50);
-    border-radisu: 5px;
-    padding-left: 5px
+    border-radius: 5px;
+    padding-left: 5px;
+    padding: 5px;
 
-}
+}*/
 
 
 QToolButton:hover {
@@ -38,21 +46,27 @@ QToolButton:hover {
     border-radius: 3px;
 }
 
+/*###################
+    COMBOX BOX TARGET COLORSPACE
+###################*/
+
 
 QComboBox {
     border: none;
 	color: rgb(250,250,250);
     background-color:rgba(30,30,30,240);
     border-radius: 5px;
-    padding: 1px 18px 1px 3px;
+    padding: 0px 0px 0px 0px;
     padding-left: 20px;
+/*
     min-width: 6em;
-	min-height: 3em;
+	min-height: 2.5em;
+*/
 	outline-style:none;
 
-    font-family: "Josefin Sans";
+    font-family: Josefin Sans ;
 	font-size: 12px;
-	font-weight: 900;
+	font-weight: normal;
 }
 
 /* QComboBox gets the "on" state when the popup is open */
@@ -99,8 +113,13 @@ QComboBox::drop-down {
 	margin: 3px;
 	border-radius: 5px;
 }
-QComboBox::down-arrow {
-    /*image: url(:/icons/down_arrow.png);*/
-    width: 7px;
-    height: 5px;
+QComboBox::down-arrow:!on {
+    image: url(":/cbb/icon_cbb_open_white.png");
+    width: 10px;
+    height: 10px;
+}
+QComboBox::down-arrow:on {
+    image: url(":/cbb/icon_cbb_close_white.png");
+    width: 10px;
+    height: 10px;
 }
