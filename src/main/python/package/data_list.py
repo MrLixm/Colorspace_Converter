@@ -31,3 +31,5 @@ IDT_LIST = [
     'ACES2065-1',
     'XYZ'
 ]
+
+COMPRESSION_LIST = ['none', 'rle', 'zip', 'zips', 'piz', 'pxr24', 'b44', 'b44a', 'dwaa', 'dwab']

@@ -2,49 +2,37 @@ import os
 
 import colour
 from oiio import OpenImageIO as oiio
-from package.data_list import ODT_DICO
+
+from package.data_list import ODT_DICO, BITDEPTH_DICO
 
 
 class Converter:
-    def __init__(self, in_img, out_location, out_format='.exr', out_bitdepth=None, in_cs=None, out_cs=None, odt=None, resources_path=None):
+    def __init__(self, in_img_path, out_location, out_format, out_bitdepth, in_cs, out_cs,
+                 odt, resources_path, compression):
         """
 
         Args:
-            in_img: path\name.ext of the file
+            in_img_path: path\name.ext of the file
             out_location: 'file' or 'folder'
             out_format: file extension like '.jpg'
             out_bitdepth: bitdepth for the output file: uint8,uint16,half,float, original
             in_cs: source colorspace
             out_cs: target colorspace
             odt: the Output Display Transform to apply (False if not wanted)
+            compression: Compression method for exr: none, rle, zip, zips, piz, pxr24, b44, b44a, dwaa, or dwab
         """
         self.resources_path = resources_path
-        self.out_filePath = self.pathGeneration(in_img, out_location, out_format)
-        ip_result = self.imageProcessing(filepath=in_img, outpath=self.out_filePath, in_cs=in_cs, out_cs=out_cs,
-                                         out_bitdepth=out_bitdepth, odt=odt)
-
-    def imageProcessing(self, filepath, outpath, in_cs, out_cs, out_bitdepth, odt):
-        """
-
-        Args:
-            filepath: the file to convert path
-            outpath: the output path given by pathGeneration() method
-            in_cs: the input colorspace of the file
-            out_cs: the output colorspace of the file
-            out_bitdepth: the desired output bitdepth for the file
-            odt: the Output Display Transform to apply (False if not wanted)
-
-        Returns: Bool: True is succedd, [False,str] if Error
-
-        """
+        self.out_filePath = self.pathGeneration(in_img_path, out_location, out_format)
 
         # Read Image
-        in_img = oiio.ImageInput.open(filepath)
-        if not in_img:
-            return [False, oiio.geterror()]
-        spec = in_img.spec()
-        pixels = in_img.read_image()
-        in_img.close()
+        in_img_data = oiio.ImageInput.open(in_img_path)
+        if not in_img_data:
+            print([False, oiio.geterror()])
+        spec = in_img_data.spec()
+        spec.attribute("compression", compression)
+        spec.attribute("oiio:ColorSpace", out_cs)
+        pixels = in_img_data.read_image()
+        in_img_data.close()
 
         # Convert the rgb data
         final_image = self.colourConversion(pixels, in_cs, out_cs, odt=odt)
@@ -52,18 +40,39 @@ class Converter:
         # pick the output file bitdepth format
         spec.format = self.bitdepth_picker(spec.format, out_bitdepth)
 
-        output = oiio.ImageOutput.create(outpath)
-        output.open(outpath, spec)
-        output.write_image(final_image)
+        output = oiio.ImageOutput.create(self.out_filePath)
+        if not output:
+            print([False, oiio.geterror()])
+        output.open(self.out_filePath, spec)
+        writing = output.write_image(final_image)
+        if not writing:
+            print([False, oiio.geterror()])
         output.close()
-        return True
+
+    def apply_odt(self, in_rgb, odt):
+        lut_path = os.path.join(self.resources_path, "luts")
+        lut_list = ODT_DICO.get(odt)
+        lut_1 = colour.io.read_LUT_SonySPI3D(os.path.join(lut_path, lut_list[0]))
+        lut_2 = colour.io.read_LUT_SonySPI3D(os.path.join(lut_path, lut_list[1]))
+        apply_lut_1 = lut_1.apply(in_rgb)
+        apply_lut_2 = lut_2.apply(apply_lut_1)
+        return apply_lut_2
+
+    @staticmethod
+    def bitdepth_picker(in_bitdepth, out_bitdepth):
+        if BITDEPTH_DICO.get(out_bitdepth) == 'original':
+            output = in_bitdepth
+        else:
+            output = BITDEPTH_DICO.get(out_bitdepth)
+        return output
 
     def colourConversion(self, in_rgb, in_cs, out_cs, cctf=False, cat='Bradford', odt=None):
         input_colourspace = colour.RGB_COLOURSPACES[in_cs]
         output_colourspace = colour.RGB_COLOURSPACES[out_cs]
         cat = cat
-        conversion_rgb = colour.RGB_to_RGB(in_rgb, input_colourspace, output_colourspace, chromatic_adaptation_transform=cat,
-                                   apply_cctf_decoding=cctf)
+        conversion_rgb = colour.RGB_to_RGB(in_rgb, input_colourspace, output_colourspace,
+                                           chromatic_adaptation_transform=cat,
+                                           apply_cctf_decoding=cctf)
         if ODT_DICO.get(odt):
             odt_rgb = self.apply_odt(conversion_rgb, odt=odt)
             result = odt_rgb
@@ -80,35 +89,23 @@ class Converter:
             out_ext = file_ext
         else:
             out_ext = out_format
-        out_file_name = filename_original + '_ACEScg' + out_ext
+        out_file_name = "oiio_" + filename_original + '_ACEScg' + out_ext
 
         if out_location == 'file':
             output_path = os.path.join(file_folder_path, out_file_name)
             return output_path
         if out_location == 'folder':
-            acesFolder_path = os.path.join(file_folder_path, 'ACEScg')
-            if not os.path.exists(acesFolder_path):
-                os.makedirs(acesFolder_path)
-            output_path = os.path.join(acesFolder_path, out_file_name)
+            aces_folder_path = os.path.join(file_folder_path, 'ACEScg')
+            if not os.path.exists(aces_folder_path):
+                os.makedirs(aces_folder_path)
+            output_path = os.path.join(aces_folder_path, out_file_name)
             return output_path
-
-    @staticmethod
-    def bitdepth_picker(in_bitdepth, out_bitdepth):
-        if out_bitdepth == 'original':
-            output = in_bitdepth
-        else:
-            output = out_bitdepth
-        return output
-
-    def apply_odt(self, in_rgb, odt):
-        lut_path = os.path.join(self.resources_path, "luts")
-        lut_list = ODT_DICO.get(odt)
-        lut_1 = colour.io.read_LUT_SonySPI3D(os.path.join(lut_path, lut_list[0]))
-        lut_2 = colour.io.read_LUT_SonySPI3D(os.path.join(lut_path, lut_list[1]))
-        apply_lut_1 = lut_1.apply(in_rgb)
-        apply_lut_2 = lut_2.apply(apply_lut_1)
-        return apply_lut_2
 
 
 if __name__ == '__main__':
-    filename = r"E:\Images\artist_workshop_4k.hdr"
+    filename = r"L:\SCRIPT\Colour\OCIO_converter\tests\artist_workshop_4k.hdr"
+    # Converter(filename, 'file', '.exr', '16bit Half', 'sRGB', 'ACEScg', 'None',
+    #           r'L:\SCRIPT\Colour\OCIO_converter\script\github\OCIO_Converter\src\main\resources\base')
+
+    Converter(filename, 'file', '.png', '16bit Int', 'sRGB', 'ACEScg', 'None',
+              r'L:\SCRIPT\Colour\OCIO_converter\script\github\OCIO_Converter\src\main\resources\base', "zip")

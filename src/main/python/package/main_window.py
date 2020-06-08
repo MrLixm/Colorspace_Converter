@@ -4,7 +4,7 @@ Create the GUI
 
 from PySide2 import QtWidgets, QtCore, QtGui
 
-from package.data_list import CS_TARGET_LIST, FORMAT_LIST, BITDEPTH_DICO, ODT_DICO,IDT_LIST
+from package.data_list import CS_TARGET_LIST, FORMAT_LIST, BITDEPTH_DICO, ODT_DICO, IDT_LIST, COMPRESSION_LIST
 from package.API.converter import Converter
 
 
@@ -51,9 +51,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.cbb_exprt_format = QtWidgets.QComboBox()
         self.cbb_exprt_bit = QtWidgets.QComboBox()
         self.cbb_exprt_odt = QtWidgets.QComboBox()
+        self.cbb_exprt_compress = QtWidgets.QComboBox()
         self.lbl_exprt_format = QtWidgets.QLabel(" format")
         self.lbl_exprt_bitdepth = QtWidgets.QLabel(" bitdepth")
         self.lbl_exprt_odt = QtWidgets.QLabel(" ODT")
+        self.lbl_exprt_compress = QtWidgets.QLabel(" Compression")
 
         self.rb_exprt_folder = QtWidgets.QRadioButton('Export in a new folder')
         self.rb_exprt_file = QtWidgets.QRadioButton('Export at the same location')
@@ -82,7 +84,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lyt_exportOpt_grid = QtWidgets.QGridLayout()
         self.lyt_exportOpt_grid.setContentsMargins(QtCore.QMargins(9, 9, 9, 9))
         self.lyt_exportOpt_grid.setVerticalSpacing(0)
-        self.lyt_exportOpt_grid.setRowMinimumHeight(3, 65)
+        # self.lyt_exportOpt_grid.setRowMinimumHeight(3, 65)
+        # self.lyt_exportOpt_grid.setRowMinimumHeight(5, 65)
         self.lyt_in_grid = QtWidgets.QGridLayout(self.frm_right_input)
         self.lyt_in_grid.setContentsMargins(QtCore.QMargins(9, 9, 9, 9))
 
@@ -104,17 +107,22 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lyt_rFrame.addWidget(self.frm_right_top)
         self.lyt_rFrame_top.addWidget(self.lbl_cbb_target)
         self.lyt_rFrame_top.addWidget(self.cbb_target_cs)
+        self.lyt_rFrame_top.addWidget(self.cbb_exprt_odt)
+        self.lyt_rFrame_top.addWidget(self.lbl_exprt_odt)
+
         self.lyt_rFrame.addLayout(self.lyt_exportOpt_grid)
 
         self.lyt_exportOpt_grid.addWidget(self.lbl_exportOptions, 0, 0, 1, 3)
         self.lyt_exportOpt_grid.addWidget(self.cbb_exprt_format, 1, 0)
-        self.lyt_exportOpt_grid.addWidget(self.cbb_exprt_bit, 1, 1)
-        self.lyt_exportOpt_grid.addWidget(self.cbb_exprt_odt, 1, 2)
         self.lyt_exportOpt_grid.addWidget(self.lbl_exprt_format, 2, 0)
+        self.lyt_exportOpt_grid.addWidget(self.cbb_exprt_bit, 1, 1)
         self.lyt_exportOpt_grid.addWidget(self.lbl_exprt_bitdepth, 2, 1)
-        self.lyt_exportOpt_grid.addWidget(self.lbl_exprt_odt, 2, 2)
-        self.lyt_exportOpt_grid.addWidget(self.rb_exprt_folder, 3, 1, 1, 1)
-        self.lyt_exportOpt_grid.addWidget(self.rb_exprt_file, 3, 2, 1, 1)
+        self.lyt_exportOpt_grid.addWidget(self.cbb_exprt_compress, 3, 0)
+        self.lyt_exportOpt_grid.addWidget(self.lbl_exprt_compress, 4, 0)
+        # self.lyt_exportOpt_grid.addWidget(self.cbb_exprt_odt, 3, 1)
+        # self.lyt_exportOpt_grid.addWidget(self.lbl_exprt_odt, 4, 1)
+        self.lyt_exportOpt_grid.addWidget(self.rb_exprt_folder, 5, 1, 1, 1)
+        self.lyt_exportOpt_grid.addWidget(self.rb_exprt_file, 5, 2, 1, 1)
 
         self.lyt_rightSide.addWidget(self.frm_right_input)
         self.lyt_in_grid.addWidget(self.lbl_in_title, 0, 0, 1, 1)
@@ -157,6 +165,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.cbb_target_cs.setMinimumHeight(50)
         self.frm_right_top.setStyleSheet(
             """.QFrame{background-color: rgb(40,40,40) ;margin:5px; border-left: 3px solid #E0D43D;} """)
+        self.cbb_exprt_odt.setStyleSheet("""QComboBox{background-color:rgb(50,50,50);}""")
         self.lyt_rFrame.insertStretch(-1)
         self.lbl_exportOptions.setStyleSheet(self.stylesheetContent('stylesheet_variations'))
         self.cbb_exprt_format.setMaximumWidth(90)
@@ -197,12 +206,26 @@ class MainWindow(QtWidgets.QMainWindow):
         self.cbb_exprt_bit.setCurrentIndex(2)
         self.cbb_exprt_odt.addItems(ODT_DICO)
         self.cbb_in_idt.addItems(IDT_LIST)
+        self.cbb_exprt_compress.addItems([i.capitalize() for i in COMPRESSION_LIST])
         # self.cbb_target_cs.setMaximumHeight()
 
     def convert(self):
         self.error_list=[]
         resources = self.ctx.get_resource()
         print("Converting")
+
+    def cbb_update(self):
+        export_format = self.cbb_exprt_format.currentText()
+        if export_format == '.jpg':
+            self.cbb_exprt_bit.clear()
+            self.cbb_exprt_bit.addItem('8bit Int')
+            self.cbb_exprt_bit.setEnabled(False)
+        elif export_format == '.png':
+            pass
+        elif export_format == '.exr':
+            pass
+        elif export_format == 'Original':
+            pass
 
     def load_fonts(self):
         path1 = self.ctx.get_resource("font/JosefinSans-SemiBold.ttf")
@@ -217,6 +240,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def setup_connections(self):
         self.act_convert.triggered.connect(self.convert)
+        self.cbb_exprt_format.currentTextChanged.connect(self.cbb_update)
 
     def stylesheetContent(self, name):
         css_file = self.ctx.get_resource(f"{name}.css")
