@@ -18,12 +18,12 @@ BITDEPTH_DICO = {
     "Original": "original"
 }
 
-ODT_LIST = [
-    'None',
-    'sRGB(ACES)',
-    'Rec709(ACES)',
-    'P3-D60(ACES)'
-]
+ODT_DICO = {
+    'None': False,
+    'sRGB(ACES)': ['InvRRT.sRGB.Log2_48_nits_Shaper.spi3d', 'Log2_48_nits_Shaper.RRT.sRGB.spi3d'],
+    'Rec709(ACES)': [],
+    'P3-D60(ACES)': []
+}
 IDT_LIST = [
     'sRGB-Linear',
     'sRGB-Texture',
@@ -31,5 +31,3 @@ IDT_LIST = [
     'ACES2065-1',
     'XYZ'
 ]
-
-

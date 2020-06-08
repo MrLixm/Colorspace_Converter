@@ -4,7 +4,8 @@ Create the GUI
 
 from PySide2 import QtWidgets, QtCore, QtGui
 
-from package.data_list import CS_TARGET_LIST, FORMAT_LIST, BITDEPTH_DICO, ODT_LIST,IDT_LIST
+from package.data_list import CS_TARGET_LIST, FORMAT_LIST, BITDEPTH_DICO, ODT_DICO,IDT_LIST
+from package.API.converter import Converter
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -22,9 +23,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.create_layouts()
         self.add_widgets_to_layouts()
         self.modify_widgets()
-        self.setup_connections()
         self.add_actions_to_toolbar()
         self.add_cbb_items()
+        self.setup_connections()
 
     def create_widgets(self):
         self.main_widget = QtWidgets.QWidget()
@@ -67,6 +68,58 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lbl_title = QtWidgets.QLabel(' IMAGE COLORSPACE CONVERTER')
         self.widget_spacer = QtWidgets.QWidget()
         self.widget_spacer2 = QtWidgets.QWidget()
+
+    def create_layouts(self):
+        self.lyt_main = QtWidgets.QHBoxLayout(self.main_widget)
+        self.lyt_main.setMargin(0)
+        self.lyt_lFrame = QtWidgets.QVBoxLayout(self.frm_left)
+        self.lyt_rightSide = QtWidgets.QVBoxLayout(self.widget_rightSide)
+        self.lyt_rightSide.setContentsMargins(QtCore.QMargins(0, 0, 0, 0))
+
+        self.lyt_rFrame = QtWidgets.QVBoxLayout(self.frm_right)
+        self.lyt_rFrame.setContentsMargins(QtCore.QMargins(0, 0, 0, 0))
+        self.lyt_rFrame_top = QtWidgets.QVBoxLayout(self.frm_right_top)
+        self.lyt_exportOpt_grid = QtWidgets.QGridLayout()
+        self.lyt_exportOpt_grid.setContentsMargins(QtCore.QMargins(9, 9, 9, 9))
+        self.lyt_exportOpt_grid.setVerticalSpacing(0)
+        self.lyt_exportOpt_grid.setRowMinimumHeight(3, 65)
+        self.lyt_in_grid = QtWidgets.QGridLayout(self.frm_right_input)
+        self.lyt_in_grid.setContentsMargins(QtCore.QMargins(9, 9, 9, 9))
+
+    def add_widgets_to_layouts(self):
+        self.setCentralWidget(self.main_widget)
+        self.addToolBar(QtCore.Qt.TopToolBarArea, self.toolbar_top)
+        self.addToolBar(QtCore.Qt.LeftToolBarArea, self.toolbar_opt)
+        self.setStatusBar(self.status_bar)
+        self.toolbar_top.addWidget(self.lbl_title)
+
+        self.lyt_main.addWidget(self.spltr_middle)
+
+        # self.lyt_lFrame.addWidget(self.treeview)
+        self.lyt_lFrame.addWidget(self.lbl_placeholder)
+        self.lyt_lFrame.setAlignment(QtCore.Qt.AlignHCenter)
+
+        self.lyt_rightSide.addWidget(self.frm_right)
+
+        self.lyt_rFrame.addWidget(self.frm_right_top)
+        self.lyt_rFrame_top.addWidget(self.lbl_cbb_target)
+        self.lyt_rFrame_top.addWidget(self.cbb_target_cs)
+        self.lyt_rFrame.addLayout(self.lyt_exportOpt_grid)
+
+        self.lyt_exportOpt_grid.addWidget(self.lbl_exportOptions, 0, 0, 1, 3)
+        self.lyt_exportOpt_grid.addWidget(self.cbb_exprt_format, 1, 0)
+        self.lyt_exportOpt_grid.addWidget(self.cbb_exprt_bit, 1, 1)
+        self.lyt_exportOpt_grid.addWidget(self.cbb_exprt_odt, 1, 2)
+        self.lyt_exportOpt_grid.addWidget(self.lbl_exprt_format, 2, 0)
+        self.lyt_exportOpt_grid.addWidget(self.lbl_exprt_bitdepth, 2, 1)
+        self.lyt_exportOpt_grid.addWidget(self.lbl_exprt_odt, 2, 2)
+        self.lyt_exportOpt_grid.addWidget(self.rb_exprt_folder, 3, 1, 1, 1)
+        self.lyt_exportOpt_grid.addWidget(self.rb_exprt_file, 3, 2, 1, 1)
+
+        self.lyt_rightSide.addWidget(self.frm_right_input)
+        self.lyt_in_grid.addWidget(self.lbl_in_title, 0, 0, 1, 1)
+        self.lyt_in_grid.addWidget(self.lbl_in_idt, 1, 0)
+        self.lyt_in_grid.addWidget(self.cbb_in_idt, 2, 0)
 
     def modify_widgets(self):
         QtCore.QResource.registerResource(self.ctx.get_resource('qt_resources/icon_ressource.rcc'))
@@ -120,90 +173,36 @@ class MainWindow(QtWidgets.QMainWindow):
         self.cbb_in_idt.setMinimumHeight(30)
         self.lyt_in_grid.setRowStretch(4,1)
 
-
-    def create_layouts(self):
-        self.lyt_main = QtWidgets.QHBoxLayout(self.main_widget)
-        self.lyt_main.setMargin(0)
-        self.lyt_lFrame = QtWidgets.QVBoxLayout(self.frm_left)
-        self.lyt_rightSide = QtWidgets.QVBoxLayout(self.widget_rightSide)
-        self.lyt_rightSide.setContentsMargins(QtCore.QMargins(0, 0, 0, 0))
-
-
-        self.lyt_rFrame = QtWidgets.QVBoxLayout(self.frm_right)
-        self.lyt_rFrame.setContentsMargins(QtCore.QMargins(0, 0, 0, 0))
-        self.lyt_rFrame_top = QtWidgets.QVBoxLayout(self.frm_right_top)
-        self.lyt_exportOpt_grid = QtWidgets.QGridLayout()
-        self.lyt_exportOpt_grid.setContentsMargins(QtCore.QMargins(9, 9, 9, 9))
-        self.lyt_exportOpt_grid.setVerticalSpacing(0)
-        self.lyt_exportOpt_grid.setRowMinimumHeight(3, 65)
-        self.lyt_in_grid = QtWidgets.QGridLayout(self.frm_right_input)
-        self.lyt_in_grid.setContentsMargins(QtCore.QMargins(9, 9, 9, 9))
-
-    def add_widgets_to_layouts(self):
-        self.setCentralWidget(self.main_widget)
-        self.addToolBar(QtCore.Qt.TopToolBarArea, self.toolbar_top)
-        self.addToolBar(QtCore.Qt.LeftToolBarArea, self.toolbar_opt)
-        self.setStatusBar(self.status_bar)
-        self.toolbar_top.addWidget(self.lbl_title)
-
-        self.lyt_main.addWidget(self.spltr_middle)
-
-        # self.lyt_lFrame.addWidget(self.treeview)
-        self.lyt_lFrame.addWidget(self.lbl_placeholder)
-        self.lyt_lFrame.setAlignment(QtCore.Qt.AlignHCenter)
-
-        self.lyt_rightSide.addWidget(self.frm_right)
-
-        self.lyt_rFrame.addWidget(self.frm_right_top)
-        self.lyt_rFrame_top.addWidget(self.lbl_cbb_target)
-        self.lyt_rFrame_top.addWidget(self.cbb_target_cs)
-        self.lyt_rFrame.addLayout(self.lyt_exportOpt_grid)
-
-        self.lyt_exportOpt_grid.addWidget(self.lbl_exportOptions, 0, 0, 1, 3)
-        self.lyt_exportOpt_grid.addWidget(self.cbb_exprt_format, 1, 0)
-        self.lyt_exportOpt_grid.addWidget(self.cbb_exprt_bit, 1, 1)
-        self.lyt_exportOpt_grid.addWidget(self.cbb_exprt_odt, 1, 2)
-        self.lyt_exportOpt_grid.addWidget(self.lbl_exprt_format, 2, 0)
-        self.lyt_exportOpt_grid.addWidget(self.lbl_exprt_bitdepth, 2, 1)
-        self.lyt_exportOpt_grid.addWidget(self.lbl_exprt_odt, 2, 2)
-        self.lyt_exportOpt_grid.addWidget(self.rb_exprt_folder, 3, 1, 1, 1)
-        self.lyt_exportOpt_grid.addWidget(self.rb_exprt_file, 3, 2, 1, 1)
-
-        self.lyt_rightSide.addWidget(self.frm_right_input)
-        self.lyt_in_grid.addWidget(self.lbl_in_title, 0, 0, 1, 1)
-        self.lyt_in_grid.addWidget(self.lbl_in_idt, 1, 0)
-        self.lyt_in_grid.addWidget(self.cbb_in_idt, 2, 0)
-
-    def setup_connections(self):
-        pass
-
     def add_actions_to_toolbar(self):
+
+        # Add space before creating actions
         self.toolbar_top.addWidget(self.widget_spacer)
+
         action_list = ['info', 'settings']
         for action in action_list:
             icon = self.ctx.get_resource(f"icon_{action}.png")
             self.toolbar_top.addAction(QtGui.QIcon(icon), action.capitalize())
-            # action.triggered.connect(partial(self.change_location, location))
-        action_list2 = ['open', 'convert']
-        for action in action_list2:
-            icon = self.ctx.get_resource(f"icon_{action}.png")
-            action = self.toolbar_opt.addAction(QtGui.QIcon(icon), action.capitalize())
-        self.toolbar_opt.insertWidget(action, self.widget_spacer2)
 
-    def stylesheetContent(self, name):
-        css_file = self.ctx.get_resource(f"{name}.css")
-        with open(css_file, "r") as f:
-            content = f.read()
-        return content
+        self.act_open = QtWidgets.QAction(QtGui.QIcon(self.ctx.get_resource("icon_open.png")), "Open image", self)
+        self.toolbar_opt.addAction(self.act_open)
+        self.act_convert = QtWidgets.QAction(QtGui.QIcon(self.ctx.get_resource("icon_convert.png")), "Convert", self)
+        self.toolbar_opt.addAction(self.act_convert)
+
+        self.toolbar_opt.insertWidget(self.act_convert, self.widget_spacer2)
 
     def add_cbb_items(self):
         self.cbb_target_cs.addItems(CS_TARGET_LIST)
         self.cbb_exprt_format.addItems(FORMAT_LIST)
         self.cbb_exprt_bit.addItems(BITDEPTH_DICO.keys())
         self.cbb_exprt_bit.setCurrentIndex(2)
-        self.cbb_exprt_odt.addItems(ODT_LIST)
+        self.cbb_exprt_odt.addItems(ODT_DICO)
         self.cbb_in_idt.addItems(IDT_LIST)
         # self.cbb_target_cs.setMaximumHeight()
+
+    def convert(self):
+        self.error_list=[]
+        resources = self.ctx.get_resource()
+        print("Converting")
 
     def load_fonts(self):
         path1 = self.ctx.get_resource("font/JosefinSans-SemiBold.ttf")
@@ -215,3 +214,13 @@ class MainWindow(QtWidgets.QMainWindow):
         print(QtGui.QFontDatabase.applicationFontFamilies(font_load1))
         print(QtGui.QFontDatabase.applicationFontFamilies(font_load2))
         print(QtGui.QFontDatabase.applicationFontFamilies(font_load3))
+
+    def setup_connections(self):
+        self.act_convert.triggered.connect(self.convert)
+
+    def stylesheetContent(self, name):
+        css_file = self.ctx.get_resource(f"{name}.css")
+        with open(css_file, "r") as f:
+            content = f.read()
+        return content
+
