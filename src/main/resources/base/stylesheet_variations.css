@@ -50,7 +50,7 @@ QToolButton:hover {
 
 
 QComboBox {
-    border: none;
+    border: 2px solid rgba(250,250,250,5);
 	color: rgb(250,250,250);
     background-color:rgba(30,30,30,240);
     border-radius: 5px;
@@ -103,7 +103,7 @@ QComboBox QListView {
 
 /* Opening item*/
 QComboBox::drop-down {
-
+    border: none;
 	background-color:  rgb(25,25,27);
     subcontrol-origin: padding;
     subcontrol-position: top right;

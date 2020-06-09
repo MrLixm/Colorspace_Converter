@@ -102,7 +102,7 @@ QComboBox QAbstractItemView {
     outline: 5px;
     outline-offset:0px;
     outline-radius: 5px;
-    border: none;
+    border: 2px solid rgba(250,250,250,5);
     /*border-top:5px solid rgb(224,212,61);*/
     border-top-left-radius:0px;
     border-top-right-radius:0px;
@@ -122,13 +122,16 @@ QComboBox QListView {
 
 /* Opening item*/
 QComboBox::drop-down {
-
+    border: 2px solid rgb(243,230,95);
 	background-color:  rgb(224,212,61);
     subcontrol-origin: padding;
     subcontrol-position: top right;
     width: 20px;
 	margin: 3px;
 	border-radius: 5px;
+}
+QComboBox::drop-down:hover{
+    background-color: rgb(243,230,95);
 }
 QComboBox::down-arrow:!on {
     image: url(":/cbb/icon_cbb_open_dark.png");
@@ -140,7 +143,17 @@ QComboBox::down-arrow:on {
     width: 10px;
     height: 10px;
 }
-
+QComboBox::down-arrow:!on:!enabled {
+    image: none;
+    background-color: transparent;
+    border:2px solid grey;
+    border-radius:4px;
+    width: 5px;
+    height: 5px;
+}
+QComboBox:!enabled {
+    color: rgb(125,125,125);
+}
 
 /*####################
     SCROLL BAR Vertical
@@ -296,4 +309,42 @@ QRadioButton::indicator::unchecked {
 QRadioButton::indicator::checked {
     background-color: rgb(224,212,61);
 
+}
+
+QSpinBox{
+    color: #fafafa;
+    background-color: rgb(40,40,40);
+    border: none;
+    border-radius: 4px;
+    padding-left: 15px;
+
+    font-family: Josefin Sans;
+    font-size: 13px
+}
+QSpinBox::up-button {
+    background-color: #E0D43D;
+    margin:1px;
+    border-radius:2px;
+}
+QSpinBox::up-button:pressed {
+    background-color: rgba(250,250,250,200);
+}
+
+QSpinBox::down-button {
+    background-color: #E0D43D;
+    margin:1px;
+    border-radius:2px;
+}
+QSpinBox::down-button:pressed {
+    background-color: rgba(250,250,250,200);
+}
+QSpinBox::up-arrow {
+    image: url(":/cbb/icon_cbb_close_dark.png");
+    width: 7px;
+    height: 7px;
+}
+QSpinBox::down-arrow {
+    image: url(":/cbb/icon_cbb_open_dark.png");
+    width: 7px;
+    height: 7px;
 }

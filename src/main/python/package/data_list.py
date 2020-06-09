@@ -8,7 +8,7 @@ CS_TARGET_LIST = [
     'ITU-R BT.2020',
 ]
 
-FORMAT_LIST = [".exr", ".jpg", ".png", "original"]
+FORMAT_LIST = [".exr", ".jpg", ".png", "Original"]
 
 BITDEPTH_DICO = {
     "8bit Int": "uint8",
