@@ -4,7 +4,7 @@ Create the GUI
 
 from PySide2 import QtWidgets, QtCore, QtGui
 
-from package.data_list import CS_TARGET_LIST, FORMAT_LIST, BITDEPTH_DICO, ODT_DICO, IDT_LIST, COMPRESSION_LIST
+from package.data_list import CS_TARGET_LIST, FORMAT_LIST, BITDEPTH_DICO, ODT_DICO, IDT_DICO, COMPRESSION_LIST
 from package.API.converter import Converter
 
 
@@ -43,8 +43,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.widget_rightSide = QtWidgets.QWidget()  # Widget which contain the 2 frame on the right side
         # Right Frame
-        self.frm_right = QtWidgets.QFrame()
-        self.frm_right_top = QtWidgets.QFrame()
+        self.frm_exprt_option = QtWidgets.QFrame()
+        self.frm_right_targetcs = QtWidgets.QFrame()
         self.lbl_cbb_target = QtWidgets.QLabel('TARGET COLORSPACE')
         self.cbb_target_cs = QtWidgets.QComboBox()
 
@@ -80,17 +80,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lyt_lFrame = QtWidgets.QVBoxLayout(self.frm_left)
         self.lyt_rightSide = QtWidgets.QVBoxLayout(self.widget_rightSide)
         self.lyt_rightSide.setContentsMargins(QtCore.QMargins(0, 0, 0, 0))
+        self.lyt_rightSide.setSpacing(0)
 
-        self.lyt_rFrame = QtWidgets.QVBoxLayout(self.frm_right)
-        self.lyt_rFrame.setContentsMargins(QtCore.QMargins(0, 0, 0, 0))
-        self.lyt_rFrame_top = QtWidgets.QVBoxLayout(self.frm_right_top)
+        self.lyt_frm_exprt_option = QtWidgets.QVBoxLayout(self.frm_exprt_option)
+        self.lyt_frm_exprt_option.setContentsMargins(QtCore.QMargins(0, 0, 0, 0))
+        self.lyt_rFrame_top = QtWidgets.QVBoxLayout(self.frm_right_targetcs)
+
         self.lyt_exportOpt_grid = QtWidgets.QGridLayout()
         self.lyt_exportOpt_grid.setContentsMargins(QtCore.QMargins(9, 9, 9, 9))
         self.lyt_exportOpt_grid.setVerticalSpacing(0)
         # self.lyt_exportOpt_grid.setRowMinimumHeight(0, 60)  # title row
         self.lyt_exportOpt_grid.setRowMinimumHeight(3, 15)  # Compress row
-
         # self.lyt_exportOpt_grid.setRowMinimumHeight(5, 65)
+
         self.lyt_in_grid = QtWidgets.QGridLayout(self.frm_right_input)
         self.lyt_in_grid.setContentsMargins(QtCore.QMargins(9, 9, 9, 9))
 
@@ -107,17 +109,17 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lyt_lFrame.addWidget(self.lbl_placeholder)
         self.lyt_lFrame.setAlignment(QtCore.Qt.AlignHCenter)
 
-        self.lyt_rightSide.addWidget(self.frm_right)
-
-        self.lyt_rFrame.addWidget(self.frm_right_top)
+        self.lyt_rightSide.addWidget(self.frm_right_targetcs)
         self.lyt_rFrame_top.addWidget(self.lbl_cbb_target)
         self.lyt_rFrame_top.addWidget(self.cbb_target_cs)
         self.lyt_rFrame_top.addWidget(self.cbb_exprt_odt)
         self.lyt_rFrame_top.addWidget(self.lbl_exprt_odt)
 
-        self.lyt_rFrame.addLayout(self.lyt_exportOpt_grid)
+        self.lyt_rightSide.addWidget(self.lbl_exportOptions)
 
-        self.lyt_exportOpt_grid.addWidget(self.lbl_exportOptions, 0, 0, 1, 2)
+        self.lyt_rightSide.addWidget(self.frm_exprt_option)
+        self.lyt_frm_exprt_option.addLayout(self.lyt_exportOpt_grid)
+        # self.lyt_exportOpt_grid.addWidget(self.lbl_exportOptions, 0, 0, 1, 2)
         self.lyt_exportOpt_grid.addWidget(self.cbb_exprt_format, 1, 0)
         self.lyt_exportOpt_grid.addWidget(self.lbl_exprt_format, 2, 0)
         self.lyt_exportOpt_grid.addWidget(self.cbb_exprt_bit, 1, 1)
@@ -129,10 +131,11 @@ class MainWindow(QtWidgets.QMainWindow):
         # self.lyt_exportOpt_grid.addWidget(self.rb_exprt_folder, 6, 0, 1, 1)
         # self.lyt_exportOpt_grid.addWidget(self.rb_exprt_file, 6, 1, 1, 1)
 
+        self.lyt_rightSide.addWidget(self.lbl_in_title)
         self.lyt_rightSide.addWidget(self.frm_right_input)
-        self.lyt_in_grid.addWidget(self.lbl_in_title, 0, 0, 1, 1)
-        self.lyt_in_grid.addWidget(self.lbl_in_idt, 1, 0)
-        self.lyt_in_grid.addWidget(self.cbb_in_idt, 2, 0)
+        # self.lyt_in_grid.addWidget(self.lbl_in_title, 0, 0, 1, 1)
+        self.lyt_in_grid.addWidget(self.lbl_in_idt, 0, 0)
+        self.lyt_in_grid.addWidget(self.cbb_in_idt, 1, 0)
 
     def modify_widgets(self):
         QtCore.QResource.registerResource(self.ctx.get_resource('qt_resources/icon_ressource.rcc'))
@@ -172,14 +175,13 @@ class MainWindow(QtWidgets.QMainWindow):
         # self.cbb_target_cs.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         # self.cbb_exprt_odt.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         # self.cbb_target_cs.setInputMethodHints(QtCore.Qt.InputMethodHint.)
-        # self.cbb_target_cs.
         self.cbb_target_cs.setMinimumHeight(50)
         self.cbb_exprt_odt.setMinimumHeight(30)
 
-        self.frm_right_top.setStyleSheet(
-            """.QFrame{background-color: rgb(40,40,40) ;margin:5px; border-left: 3px solid #E0D43D;} """)
-        self.cbb_exprt_odt.setStyleSheet("""QComboBox{background-color:rgb(50,50,50);}""")
-        # self.lyt_rFrame.insertStretch(-1)
+        self.frm_right_targetcs.setStyleSheet(
+            """.QFrame{background-color: rgb(50,50,50) ;margin:0px; border-left: 3px solid #E0D43D;} """)
+        self.cbb_exprt_odt.setStyleSheet("""QComboBox{background-color:rgb(40,40,40);}""")
+        # self.lyt_frm_exprt_option.insertStretch(-1)
         self.lbl_exportOptions.setStyleSheet(self.stylesheetContent('stylesheet_variations'))
         # self.lbl_exportOptions.setMinimumHeight(40)
         self.cbb_exprt_format.setMaximumWidth(95)
@@ -196,8 +198,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Inputs options
         self.lbl_in_title.setStyleSheet(self.stylesheetContent('stylesheet_variations'))
+        self.lbl_in_title.setMaximumHeight(35)
         self.cbb_in_idt.setMinimumHeight(30)
-        # self.lyt_in_grid.setRowStretch(4,1)
+        self.lyt_in_grid.setRowStretch(4,1)
 
     def add_actions_to_toolbar(self):
 
@@ -222,7 +225,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.cbb_exprt_bit.addItems(BITDEPTH_DICO.keys())
         self.cbb_exprt_bit.setCurrentIndex(2)
         self.cbb_exprt_odt.addItems(ODT_DICO)
-        self.cbb_in_idt.addItems(IDT_LIST)
+        self.cbb_in_idt.addItems(IDT_DICO)
         self.cbb_exprt_compress.addItems([i.capitalize() for i in COMPRESSION_LIST])
         # self.cbb_target_cs.setMaximumHeight()
 

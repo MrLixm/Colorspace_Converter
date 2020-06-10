@@ -58,6 +58,7 @@ QStatusBar {
 	border-radius: 4px;
     border-left: 3px solid rgb(60,60,64);
     border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
     border-bottom-left-radius: 0px;
 	background-color: rgb(30, 30, 32);
 	alternate-background-color: rgb(25, 25, 25);
