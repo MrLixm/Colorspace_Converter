@@ -21,14 +21,21 @@ BITDEPTH_DICO = {
 ODT_DICO = {
     'None': False,
     'sRGB(ACES)': ['InvRRT.sRGB.Log2_48_nits_Shaper.spi3d', 'Log2_48_nits_Shaper.RRT.sRGB.spi3d'],
-    'Rec709(ACES)': [],
-    'P3-D60(ACES)': []
+    'rec709(ACES)': [],
+    'P3D60(ACES)': [],
+    'P3D65(ACES)': [],
+    'sRGB(EOTF)': [],
+    'Gamma 2.2': [],  # don't know if really usefull
+    'Maybe filmic ?': [],
 }
 IDT_LIST = [
     'sRGB-Linear',
     'sRGB-Texture',
+    'rec709-Texture',
     'ACEScg',
     'ACES2065-1',
+    'ACEScc',
+    'ACEScct',
     'XYZ'
 ]
 

@@ -265,6 +265,20 @@ class MainWindow(QtWidgets.QMainWindow):
             self.cbb_exprt_compress.addItem('/')
             self.cbb_exprt_compress.setEnabled(False)
 
+        if export_format == '.exr' or export_format == 'Original':
+            print("No ODT")
+            self.cbb_exprt_odt.setEnabled(False)
+            self.cbb_exprt_odt.setCurrentText('None')
+            self.cbb_exprt_odt.setHidden(True)
+            self.lbl_exprt_odt.setHidden(True)
+
+        else:
+            print("odt")
+            self.cbb_exprt_odt.setEnabled(True)
+            self.cbb_exprt_odt.setHidden(False)
+            self.cbb_exprt_odt.setCurrentText('None')
+            self.lbl_exprt_odt.setHidden(False)
+
     def load_fonts(self):
         path1 = self.ctx.get_resource("font/JosefinSans-SemiBold.ttf")
         path2 = self.ctx.get_resource("font/JosefinSans-Medium.ttf")
