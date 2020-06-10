@@ -1,5 +1,4 @@
 import os
-from pprint import pprint
 
 import colour
 from oiio import OpenImageIO as oiio
@@ -23,6 +22,7 @@ class Converter:
             compression: Compression method for exr: none, rle, zip, zips, piz, pxr24, b44, b44a, dwaa, or dwab
         """
         self.resources_path = resources_path
+        self.out_format = out_format
         self.out_filePath = self.pathGeneration(in_img_path, out_location, out_format)
         self.in_img_path = in_img_path
         self.out_bitdepth = out_bitdepth
@@ -32,33 +32,29 @@ class Converter:
         self.compression = compression
 
         self.errors = self.image_processing()
-        print("Errors:", errors)
+        print("Errors:", self.errors)
 
     def image_processing(self):
         # Read Image
-        in_img_data = oiio.ImageInput.open(self.in_img_path)
-        if not in_img_data:
-            return oiio.geterror()
-        spec = in_img_data.spec()
-        spec.attribute("compression", self.compression.lower())
-        spec.attribute("oiio:ColorSpace", self.out_cs)
-        pixels = in_img_data.read_image()
-        in_img_data.close()
+        in_buf_data = oiio.ImageBuf(self.in_img_path)
+        in_buf_roi = oiio.get_roi(in_buf_data.spec())
+        if in_buf_data.has_error:
+            return in_buf_data.geterror()
 
-        # # Convert the rgb data
-        # final_image = self.colourConversion(pixels, self.in_cs, self.out_cs, odt=self.odt)
-        #
-        # # pick the output file bitdepth format
-        # spec.format = self.bitdepth_picker(spec.format, self.out_bitdepth)
-        #
-        # output = oiio.ImageOutput.create(self.out_filePath)
-        # if not output:
-        #     return[False, oiio.geterror()]
-        # output.open(self.out_filePath, spec)
-        # writing = output.write_image(final_image)
-        # if not writing:
-        #     return [False, oiio.geterror()]
-        # output.close()
+        in_buf_rgb = oiio.ImageBufAlgo.channels(in_buf_data, (0, 1, 2))  # Remove other channels(multi-channels exr)
+        if in_buf_rgb.has_error:
+            return in_buf_rgb.geterror()
+
+        in_array_rgba = in_buf_rgb.get_pixels()
+        converted_array_rgba = self.colourConversion_odtApplied(in_array_rgba)  # Apply colorspace conversion
+        in_buf_rgb.set_pixels(in_buf_roi, converted_array_rgba)
+
+        bitdepth = self.bitdepth_picker(in_buf_data.nativespec().format, self.out_bitdepth)
+        in_buf_rgb.specmod().attribute("compression", self.compression.lower())
+        in_buf_rgb.specmod().attribute("oiio:ColorSpace", self.out_cs if not ODT_DICO.get(self.odt) else self.odt)
+
+        in_buf_rgb.set_write_format(bitdepth)
+        in_buf_rgb.write(self.out_filePath)
 
     def apply_odt(self, in_rgb, odt):
         lut_path = os.path.join(self.resources_path, "luts")
@@ -77,25 +73,47 @@ class Converter:
             output = BITDEPTH_DICO.get(out_bitdepth)
         return output
 
-    def colourConversion(self, in_rgb, in_cs, out_cs, cctf=False, cat='Bradford', odt=None):
-        if in_cs != out_cs:
-            input_colourspace = colour.RGB_COLOURSPACES[in_cs]
-            output_colourspace = colour.RGB_COLOURSPACES[out_cs]
+    def colourConversion_odtApplied(self, in_rgb, cctf=False, cat='Bradford'):
+        """
+
+        Args:
+            in_rgb: pixel data (numpy array)
+            cctf: bool: apply_cctf_decoding
+            cat: chromatic adaptation model
+
+        Returns: pixel data converted with odt applied or not
+
+        """
+        if self.in_cs != self.out_cs:
+            input_colourspace = colour.RGB_COLOURSPACES[self.in_cs]
+            output_colourspace = colour.RGB_COLOURSPACES[self.out_cs]
             cat = cat
             conversion_rgb = colour.RGB_to_RGB(in_rgb, input_colourspace, output_colourspace,
                                                chromatic_adaptation_transform=cat,
                                                apply_cctf_decoding=cctf)
         else:
             conversion_rgb = in_rgb
-        if ODT_DICO.get(odt):
-            odt_rgb = self.apply_odt(conversion_rgb, odt=odt)
+
+        if ODT_DICO.get(self.odt):
+            odt_rgb = self.apply_odt(conversion_rgb, odt=self.odt)
             result = odt_rgb
         else:
             result = conversion_rgb
+
         return result
 
     @staticmethod
     def pathGeneration(in_path, out_location='file', out_format='.exr'):
+        """
+
+        Args:
+            in_path: path to the input file
+            out_location: user preference for the location of the output file
+            out_format: user preference for the output file format
+
+        Returns: path of the output file
+
+        """
         file_folder_path = os.path.dirname(in_path)
         filename_original = os.path.splitext(os.path.basename(in_path))[0]
         file_ext = os.path.splitext(in_path)[1]
@@ -103,7 +121,7 @@ class Converter:
             out_ext = file_ext
         else:
             out_ext = out_format
-        out_file_name = "oiio_" + filename_original + '_ACEScg' + out_ext
+        out_file_name = "oiio_3_" + filename_original + '_ACEScg' + out_ext
 
         if out_location == 'file':
             output_path = os.path.join(file_folder_path, out_file_name)
@@ -117,10 +135,11 @@ class Converter:
 
 
 if __name__ == '__main__':
-    filename2 = r"L:\SCRIPT\Colour\OCIO_converter\tests\artist_workshop_4k.hdr"
-    filename = r"L:\SCRIPT\Colour\OCIO_converter\tests\odt_test\cabin_render_original.exr"
+    filename3 = r"L:\SCRIPT\Colour\OCIO_converter\tests\bob-ross-9464216-1-402.jpg"
+    filename = r"L:\SCRIPT\Colour\OCIO_converter\tests\artist_hdri\artist_workshop_4k.hdr"
+    filename2 = r"L:\SCRIPT\Colour\OCIO_converter\tests\odt_test\cabin_render_original.exr"
     # Converter(filename, 'file', '.exr', '16bit Half', 'sRGB', 'ACEScg', 'None',
     #           r'L:\SCRIPT\Colour\OCIO_converter\script\github\OCIO_Converter\src\main\resources\base')
 
-    Converter(filename, 'file', '.png', '16bit Int', 'ACEScg', 'ACEScg', 'None',
-              r'L:\SCRIPT\Colour\OCIO_converter\script\github\OCIO_Converter\src\main\resources\base', "None")
+    Converter(filename, 'file', '.exr', '32bit Float', 'sRGB', 'ACEScg', 'None',
+              r'L:\SCRIPT\Colour\OCIO_converter\script\github\OCIO_Converter\src\main\resources\base', "none")
