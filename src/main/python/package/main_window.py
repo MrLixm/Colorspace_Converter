@@ -17,6 +17,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.setWindowTitle("PYCO ColorSpace")
         self.setup_ui()
+        self.lbl_placeholder.setHidden(True)
+        self.treeview.setHidden(False)
 
     def setup_ui(self):
         self.load_fonts()
@@ -38,8 +40,9 @@ class MainWindow(QtWidgets.QMainWindow):
         # Left Frame
         self.treeview = QtWidgets.QTreeWidget()
         self.treeview.setHidden(True)
+        self.header_treeview = self.treeview.header()
         self.lbl_placeholder = QtWidgets.QLabel("Drag & Drop files here")
-        self.frm_left = FrameCustom(self.treeview, self.lbl_placeholder)
+        self.frm_left = FrameCustom(self.ctx, self.treeview, self.lbl_placeholder)
 
         self.spltr_middle = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
 
@@ -80,6 +83,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lyt_main = QtWidgets.QHBoxLayout(self.main_widget)
         self.lyt_main.setMargin(0)
         self.lyt_lFrame = QtWidgets.QVBoxLayout(self.frm_left)
+        self.lyt_lFrame.setSpacing(0)
         self.lyt_rightSide = QtWidgets.QVBoxLayout(self.widget_rightSide)
         self.lyt_rightSide.setContentsMargins(QtCore.QMargins(0, 0, 0, 0))
         self.lyt_rightSide.setSpacing(0)
@@ -106,6 +110,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.toolbar_top.addWidget(self.lbl_title)
 
         self.lyt_main.addWidget(self.spltr_middle)
+
 
         self.lyt_lFrame.addWidget(self.treeview)
         self.lyt_lFrame.addWidget(self.lbl_placeholder)
@@ -148,7 +153,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.status_bar.showMessage("Status Bar Is Ready", 3000)
 
         # Styling controls
-        self.setStyleSheet(stylesheet_main)
         self.frm_left.setStyleSheet("""QFrame{
                 border-radius: 4px;
                 border-left: 3px solid rgb(60,60,64);
@@ -159,9 +163,11 @@ class MainWindow(QtWidgets.QMainWindow):
                 alternate-background-color: rgb(25, 25, 25);
                 color: #fafafa;
                 }""")
-        self.lbl_placeholder.setStyleSheet(stylesheet_main)
+        self.setStyleSheet(stylesheet_main)
         self.main_widget.setStyleSheet(""".QWidget{background: rgb(40, 40, 42);}""")
         self.toolbar_opt.setStyleSheet(stylesheet_var)
+        self.lbl_placeholder.setStyleSheet(stylesheet_main)
+        self.treeview.setStyleSheet(stylesheet_main)
         self.lbl_title.setStyleSheet(stylesheet_title)
         self.lbl_cbb_target.setStyleSheet(stylesheet_title)
         self.cbb_target_cs.setStyleSheet(stylesheet_var)
@@ -184,6 +190,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lbl_placeholder.setAcceptDrops(True)
         # self.frm_left.dropEvent(QtGui.QDropEvent())
         self.treeview.setHeaderHidden(False)
+        self.treeview.setHeaderLabels(['', 'idt', 'name'])
+        self.header_treeview.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+        self.treeview.setSortingEnabled(True)
 
         self.spltr_middle.addWidget(self.frm_left)
         self.spltr_middle.addWidget(self.widget_rightSide)
@@ -311,10 +320,17 @@ class MainWindow(QtWidgets.QMainWindow):
     def setup_connections(self):
         self.act_convert.triggered.connect(self.convert)
         self.cbb_exprt_format.currentTextChanged.connect(self.cbb_update)
+        self.treeview.itemClicked.connect(self.treeview_item_clicked)
 
     def stylesheetContent(self, name):
         css_file = self.ctx.get_resource(f"{name}.css")
         with open(css_file, "r") as f:
             content = f.read()
         return content
+
+    def treeview_item_clicked(self):
+        print("clicked")
+        sel = self.treeview.selectedItems()
+        for items in sel:
+            print(items.text(2), ':', items.text(3))
 

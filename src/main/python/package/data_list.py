@@ -47,7 +47,9 @@ IDT_DICO = {
     'ACES2065-1': ['ACES2065-1', False],
     'ACEScc': ['ACEScc', False],
     'ACEScct': ['ACEScct', False],
-    'XYZ': ['XYZ', False]
+    'XYZ': ['XYZ', False],
+    'ADOBE 1998': ['Adobe RGB (1998)', False],
+    'ADOBE WIDE GAMUT': ['Adobe Wide Gamut RGB', False]
 }
 
 COMPRESSION_LIST = ['none', 'rle', 'zip', 'zips', 'piz', 'pxr24', 'b44', 'b44a', 'dwaa', 'dwab']
