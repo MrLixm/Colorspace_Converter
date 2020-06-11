@@ -1,5 +1,5 @@
 import os
-import numpy as np
+
 import colour
 from colour.algebra import table_interpolation_tetrahedral
 from oiio import OpenImageIO as oiio
@@ -47,24 +47,47 @@ class Converter:
             return in_buf_rgb.geterror()
 
         in_array_rgb = in_buf_rgb.get_pixels()
-        converted_array_rgba = self.colourConversion_odtApplied(in_array_rgb)  # Apply colorspace conversion
+        converted_array_rgba = self.pixel_processing(in_array_rgb)  # Apply colorspace conversion & various
         in_buf_rgb.set_pixels(in_buf_roi, converted_array_rgba)  # Replace the buffer with the converted pixels
 
         bitdepth = self.bitdepth_picker(in_buf_data.nativespec().format, self.out_bitdepth)
         in_buf_rgb.specmod().attribute("compression", self.compression.lower())
-        in_buf_rgb.specmod().attribute("oiio:ColorSpace", 'srgb' )#self.out_cs if not ODT_DICO.get(self.odt) else self.odt)
+        in_buf_rgb.specmod().attribute("oiio:ColorSpace", self.out_cs if not ODT_DICO.get(self.odt) else self.odt)
 
         in_buf_rgb.set_write_format(bitdepth)
         in_buf_rgb.write(self.out_filePath)
 
-    def apply_odt(self, in_rgb, odt):
+    def apply_odt_aces(self, in_rgb):
+        """
+
+        Args:
+            in_rgb: pixel data as numpy array
+
+        Returns: pixel data as numpy array with odt applied
+
+        """
         lut_path = os.path.join(self.resources_path, "luts")
-        lut_list = ODT_DICO.get(odt)
-        lut_lin2log = colour.io.read_LUT_SonySPI1D(os.path.join(lut_path, lut_list[0]))
-        lut_rrt = colour.io.read_LUT_SonySPI3D(os.path.join(lut_path, lut_list[1]))
-        lin_to_log = colour.models.log_encoding_ACEScc(in_rgb)
+        lut_list = ODT_DICO.get(self.odt)
+
+        # Convert from ACEScg to ACES2065-1
+        in_rgb_ap0 = colour.RGB_to_RGB(in_rgb, colour.RGB_COLOURSPACES['ACEScg'], colour.RGB_COLOURSPACES['ACES2065-1'],
+                                       chromatic_adaptation_transform='Bradford',
+                                       apply_cctf_decoding=False)
+
+        lut_rrt = colour.io.read_LUT_SonySPI3D(os.path.join(lut_path, lut_list[0]))
+        lin_to_log = colour.models.log_encoding_ACEScc(in_rgb_ap0)
         log_to_rrt = lut_rrt.apply(lin_to_log, interpolator=table_interpolation_tetrahedral)
         return log_to_rrt
+
+    def apply_odt(self, in_rgb):
+        if ODT_DICO.get(self.odt):
+            odt_rgb = self.apply_odt_aces(in_rgb)
+            result = odt_rgb
+        else:
+            print("No odt")
+            result = in_rgb
+
+        return result
 
     @staticmethod
     def bitdepth_picker(in_bitdepth, out_bitdepth):
@@ -74,7 +97,7 @@ class Converter:
             output = BITDEPTH_DICO.get(out_bitdepth)
         return output
 
-    def colourConversion_odtApplied(self, in_rgb, cctf=False, cat='Bradford'):
+    def pixel_processing(self, in_rgb, cctf=False, cat='Bradford'):
         """
 
         Args:
@@ -96,14 +119,8 @@ class Converter:
             print("Same cs")
             conversion_rgb = in_rgb
 
-        if ODT_DICO.get(self.odt):
-            odt_rgb = self.apply_odt(conversion_rgb, odt=self.odt)
-            result = odt_rgb
-        else:
-            print("no odt")
-            result = conversion_rgb
-
-        return result
+        odt_result = self.apply_odt(conversion_rgb)
+        return odt_result
 
     @staticmethod
     def pathGeneration(in_path, out_location='file', out_format='.exr'):
@@ -124,7 +141,7 @@ class Converter:
             out_ext = file_ext
         else:
             out_ext = out_format
-        out_file_name = "v8_oiio_" + filename_original + '_ACEScg' + out_ext
+        out_file_name = "v9_oiio_" + filename_original + '_ACEScg' + out_ext
 
         if out_location == 'file':
             output_path = os.path.join(file_folder_path, out_file_name)
@@ -142,9 +159,8 @@ if __name__ == '__main__':
     filename2 = r"L:\SCRIPT\Colour\OCIO_converter\tests\artist_hdri\artist_workshop_4k.hdr"
     filename = r"L:\SCRIPT\Colour\OCIO_converter\tests\odt_test\cabin_render_original.exr"
 
-    Converter(filename, 'file', '.png', '8bit Int', 'ACEScg', 'ACES2065-1', 'sRGB(ACES)',
+    Converter(filename, 'file', '.png', '8bit Int', 'ACEScg', 'ACEScg', 'sRGB(ACES)',
               r'L:\SCRIPT\Colour\OCIO_converter\script\github\OCIO_Converter\src\main\resources\base', "none")
 
     # Converter(filename, 'file', '.exr', '32bit Float', 'ACEScg', 'ACEScg', 'None',
     #           r'L:\SCRIPT\Colour\OCIO_converter\script\github\OCIO_Converter\src\main\resources\base', "none")
-
