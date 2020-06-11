@@ -66,6 +66,7 @@ QStatusBar {
 }
 
 QLabel{
+    border: none;
     background-color: transparent;
     color: rgb(150,150,150);
     font-size: 12px;

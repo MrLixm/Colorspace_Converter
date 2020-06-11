@@ -4,6 +4,7 @@ Create the GUI
 
 from PySide2 import QtWidgets, QtCore, QtGui
 
+from package.widget_frame_custom import FrameCustom
 from package.data_list import CS_TARGET_LIST, FORMAT_LIST, BITDEPTH_DICO, ODT_DICO, IDT_DICO, COMPRESSION_LIST
 from package.API.converter import Converter
 
@@ -35,9 +36,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.status_bar = QtWidgets.QStatusBar()
 
         # Left Frame
-        self.frm_left = QtWidgets.QFrame()
         self.treeview = QtWidgets.QTreeWidget()
+        self.treeview.setHidden(True)
         self.lbl_placeholder = QtWidgets.QLabel("Drag & Drop files here")
+        self.frm_left = FrameCustom(self.treeview, self.lbl_placeholder)
 
         self.spltr_middle = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
 
@@ -105,7 +107,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.lyt_main.addWidget(self.spltr_middle)
 
-        # self.lyt_lFrame.addWidget(self.treeview)
+        self.lyt_lFrame.addWidget(self.treeview)
         self.lyt_lFrame.addWidget(self.lbl_placeholder)
         self.lyt_lFrame.setAlignment(QtCore.Qt.AlignHCenter)
 
@@ -139,17 +141,39 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def modify_widgets(self):
         QtCore.QResource.registerResource(self.ctx.get_resource('qt_resources/icon_ressource.rcc'))
+        stylesheet_main = self.stylesheetContent('stylesheet')
+        stylesheet_var = self.stylesheetContent('stylesheet_variations')
+        stylesheet_title = self.stylesheetContent('stylesheet_title')
+
+        self.status_bar.showMessage("Status Bar Is Ready", 3000)
 
         # Styling controls
-        self.setStyleSheet(self.stylesheetContent('stylesheet'))
+        self.setStyleSheet(stylesheet_main)
+        self.frm_left.setStyleSheet("""QFrame{
+                border-radius: 4px;
+                border-left: 3px solid rgb(60,60,64);
+                border-top-left-radius: 0px;
+                border-top-right-radius: 0px;
+                border-bottom-left-radius: 0px;
+                background-color: rgb(30, 30, 32);
+                alternate-background-color: rgb(25, 25, 25);
+                color: #fafafa;
+                }""")
+        self.lbl_placeholder.setStyleSheet(stylesheet_main)
         self.main_widget.setStyleSheet(""".QWidget{background: rgb(40, 40, 42);}""")
-        self.status_bar.showMessage("Status Bar Is Ready", 3000)
+        self.toolbar_opt.setStyleSheet(stylesheet_var)
+        self.lbl_title.setStyleSheet(stylesheet_title)
+        self.lbl_cbb_target.setStyleSheet(stylesheet_title)
+        self.cbb_target_cs.setStyleSheet(stylesheet_var)
+        self.frm_right_targetcs.setStyleSheet(
+            """.QFrame{background-color: rgb(50,50,50) ;margin:0px; border-left: 3px solid #E0D43D;} """)
+        self.cbb_exprt_odt.setStyleSheet("""QComboBox{background-color:rgb(40,40,40);}""")
+        self.lbl_exportOptions.setStyleSheet(stylesheet_var)
+        self.lbl_in_title.setStyleSheet(stylesheet_var)
 
         # ToolBar
         self.lbl_title.setEnabled(False)
         print(self.lbl_title.isEnabled())
-        self.toolbar_opt.setStyleSheet(self.stylesheetContent('stylesheet_variations'))
-        self.lbl_title.setStyleSheet(self.stylesheetContent('stylesheet_title'))
         self.widget_spacer.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.widget_spacer2.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.toolbar_top.setMovable(False)
@@ -157,6 +181,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # TreeView
         self.frm_left.setAcceptDrops(True)
+        self.lbl_placeholder.setAcceptDrops(True)
         # self.frm_left.dropEvent(QtGui.QDropEvent())
         self.treeview.setHeaderHidden(False)
 
@@ -170,19 +195,10 @@ class MainWindow(QtWidgets.QMainWindow):
         # ----------------- #
         # Right Frame
         # ----------------- #
-        self.lbl_cbb_target.setStyleSheet(self.stylesheetContent('stylesheet_title'))
-        self.cbb_target_cs.setStyleSheet(self.stylesheetContent('stylesheet_variations'))
-        # self.cbb_target_cs.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        # self.cbb_exprt_odt.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        # self.cbb_target_cs.setInputMethodHints(QtCore.Qt.InputMethodHint.)
         self.cbb_target_cs.setMinimumHeight(50)
         self.cbb_exprt_odt.setMinimumHeight(30)
 
-        self.frm_right_targetcs.setStyleSheet(
-            """.QFrame{background-color: rgb(50,50,50) ;margin:0px; border-left: 3px solid #E0D43D;} """)
-        self.cbb_exprt_odt.setStyleSheet("""QComboBox{background-color:rgb(40,40,40);}""")
         # self.lyt_frm_exprt_option.insertStretch(-1)
-        self.lbl_exportOptions.setStyleSheet(self.stylesheetContent('stylesheet_variations'))
         # self.lbl_exportOptions.setMinimumHeight(40)
         self.cbb_exprt_format.setMaximumWidth(95)
         self.cbb_exprt_bit.setMaximumWidth(150)
@@ -197,10 +213,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.rb_exprt_file.setChecked(QtCore.Qt.Checked)
 
         # Inputs options
-        self.lbl_in_title.setStyleSheet(self.stylesheetContent('stylesheet_variations'))
         self.lbl_in_title.setMaximumHeight(35)
         self.cbb_in_idt.setMinimumHeight(30)
-        self.lyt_in_grid.setRowStretch(4,1)
+        self.lyt_in_grid.setRowStretch(4, 1)
 
     def add_actions_to_toolbar(self):
 
