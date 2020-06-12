@@ -1,6 +1,7 @@
 """
 Create the GUI
 """
+from functools import partial
 
 from PySide2 import QtWidgets, QtCore, QtGui
 
@@ -18,7 +19,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowTitle("PYCO ColorSpace")
         self.setup_ui()
         self.lbl_placeholder.setHidden(True)
-        self.treeview.setHidden(False)
+        self.treewidget.setHidden(False)
 
     def setup_ui(self):
         self.load_fonts()
@@ -38,11 +39,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.status_bar = QtWidgets.QStatusBar()
 
         # Left Frame
-        self.treeview = QtWidgets.QTreeWidget()
-        self.treeview.setHidden(True)
-        self.header_treeview = self.treeview.header()
+        self.treewidget = QtWidgets.QTreeWidget()
+        self.treewidget.setHidden(True)
+        self.header_treeview = self.treewidget.header()
         self.lbl_placeholder = QtWidgets.QLabel("Drag & Drop files here")
-        self.frm_left = FrameCustom(self.ctx, self.treeview, self.lbl_placeholder)
+        self.frm_left = FrameCustom(self.ctx, self.treewidget, self.lbl_placeholder)
 
         self.spltr_middle = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
 
@@ -73,6 +74,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lbl_in_title = QtWidgets.QLabel("File Input Options")
         self.lbl_in_idt = QtWidgets.QLabel("Source ColorSpace (IDT)")
         self.cbb_in_idt = QtWidgets.QComboBox()
+        self.btn_in_apply = QtWidgets.QPushButton('Apply to Selection')
+        self.btn_in_apply_all = QtWidgets.QPushButton('Apply to All')
 
         # Toolbar items
         self.lbl_title = QtWidgets.QLabel(' IMAGE COLORSPACE CONVERTER')
@@ -112,7 +115,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lyt_main.addWidget(self.spltr_middle)
 
 
-        self.lyt_lFrame.addWidget(self.treeview)
+        self.lyt_lFrame.addWidget(self.treewidget)
         self.lyt_lFrame.addWidget(self.lbl_placeholder)
         self.lyt_lFrame.setAlignment(QtCore.Qt.AlignHCenter)
 
@@ -141,8 +144,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lyt_rightSide.addWidget(self.lbl_in_title)
         self.lyt_rightSide.addWidget(self.frm_right_input)
         # self.lyt_in_grid.addWidget(self.lbl_in_title, 0, 0, 1, 1)
-        self.lyt_in_grid.addWidget(self.lbl_in_idt, 0, 0)
-        self.lyt_in_grid.addWidget(self.cbb_in_idt, 1, 0)
+        self.lyt_in_grid.addWidget(self.lbl_in_idt, 0, 0, 1, 2)
+        self.lyt_in_grid.addWidget(self.cbb_in_idt, 1, 0, 1, 2)
+        self.lyt_in_grid.addWidget(self.btn_in_apply, 2, 0)
+        self.lyt_in_grid.addWidget(self.btn_in_apply_all, 2, 1)
 
     def modify_widgets(self):
         QtCore.QResource.registerResource(self.ctx.get_resource('qt_resources/icon_ressource.rcc'))
@@ -167,7 +172,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.main_widget.setStyleSheet(""".QWidget{background: rgb(40, 40, 42);}""")
         self.toolbar_opt.setStyleSheet(stylesheet_var)
         self.lbl_placeholder.setStyleSheet(stylesheet_main)
-        self.treeview.setStyleSheet(stylesheet_main)
+        self.treewidget.setStyleSheet(stylesheet_main)
         self.lbl_title.setStyleSheet(stylesheet_title)
         self.lbl_cbb_target.setStyleSheet(stylesheet_title)
         self.cbb_target_cs.setStyleSheet(stylesheet_var)
@@ -188,11 +193,19 @@ class MainWindow(QtWidgets.QMainWindow):
         # TreeView
         self.frm_left.setAcceptDrops(True)
         self.lbl_placeholder.setAcceptDrops(True)
-        # self.frm_left.dropEvent(QtGui.QDropEvent())
-        self.treeview.setHeaderHidden(False)
-        self.treeview.setHeaderLabels(['', 'idt', 'name'])
-        self.header_treeview.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
-        self.treeview.setSortingEnabled(True)
+        self.treewidget.setHeaderHidden(False)
+        self.treewidget.setColumnCount(2)
+        self.treewidget.setHeaderLabels([' IDT', 'File Name'])
+        self.treewidget.setAlternatingRowColors(True)
+        self.treewidget.setSortingEnabled(True)
+        self.treewidget.setIndentation(0)
+        self.treewidget.setUniformRowHeights(True)
+        self.treewidget.setMinimumHeight(50)
+        self.treewidget.setIconSize(QtCore.QSize(35, 35))
+        self.header_treeview.setMinimumSectionSize(35)
+        self.treewidget.setColumnWidth(0, 39)
+        self.treewidget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.treewidget.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
 
         self.spltr_middle.addWidget(self.frm_left)
         self.spltr_middle.addWidget(self.widget_rightSide)
@@ -208,7 +221,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.cbb_exprt_odt.setMinimumHeight(30)
 
         # self.lyt_frm_exprt_option.insertStretch(-1)
-        # self.lbl_exportOptions.setMinimumHeight(40)
+        self.lbl_exportOptions.setMinimumHeight(30)
         self.cbb_exprt_format.setMaximumWidth(95)
         self.cbb_exprt_bit.setMaximumWidth(150)
         self.cbb_exprt_format.setMinimumHeight(30)
@@ -216,14 +229,17 @@ class MainWindow(QtWidgets.QMainWindow):
         self.cbb_exprt_compress.setMinimumHeight(30)
         self.spnb_exprt_compress.setMinimumHeight(30)
 
-        # self.lyt_exportOpt_grid.setRowMinimumHeight(1,30)
-        # self.rb_exprt_folder.setIconSize(QtCore.QSize(90,50))
+        self.lyt_exportOpt_grid.setRowMinimumHeight(1, 30)
+        self.rb_exprt_folder.setIconSize(QtCore.QSize(90, 50))
         # self.rb_exprt_file.setFixedSize(25, 25)
         self.rb_exprt_file.setChecked(QtCore.Qt.Checked)
 
         # Inputs options
-        self.lbl_in_title.setMaximumHeight(35)
+        self.lbl_in_title.setMinimumHeight(30)
         self.cbb_in_idt.setMinimumHeight(30)
+        self.cbb_in_idt.setIconSize(QtCore.QSize(30, 30))
+        self.btn_in_apply.setMinimumHeight(30)
+        self.btn_in_apply_all.setMinimumHeight(30)
         self.lyt_in_grid.setRowStretch(4, 1)
 
     def add_actions_to_toolbar(self):
@@ -249,9 +265,35 @@ class MainWindow(QtWidgets.QMainWindow):
         self.cbb_exprt_bit.addItems(BITDEPTH_DICO.keys())
         self.cbb_exprt_bit.setCurrentIndex(2)
         self.cbb_exprt_odt.addItems(ODT_DICO)
-        self.cbb_in_idt.addItems(IDT_DICO)
+        for keys in IDT_DICO.keys():
+            icon = QtGui.QIcon(IDT_DICO.get(keys)[2])
+            self.cbb_in_idt.addItem(icon, keys)
         self.cbb_exprt_compress.addItems([i.capitalize() for i in COMPRESSION_LIST])
         # self.cbb_target_cs.setMaximumHeight()
+
+    def apply_idt(self, target):
+        """
+        Apply the idt to the items with the select target
+
+        Args:
+            target: True if Selection Only - False if All
+
+        """
+        if target:
+            sel = self.treewidget.selectedItems()
+        else:
+            sel = []
+            root = self.treewidget.invisibleRootItem()
+            child_root_n = root.childCount()
+            for i in range(child_root_n):
+                sel.append(root.child(i))
+
+        for tree_item in sel:
+            tree_item: QtWidgets.QTreeWidgetItem
+            idt = self.cbb_in_idt.currentText()
+            tree_item.setText(3, idt)
+            icon = QtGui.QIcon(IDT_DICO.get(idt)[2])
+            tree_item.setIcon(0, icon)
 
     def convert(self):
         self.error_list=[]
@@ -267,7 +309,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.cbb_exprt_compress.clear()
             self.cbb_exprt_compress.addItem('jpg')
             self.cbb_exprt_compress.setEnabled(False)
-
         elif export_format == '.png':
             self.cbb_exprt_bit.clear()
             self.cbb_exprt_bit.addItems(['8bit Int', '16bit Int'])
@@ -275,6 +316,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.cbb_exprt_compress.clear()
             self.cbb_exprt_compress.addItem('None')
             self.cbb_exprt_compress.setEnabled(False)
+            self.spnb_exprt_compress.setEnabled(False)
         elif export_format == '.exr':
             self.cbb_exprt_bit.clear()
             self.cbb_exprt_bit.addItems(['16bit Half', '32bit Float'])
@@ -283,7 +325,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.cbb_exprt_compress.addItems([i.capitalize() for i in COMPRESSION_LIST])
             self.cbb_exprt_compress.setEnabled(True)
             self.cbb_exprt_compress.setCurrentText('Zip')
-
         elif export_format == 'Original':
             self.cbb_exprt_bit.clear()
             self.cbb_exprt_bit.addItem('Original')
@@ -310,17 +351,18 @@ class MainWindow(QtWidgets.QMainWindow):
         path1 = self.ctx.get_resource("font/JosefinSans-SemiBold.ttf")
         path2 = self.ctx.get_resource("font/JosefinSans-Medium.ttf")
         path3 = self.ctx.get_resource("font/JosefinSans-Bold.ttf")
+        path4 = self.ctx.get_resource("font/JetBrainsMono-Regular.ttf")
         font_load1 = QtGui.QFontDatabase.addApplicationFont(path1)
         font_load2 = QtGui.QFontDatabase.addApplicationFont(path2)
         font_load3 = QtGui.QFontDatabase.addApplicationFont(path3)
-        print(QtGui.QFontDatabase.applicationFontFamilies(font_load1))
-        print(QtGui.QFontDatabase.applicationFontFamilies(font_load2))
-        print(QtGui.QFontDatabase.applicationFontFamilies(font_load3))
+        font_load4 = QtGui.QFontDatabase.addApplicationFont(path4)
 
     def setup_connections(self):
         self.act_convert.triggered.connect(self.convert)
         self.cbb_exprt_format.currentTextChanged.connect(self.cbb_update)
-        self.treeview.itemClicked.connect(self.treeview_item_clicked)
+        self.treewidget.itemClicked.connect(self.treeview_item_clicked)
+        self.btn_in_apply.clicked.connect(partial(self.apply_idt, True))
+        self.btn_in_apply_all.clicked.connect(partial(self.apply_idt, False))
 
     def stylesheetContent(self, name):
         css_file = self.ctx.get_resource(f"{name}.css")
@@ -329,8 +371,7 @@ class MainWindow(QtWidgets.QMainWindow):
         return content
 
     def treeview_item_clicked(self):
-        print("clicked")
-        sel = self.treeview.selectedItems()
+        # TODO: delete
+        sel = self.treewidget.selectedItems()
         for items in sel:
             print(items.text(2), ':', items.text(3))
-

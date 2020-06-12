@@ -7,16 +7,16 @@
   </qresource>
   <qresource prefix="idt">
     <file>../icon_idt_none.png</file>
-<!--    <file>../icon_idt_srgb_lin.png</file>-->
-<!--    <file>../icon_idt_srgb_tex.png</file>-->
-<!--    <file>../icon_idt_rec709_tex.png</file>-->
-<!--    <file>../icon_idt_acescg.png</file>-->
-<!--    <file>../icon_idt_acesap0.png</file>-->
-<!--    <file>../icon_idt_acescc.png</file>-->
-<!--    <file>../icon_idt_acescct.png</file>-->
-<!--    <file>../icon_idt_xyz.png</file>-->
-<!--    <file>../icon_idt_adobe.png</file>-->
-<!--    <file>../icon_idt_adobe_wide.png</file>-->
+    <file>../icon_idt_srgb_lin.png</file>
+    <file>../icon_idt_srgb_tex.png</file>
+    <file>../icon_idt_rec709_tex.png</file>
+    <file>../icon_idt_acescg.png</file>
+    <file>../icon_idt_acesap0.png</file>
+    <file>../icon_idt_acescc.png</file>
+    <file>../icon_idt_acescct.png</file>
+    <file>../icon_idt_xyz.png</file>
+    <file>../icon_idt_adobe.png</file>
+    <file>../icon_idt_adobewg.png</file>
 
   </qresource>
 </RCC>

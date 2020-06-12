@@ -3,6 +3,7 @@ yellow: E0D43D
 darkgrey: 30,30,32
 mediumgre: 40,40,42
 Purple: rgb(115,101,209)
+blue-light: rgb(54, 150, 220)
 */
 
 .QFrame{
@@ -22,19 +23,34 @@ QToolButton:hover {
 }
 
 QTreeView {
+    show-decoration-selected:0;
     border: none;
-	border-radius: 4px;
+    /*border-left: 2px solid  rgb(54, 150, 220);*/
+	border-radius: 3px;
 	background-color: rgb(30, 30, 32);
-	alternate-background-color: rgb(25, 150, 25);
+	alternate-background-color: rgb(38, 38, 40);
 	color: #fafafa;
+	font-family: JetBrains Mono;
 }
-QTreeView::item:selected {
-	background-color: rgb(40, 60, 80);
-	border: 2px red;
-}
-QHeaderView{
+/*QTreeWidget::item{
+    outline: none;
+	background-color: rgb(150, 60, 80);
+	border: 2px green;
+}*/
+QTreeWidget::item:selected{
+    outline: none;
     border: none;
-    border-left: 3px solid  rgb(115,101,209);
+    background-color: rgba(54,150,220,150);
+}
+QTreeWidget::item:selected:active{
+    outline: none;
+    border: none;
+    background-color: rgba(54,150,220,150);
+}
+
+QHeaderView{
+    border: 1px solid rgb(80,80,80);
+    border-left: 3px solid  rgb(54, 150, 220);
     border-radius: 15px;
     font-family: Josefin Sans;
 }
@@ -62,15 +78,17 @@ QToolBar {
 QPushButton {
 
 	border-radius: 4px;
-    background-color: rgb(30, 30, 30);
+    background-color: rgb(40, 40, 42);
     color: #fafafa;
-    min-width: 30px;
-    min-height: 30px;
+    font-family: Josefin Sans;
 
 }
 
 QPushButton::hover {
-    background-color: rgb(150,50,90);
+    background-color: rgba(54,150, 220,100);
+}
+QPushButton::pressed {
+    border: 2px solid rgb(54, 150, 220)
 }
 
 QStatusBar {
@@ -139,7 +157,6 @@ QComboBox QListView {
 
 /* Opening item*/
 QComboBox::drop-down {
-    border: 2px solid rgb(243,230,95);
 	background-color:  rgb(224,212,61);
     subcontrol-origin: padding;
     subcontrol-position: top right;
@@ -159,6 +176,10 @@ QComboBox::down-arrow:on {
     image: url(":/cbb/icon_cbb_close_dark.png");
     width: 10px;
     height: 10px;
+}
+QComboBox::drop-down:!enabled {
+    background-color: rgb(50,50,50);
+    border: none;
 }
 QComboBox::down-arrow:!on:!enabled {
     image: none;
@@ -275,7 +296,7 @@ QGroupBox{
 	font-style: ;
     font-size: 10px;
     font-weight: bold;
-    font-family:"Arial";
+    font-family: JetBrains Mono;
 }
 QGroupBox::title {
 	left: 15px;

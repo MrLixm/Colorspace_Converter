@@ -11,11 +11,14 @@ from package.data_list import SUPPORTED_IN_FORMAT
 class FrameCustom(QtWidgets.QFrame):
     def __init__(self, ctx, treeview, lbl_placeholder):
         super().__init__()
+        treeview: QtWidgets.QTreeWidget
+        lbl_placeholder: QtWidgets.QLabel
         self.ctx = ctx
         self.treeview = treeview
         self.lbl_placeholder = lbl_placeholder
-        self.setAcceptDrops(True)
+
         QtCore.QResource.registerResource(self.ctx.get_resource('qt_resources/icon_ressource.rcc'))
+        self.setAcceptDrops(True)
 
     def dragEnterEvent(self, drag_event):
         mime = drag_event.mimeData()
@@ -51,14 +54,16 @@ class FrameCustom(QtWidgets.QFrame):
         self.treeview.setHidden(False)
         for file_path in self.drag_file_list:
             if os.path.isdir(file_path):
+                # TODO: Implement folder
                 folder_file_list = [i for i in os.listdir(file_path) if os.path.isfile(os.path.join(file_path, i))]
                 full_folder_file_list = [os.path.join(r, files) for r, d, f in os.walk(file_path) for files in f]
 
             else:
                 file_name = os.path.basename(file_path)
                 icon = QtGui.QIcon(":/idt/icon_idt_none.png")
-                item = QtWidgets.QTreeWidgetItem(self.treeview, ['img', '  ', file_name, file_path])
-                item.setIcon(1, icon)
-                item.setTextAlignment(1, QtCore.Qt.AlignHCenter)
-                item.setBackground(1,QtGui.QBrush(QtGui.QColor(30, 127, 30)))
+                item = QtWidgets.QTreeWidgetItem(self.treeview, ['', file_name, file_path, 'None'])
+                item.setIcon(0, icon)
+                item.setTextAlignment(0, QtCore.Qt.AlignHCenter)
+
+                # item.setBackground(0, QtGui.QBrush(QtGui.QColor(30, 127, 30)))
             # item.data = ['None', file_path]

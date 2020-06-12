@@ -40,16 +40,16 @@ ODT_DICO = {
 }
 
 IDT_DICO = {
-    'sRGB-Linear': ['sRGB', False],
-    'sRGB-Texture': ['sRGB', True],
-    'rec709-Texture': ['ITU-R BT.709', True],
-    'ACEScg': ['ACEScg', False],
-    'ACES2065-1': ['ACES2065-1', False],
-    'ACEScc': ['ACEScc', False],
-    'ACEScct': ['ACEScct', False],
-    'XYZ': ['XYZ', False],
-    'ADOBE 1998': ['Adobe RGB (1998)', False],
-    'ADOBE WIDE GAMUT': ['Adobe Wide Gamut RGB', False]
+    'sRGB-Linear': ['sRGB', False, ':/idt/icon_idt_srgb_lin.png'],
+    'sRGB-Texture': ['sRGB', True, ':/idt/icon_idt_srgb_tex.png'],
+    'rec709-Texture': ['ITU-R BT.709', True, ':/idt/icon_idt_rec709_tex.png'],
+    'ACEScg': ['ACEScg', False, ':/idt/icon_idt_acescg.png'],
+    'ACES2065-1': ['ACES2065-1', False, ':/idt/icon_idt_acesap0.png'],
+    'ACEScc': ['ACEScc', False, ':/idt/icon_idt_acescc.png'],
+    'ACEScct': ['ACEScct', False, ':/idt/icon_idt_acescct.png'],
+    'XYZ': ['XYZ', False, ':/idt/icon_idt_xyz.png'],
+    'ADOBE 1998': ['Adobe RGB (1998)', False, ':/idt/icon_idt_adobe.png'],
+    'ADOBE WIDE GAMUT': ['Adobe Wide Gamut RGB', False, ':/idt/icon_idt_adobewg.png']
 }
 
 COMPRESSION_LIST = ['none', 'rle', 'zip', 'zips', 'piz', 'pxr24', 'b44', 'b44a', 'dwaa', 'dwab']

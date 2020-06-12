@@ -12,7 +12,7 @@ QLabel{
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
     border-bottom-right-radius: 0px;
-    border-left: 3px solid rgb(115,101,209);
+    border-left: 3px solid  rgb(54, 150, 220);
     color: rgb(250,250,250);
     font-size: 13px;
     /*font-weight: bold;*/
@@ -93,7 +93,7 @@ QComboBox QAbstractItemView {
     padding: 5px;
     margin: 0px;
 
-    selection-background-color: rgb(115,101,209);
+    selection-background-color:  rgb(54, 150, 220);
     selection-color: rgb(250, 250, 250);
 }
 
