@@ -53,17 +53,25 @@ class FrameCustom(QtWidgets.QFrame):
         self.lbl_placeholder.setHidden(True)
         self.treeview.setHidden(False)
         for file_path in self.drag_file_list:
-            if os.path.isdir(file_path):
-                # TODO: Implement folder
-                folder_file_list = [i for i in os.listdir(file_path) if os.path.isfile(os.path.join(file_path, i))]
-                full_folder_file_list = [os.path.join(r, files) for r, d, f in os.walk(file_path) for files in f]
+            self.add_tree_item(file_path)
 
-            else:
-                file_name = os.path.basename(file_path)
-                icon = QtGui.QIcon(":/idt/icon_idt_none.png")
-                item = QtWidgets.QTreeWidgetItem(self.treeview, ['', file_name, file_path, 'None'])
-                item.setIcon(0, icon)
-                item.setTextAlignment(0, QtCore.Qt.AlignHCenter)
+    def add_tree_item(self, file_path):
+        if os.path.isdir(file_path):
+            # TODO: Implement folder
+            # Return direct child file in the folder:
+            folder_file_list = [i for i in os.listdir(file_path) if os.path.isfile(os.path.join(file_path, i))]
+            # Return all the file in the subfolder:
+            full_folder_file_list = [os.path.join(r, files) for r, d, f in os.walk(file_path) for files in f]
 
-                # item.setBackground(0, QtGui.QBrush(QtGui.QColor(30, 127, 30)))
-            # item.data = ['None', file_path]
+        else:
+            file_name = os.path.basename(file_path)
+            icon = QtGui.QIcon(":/idt/icon_idt_none.png")
+            item = QtWidgets.QTreeWidgetItem(self.treeview, ['', file_name, file_path, 'None'])
+            item.setIcon(0, icon)
+            item.setTextAlignment(0, QtCore.Qt.AlignHCenter)
+
+            # item.setBackground(0, QtGui.QBrush(QtGui.QColor(30, 127, 30)))
+
+    def check_item_exists(self):
+        pass
+

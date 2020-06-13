@@ -141,6 +141,7 @@ class Converter:
             out_ext = file_ext
         else:
             out_ext = out_format
+        # TODO: think to remove vX_oiio
         out_file_name = "v9_oiio_" + filename_original + '_ACEScg' + out_ext
 
         if out_location == 'file':

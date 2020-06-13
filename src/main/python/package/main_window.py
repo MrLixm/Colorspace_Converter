@@ -6,6 +6,7 @@ from functools import partial
 from PySide2 import QtWidgets, QtCore, QtGui
 
 from package.widget_frame_custom import FrameCustom
+from package.info_window import InfoWindow
 from package.data_list import CS_TARGET_LIST, FORMAT_LIST, BITDEPTH_DICO, ODT_DICO, IDT_DICO, COMPRESSION_LIST
 from package.API.converter import Converter
 
@@ -18,6 +19,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.setWindowTitle("PYCO ColorSpace")
         self.setup_ui()
+        # TODO: remove 2 lines below:
         self.lbl_placeholder.setHidden(True)
         self.treewidget.setHidden(False)
 
@@ -87,7 +89,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lyt_main.setMargin(0)
         self.lyt_lFrame = QtWidgets.QVBoxLayout(self.frm_left)
         self.lyt_lFrame.setSpacing(0)
-        self.lyt_rightSide = QtWidgets.QVBoxLayout(self.widget_rightSide)
+        self.lyt_rightSide = QtWidgets.QGridLayout(self.widget_rightSide)
         self.lyt_rightSide.setContentsMargins(QtCore.QMargins(0, 0, 0, 0))
         self.lyt_rightSide.setSpacing(0)
 
@@ -119,15 +121,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lyt_lFrame.addWidget(self.lbl_placeholder)
         self.lyt_lFrame.setAlignment(QtCore.Qt.AlignHCenter)
 
-        self.lyt_rightSide.addWidget(self.frm_right_targetcs)
+        self.lyt_rightSide.addWidget(self.frm_right_targetcs, 0, 0)
         self.lyt_rFrame_top.addWidget(self.lbl_cbb_target)
         self.lyt_rFrame_top.addWidget(self.cbb_target_cs)
         self.lyt_rFrame_top.addWidget(self.cbb_exprt_odt)
         self.lyt_rFrame_top.addWidget(self.lbl_exprt_odt)
 
-        self.lyt_rightSide.addWidget(self.lbl_exportOptions)
+        self.lyt_rightSide.addWidget(self.lbl_exportOptions,2,0)
 
-        self.lyt_rightSide.addWidget(self.frm_exprt_option)
+        self.lyt_rightSide.addWidget(self.frm_exprt_option, 3, 0)
         self.lyt_frm_exprt_option.addLayout(self.lyt_exportOpt_grid)
         # self.lyt_exportOpt_grid.addWidget(self.lbl_exportOptions, 0, 0, 1, 2)
         self.lyt_exportOpt_grid.addWidget(self.cbb_exprt_format, 1, 0)
@@ -141,8 +143,8 @@ class MainWindow(QtWidgets.QMainWindow):
         # self.lyt_exportOpt_grid.addWidget(self.rb_exprt_folder, 6, 0, 1, 1)
         # self.lyt_exportOpt_grid.addWidget(self.rb_exprt_file, 6, 1, 1, 1)
 
-        self.lyt_rightSide.addWidget(self.lbl_in_title)
-        self.lyt_rightSide.addWidget(self.frm_right_input)
+        self.lyt_rightSide.addWidget(self.lbl_in_title, 5, 0)
+        self.lyt_rightSide.addWidget(self.frm_right_input, 6, 0)
         # self.lyt_in_grid.addWidget(self.lbl_in_title, 0, 0, 1, 1)
         self.lyt_in_grid.addWidget(self.lbl_in_idt, 0, 0, 1, 2)
         self.lyt_in_grid.addWidget(self.cbb_in_idt, 1, 0, 1, 2)
@@ -217,6 +219,9 @@ class MainWindow(QtWidgets.QMainWindow):
         # ----------------- #
         # Right Frame
         # ----------------- #
+        self.lyt_rightSide.setRowMinimumHeight(1, 20)
+        self.lyt_rightSide.setRowMinimumHeight(4, 20)
+
         self.cbb_target_cs.setMinimumHeight(50)
         self.cbb_exprt_odt.setMinimumHeight(30)
 
@@ -247,10 +252,10 @@ class MainWindow(QtWidgets.QMainWindow):
         # Add space before creating actions
         self.toolbar_top.addWidget(self.widget_spacer)
 
-        action_list = ['info', 'settings']
-        for action in action_list:
-            icon = self.ctx.get_resource(f"icon_{action}.png")
-            self.toolbar_top.addAction(QtGui.QIcon(icon), action.capitalize())
+        self.act_info = QtWidgets.QAction(QtGui.QIcon(self.ctx.get_resource("icon_info.png")), "About this app", self)
+        self.toolbar_top.addAction(self.act_info)
+        self.act_settings = QtWidgets.QAction(QtGui.QIcon(self.ctx.get_resource("icon_settings.png")), "Settings", self)
+        self.toolbar_top.addAction(self.act_settings)
 
         self.act_open = QtWidgets.QAction(QtGui.QIcon(self.ctx.get_resource("icon_open.png")), "Open image", self)
         self.toolbar_opt.addAction(self.act_open)
@@ -273,7 +278,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def apply_idt(self, target):
         """
-        Apply the idt to the items with the select target
+        Apply the idt to the items with the select target (All or Selection only)
 
         Args:
             target: True if Selection Only - False if All
@@ -282,6 +287,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if target:
             sel = self.treewidget.selectedItems()
         else:
+            # Loop in the root to get all the child
             sel = []
             root = self.treewidget.invisibleRootItem()
             child_root_n = root.childCount()
@@ -296,11 +302,13 @@ class MainWindow(QtWidgets.QMainWindow):
             tree_item.setIcon(0, icon)
 
     def convert(self):
+        # TODO: Implement Converter
         self.error_list=[]
         resources = self.ctx.get_resource()
         print("Converting")
 
     def cbb_update(self):
+        # TODO: Implement compression disable
         export_format = self.cbb_exprt_format.currentText()
         if export_format == '.jpg':
             self.cbb_exprt_bit.clear()
@@ -359,6 +367,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def setup_connections(self):
         self.act_convert.triggered.connect(self.convert)
+        self.act_info.triggered.connect(self.open_info_wind)
         self.cbb_exprt_format.currentTextChanged.connect(self.cbb_update)
         self.treewidget.itemClicked.connect(self.treeview_item_clicked)
         self.btn_in_apply.clicked.connect(partial(self.apply_idt, True))
@@ -371,7 +380,11 @@ class MainWindow(QtWidgets.QMainWindow):
         return content
 
     def treeview_item_clicked(self):
-        # TODO: delete
+        # TODO: delete this method
         sel = self.treewidget.selectedItems()
         for items in sel:
             print(items.text(2), ':', items.text(3))
+
+    def open_info_wind(self):
+        self.wind_info = InfoWindow(self.main_widget)
+        self.wind_info.exec_()

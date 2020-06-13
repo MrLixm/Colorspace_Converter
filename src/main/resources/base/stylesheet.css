@@ -23,6 +23,7 @@ QToolButton:hover {
 }
 
 QTreeView {
+    outline: 0;
     show-decoration-selected:0;
     border: none;
     /*border-left: 2px solid  rgb(54, 150, 220);*/
@@ -38,14 +39,24 @@ QTreeView {
 	border: 2px green;
 }*/
 QTreeWidget::item:selected{
-    outline: none;
+    outline: 0;
     border: none;
     background-color: rgba(54,150,220,150);
 }
 QTreeWidget::item:selected:active{
-    outline: none;
-    border: none;
+    outline: 0;
+    border: 0;
     background-color: rgba(54,150,220,150);
+}
+QTreeWidget::item:selected:!active{
+    outline: 0;
+    border: none;
+    color: #fafafa;
+    background-color: rgba(54,150,220,80);
+}
+QTreeWidget::item:active{
+    outline:0;
+    border: 0;
 }
 
 QHeaderView{
