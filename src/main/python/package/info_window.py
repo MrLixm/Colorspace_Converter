@@ -6,8 +6,12 @@ class InfoWindow(QtWidgets.QDialog):
     def __init__(self, parent):
         super().__init__(parent)
         # self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        # self.setAttribute(QtCore.Qt.WA_NoSystemBackground)
+        # self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+        # self.setAttribute(QtCore.Qt.WA_PaintOnScreen)
         self.setFixedSize(150, 150)
         self.setup_ui()
+        self.setBackgroundRole(QtGui.QPalette.Mid)
 
     def setup_ui(self):
         self.create_widgets()
@@ -17,6 +21,7 @@ class InfoWindow(QtWidgets.QDialog):
         self.setup_connections()
 
     def create_widgets(self):
+        self.widget = QtWidgets.QWidget(self)
         self.edit = QtWidgets.QLineEdit("Write my name here")
         self.button = QtWidgets.QPushButton("Show Greetings")
         # Create layout and add widgets

@@ -3,19 +3,23 @@ Create the GUI
 """
 import os
 import glob
+from pathlib import Path
 
 from PySide2 import QtWidgets, QtCore, QtGui
 from package.data_list import SUPPORTED_IN_FORMAT
+# from package.main_window import MainWindow
 
 
 class FrameCustom(QtWidgets.QFrame):
-    def __init__(self, ctx, treeview, lbl_placeholder):
+    def __init__(self, parent):
         super().__init__()
+        parent: MainWindow
         treeview: QtWidgets.QTreeWidget
         lbl_placeholder: QtWidgets.QLabel
-        self.ctx = ctx
-        self.treeview = treeview
-        self.lbl_placeholder = lbl_placeholder
+        self.ctx = parent.ctx
+        self.treeview = parent.treewidget
+        self.lbl_placeholder = parent.lbl_placeholder
+        self.mainWind = parent
 
         QtCore.QResource.registerResource(self.ctx.get_resource('qt_resources/icon_ressource.rcc'))
         self.setAcceptDrops(True)
@@ -55,23 +59,16 @@ class FrameCustom(QtWidgets.QFrame):
         for file_path in self.drag_file_list:
             self.add_tree_item(file_path)
 
-    def add_tree_item(self, file_path):
-        if os.path.isdir(file_path):
-            # TODO: Implement folder
+    def add_tree_item(self, file_path_in):
+        if os.path.isdir(file_path_in):
             # Return direct child file in the folder:
-            folder_file_list = [i for i in os.listdir(file_path) if os.path.isfile(os.path.join(file_path, i))]
+            folder_file_list = [i for i in os.listdir(file_path_in) if os.path.isfile(os.path.join(file_path_in, i))]
             # Return all the file in the subfolder:
-            full_folder_file_list = [os.path.join(r, files) for r, d, f in os.walk(file_path) for files in f]
-
+            full_folder_file_list = [os.path.join(r, files) for r, d, f in os.walk(file_path_in) for files in f]
+            for file_path_item in full_folder_file_list:
+                self.mainWind.add_tree_widget_item(file_path_item)
         else:
-            file_name = os.path.basename(file_path)
-            icon = QtGui.QIcon(":/idt/icon_idt_none.png")
-            item = QtWidgets.QTreeWidgetItem(self.treeview, ['', file_name, file_path, 'None'])
-            item.setIcon(0, icon)
-            item.setTextAlignment(0, QtCore.Qt.AlignHCenter)
-
+            self.mainWind.add_tree_widget_item(file_path_in)
             # item.setBackground(0, QtGui.QBrush(QtGui.QColor(30, 127, 30)))
 
-    def check_item_exists(self):
-        pass
 

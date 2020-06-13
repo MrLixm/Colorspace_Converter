@@ -1,18 +1,26 @@
 """
 Create the GUI
 """
+import os
 from functools import partial
+from pathlib import Path
 
 from PySide2 import QtWidgets, QtCore, QtGui
 
-from package.widget_frame_custom import FrameCustom
-from package.info_window import InfoWindow
-from package.data_list import CS_TARGET_LIST, FORMAT_LIST, BITDEPTH_DICO, ODT_DICO, IDT_DICO, COMPRESSION_LIST
 from package.API.converter import Converter
+from package.data_list import CS_TARGET_LIST, FORMAT_LIST, BITDEPTH_DICO, ODT_DICO, IDT_DICO, COMPRESSION_LIST
+from package.info_window import InfoWindow
+from package.widget_frame_custom import FrameCustom
+
+
+# TODO: implement rightclick (clear all , delete selected,...)
+# TODO: implement loading bar when converting
+# TODO: implement settings menu
 
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, ctx):
+        print("Init MainWindow")
         super().__init__()
 
         self.ctx = ctx
@@ -20,8 +28,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowTitle("PYCO ColorSpace")
         self.setup_ui()
         # TODO: remove 2 lines below:
-        self.lbl_placeholder.setHidden(True)
-        self.treewidget.setHidden(False)
+        # self.lbl_placeholder.setHidden(True)
+        # self.treewidget.setHidden(False)
 
     def setup_ui(self):
         self.load_fonts()
@@ -45,7 +53,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.treewidget.setHidden(True)
         self.header_treeview = self.treewidget.header()
         self.lbl_placeholder = QtWidgets.QLabel("Drag & Drop files here")
-        self.frm_left = FrameCustom(self.ctx, self.treewidget, self.lbl_placeholder)
+        self.frm_left = FrameCustom(self)
 
         self.spltr_middle = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
 
@@ -116,7 +124,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.lyt_main.addWidget(self.spltr_middle)
 
-
         self.lyt_lFrame.addWidget(self.treewidget)
         self.lyt_lFrame.addWidget(self.lbl_placeholder)
         self.lyt_lFrame.setAlignment(QtCore.Qt.AlignHCenter)
@@ -127,7 +134,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lyt_rFrame_top.addWidget(self.cbb_exprt_odt)
         self.lyt_rFrame_top.addWidget(self.lbl_exprt_odt)
 
-        self.lyt_rightSide.addWidget(self.lbl_exportOptions,2,0)
+        self.lyt_rightSide.addWidget(self.lbl_exportOptions, 2, 0)
 
         self.lyt_rightSide.addWidget(self.frm_exprt_option, 3, 0)
         self.lyt_frm_exprt_option.addLayout(self.lyt_exportOpt_grid)
@@ -247,6 +254,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.btn_in_apply_all.setMinimumHeight(30)
         self.lyt_in_grid.setRowStretch(4, 1)
 
+    # End of base Ui modification
+
     def add_actions_to_toolbar(self):
 
         # Add space before creating actions
@@ -276,6 +285,20 @@ class MainWindow(QtWidgets.QMainWindow):
         self.cbb_exprt_compress.addItems([i.capitalize() for i in COMPRESSION_LIST])
         # self.cbb_target_cs.setMaximumHeight()
 
+    def add_tree_widget_item(self, file_path_in):
+        file_path = str(Path(file_path_in))
+        # Check if an item for the filepath already exists
+        existing_items = self.list_tree_items()
+        for item in existing_items:
+            if file_path == item.text(2):
+                return False
+        # Add the item to the treeWidget
+        file_name = os.path.basename(file_path)
+        icon = QtGui.QIcon(":/idt/icon_idt_none.png")
+        item = QtWidgets.QTreeWidgetItem(self.treewidget, ['', file_name, file_path, 'None'])
+        item.setIcon(0, icon)
+        item.setTextAlignment(0, QtCore.Qt.AlignHCenter)
+
     def apply_idt(self, target):
         """
         Apply the idt to the items with the select target (All or Selection only)
@@ -288,11 +311,7 @@ class MainWindow(QtWidgets.QMainWindow):
             sel = self.treewidget.selectedItems()
         else:
             # Loop in the root to get all the child
-            sel = []
-            root = self.treewidget.invisibleRootItem()
-            child_root_n = root.childCount()
-            for i in range(child_root_n):
-                sel.append(root.child(i))
+            sel = self.list_tree_items()
 
         for tree_item in sel:
             tree_item: QtWidgets.QTreeWidgetItem
@@ -303,9 +322,39 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def convert(self):
         # TODO: Implement Converter
-        self.error_list=[]
+        # TODO: UI: Implement location option
+        out_cs = self.cbb_target_cs.currentText()
+        out_format = self.cbb_exprt_format.currentText()
+        out_bitdepth = self.cbb_exprt_bit.currentText()
+        out_compression = self.cbb_exprt_compress.currentText().lower()
+        out_compression_amount = self.spnb_exprt_compress.value()
+        out_odt = self.cbb_exprt_odt.currentText()
+        out_location = 'file'
         resources = self.ctx.get_resource()
-        print("Converting")
+
+        file_item_list = self.list_tree_items()
+        progress = QtWidgets.QProgressDialog("Converting files ...", "Abort", 0, len(file_item_list), self)
+        progress.setWindowModality(QtCore.Qt.WindowModal)
+        step = 0
+        abort = False
+
+        for file_item in file_item_list:
+            item_path = file_item.text(2)
+            item_idt = IDT_DICO.get(file_item.text(3))[0]  # Get the colorspace only
+
+            Converter(item_path, out_location=out_location, out_format=out_format, out_bitdepth=out_bitdepth,
+                      in_cs=item_idt, out_cs=out_cs, odt=out_odt, resources_path=resources, compression=out_compression)
+
+            progress.setValue(step)
+            step += 1
+            if progress.wasCanceled():
+                abort = True
+                break
+            # ... copy one file
+        progress.setValue(len(file_item_list))
+
+        if not abort:
+            self.treewidget.clear()
 
     def cbb_update(self):
         # TODO: Implement compression disable
@@ -364,6 +413,19 @@ class MainWindow(QtWidgets.QMainWindow):
         font_load2 = QtGui.QFontDatabase.addApplicationFont(path2)
         font_load3 = QtGui.QFontDatabase.addApplicationFont(path3)
         font_load4 = QtGui.QFontDatabase.addApplicationFont(path4)
+
+    def list_tree_items(self):
+        """
+
+        Returns: QtWidgets.QTreeWidgetItem List
+
+        """
+        items_list = []
+        root = self.treewidget.invisibleRootItem()
+        child_root_n = root.childCount()
+        for i in range(child_root_n):
+            items_list.append(root.child(i))
+        return items_list
 
     def setup_connections(self):
         self.act_convert.triggered.connect(self.convert)

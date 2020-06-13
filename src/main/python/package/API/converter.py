@@ -13,7 +13,7 @@ class Converter:
         """
 
         Args:
-            in_img_path: path\name.ext of the file
+            in_img_path: path \ name.ext of the file
             out_location: 'file' or 'folder'
             out_format: file extension like '.jpg'
             out_bitdepth: bitdepth for the output file: uint8,uint16,half,float, original
@@ -21,6 +21,7 @@ class Converter:
             out_cs: target colorspace
             odt: the Output Display Transform to apply (False if not wanted)
             compression: Compression method for exr: none, rle, zip, zips, piz, pxr24, b44, b44a, dwaa, or dwab
+
         """
         self.resources_path = resources_path
         self.out_format = out_format
@@ -84,7 +85,7 @@ class Converter:
             odt_rgb = self.apply_odt_aces(in_rgb)
             result = odt_rgb
         else:
-            print("No odt")
+            print("Converter: No odt")
             result = in_rgb
 
         return result
