@@ -17,6 +17,34 @@ from package.widget_frame_custom import FrameCustom
 # TODO: implement loading bar when converting
 # TODO: implement settings menu
 
+class Worker(QtCore.QObject):
+    def __init__(self, tree_item_list, out_location, out_format, out_bitdepth,
+                 out_cs, odt, resources_path, compression):
+        super().__init__()
+        self.tree_item_list = tree_item_list
+        self.out_location = out_location
+        self.out_format = out_format
+        self.out_bitdepth = out_bitdepth
+        self.out_cs = out_cs
+        self.out_odt = odt
+        self.resources_path = resources_path
+        self.compression = compression
+
+    def convert_file(self):
+        for tree_item in self.tree_item_list:
+            item_file_path = tree_item.text(2)
+            item_idt = IDT_DICO.get(tree_item.text(3))[0]  # Get the colorspace only
+
+            Converter(item_file_path, out_location=self.out_location, out_format=self.out_format,
+                      out_bitdepth=self.out_bitdepth, in_cs=item_idt, out_cs=self.out_cs, odt=self.out_odt,
+                      resources_path=self.resources_path, compression=self.compression)
+
+            # self.progress.setValue(step)
+            # step += 1
+            # if self.progress.wasCanceled():
+            #     abort = True
+            #     break
+
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, ctx):
@@ -54,6 +82,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.header_treeview = self.treewidget.header()
         self.lbl_placeholder = QtWidgets.QLabel("Drag & Drop files here")
         self.frm_left = FrameCustom(self)
+        self.cbb_exprt_odt = QtWidgets.QComboBox()
+        self.lbl_exprt_odt = QtWidgets.QLabel(" ODT")
 
         self.spltr_middle = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
 
@@ -67,11 +97,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lbl_exportOptions = QtWidgets.QLabel("Global Export Options")
         self.cbb_exprt_format = QtWidgets.QComboBox()
         self.cbb_exprt_bit = QtWidgets.QComboBox()
-        self.cbb_exprt_odt = QtWidgets.QComboBox()
         self.cbb_exprt_compress = QtWidgets.QComboBox()
         self.lbl_exprt_format = QtWidgets.QLabel(" format")
         self.lbl_exprt_bitdepth = QtWidgets.QLabel(" bitdepth")
-        self.lbl_exprt_odt = QtWidgets.QLabel(" ODT")
         self.lbl_exprt_compress = QtWidgets.QLabel(" Compression")
         self.spnb_exprt_compress = QtWidgets.QSpinBox()
         self.lbl_exprt_compress_qual = QtWidgets.QLabel("Compression Amount")
@@ -332,29 +360,21 @@ class MainWindow(QtWidgets.QMainWindow):
         out_location = 'file'
         resources = self.ctx.get_resource()
 
-        file_item_list = self.list_tree_items()
-        progress = QtWidgets.QProgressDialog("Converting files ...", "Abort", 0, len(file_item_list), self)
-        progress.setWindowModality(QtCore.Qt.WindowModal)
-        step = 0
-        abort = False
+        # self.progress = QtWidgets.QProgressDialog("Converting files ...", "Abort", 0, len(tree_item_list), self)
+        # self.progress.setWindowModality(QtCore.Qt.WindowModal)
+        # step = 0
+        # abort = False
 
-        for file_item in file_item_list:
-            item_path = file_item.text(2)
-            item_idt = IDT_DICO.get(file_item.text(3))[0]  # Get the colorspace only
+        tree_item_list = self.list_tree_items()
+        self.thread = QtCore.QThread(self)
+        self.worker = Worker(tree_item_list, out_location, out_format, out_bitdepth, out_cs, out_odt,
+                             resources, out_compression)
 
-            Converter(item_path, out_location=out_location, out_format=out_format, out_bitdepth=out_bitdepth,
-                      in_cs=item_idt, out_cs=out_cs, odt=out_odt, resources_path=resources, compression=out_compression)
-
-            progress.setValue(step)
-            step += 1
-            if progress.wasCanceled():
-                abort = True
-                break
-            # ... copy one file
-        progress.setValue(len(file_item_list))
-
-        if not abort:
-            self.treewidget.clear()
+        self.worker.moveToThread(self.thread)
+        self.thread.started.connect(self.worker.convert_file)
+        self.thread.start()
+        # if not abort:
+        #     self.treewidget.clear()
 
     def cbb_update(self):
         # TODO: Implement compression disable

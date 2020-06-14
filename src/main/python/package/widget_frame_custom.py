@@ -2,8 +2,6 @@
 Create the GUI
 """
 import os
-import glob
-from pathlib import Path
 
 from PySide2 import QtWidgets, QtCore, QtGui
 from package.data_list import SUPPORTED_IN_FORMAT
@@ -70,5 +68,3 @@ class FrameCustom(QtWidgets.QFrame):
         else:
             self.mainWind.add_tree_widget_item(file_path_in)
             # item.setBackground(0, QtGui.QBrush(QtGui.QColor(30, 127, 30)))
-
-

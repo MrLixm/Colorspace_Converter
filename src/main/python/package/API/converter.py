@@ -33,6 +33,9 @@ class Converter:
         self.odt = odt
         self.compression = compression
 
+        oiio.attribute("threads", 0)
+        oiio.attribute("exr_threads", 0)
+
         self.errors = self.image_processing()
         print("Errors:", self.errors)
 
