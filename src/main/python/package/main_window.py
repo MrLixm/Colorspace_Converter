@@ -18,6 +18,10 @@ from package.widget_frame_custom import FrameCustom
 # TODO: implement settings menu
 
 class Worker(QtCore.QObject):
+    file_converted = QtCore.Signal(object, bool)
+    step_converter = QtCore.Signal()
+    finished = QtCore.Signal()
+
     def __init__(self, tree_item_list, out_location, out_format, out_bitdepth,
                  out_cs, odt, resources_path, compression):
         super().__init__()
@@ -29,21 +33,27 @@ class Worker(QtCore.QObject):
         self.out_odt = odt
         self.resources_path = resources_path
         self.compression = compression
+        self.abort = False
 
     def convert_file(self):
         for tree_item in self.tree_item_list:
-            item_file_path = tree_item.text(2)
-            item_idt = IDT_DICO.get(tree_item.text(3))[0]  # Get the colorspace only
+            if not self.abort:
+                item_file_path = tree_item.text(2)
+                item_idt = IDT_DICO.get(tree_item.text(3))[0]  # Get the colorspace only
 
-            Converter(item_file_path, out_location=self.out_location, out_format=self.out_format,
-                      out_bitdepth=self.out_bitdepth, in_cs=item_idt, out_cs=self.out_cs, odt=self.out_odt,
-                      resources_path=self.resources_path, compression=self.compression)
+                converter = Converter(item_file_path, out_location=self.out_location, out_format=self.out_format,
+                                      out_bitdepth=self.out_bitdepth, in_cs=item_idt, out_cs=self.out_cs, odt=self.out_odt,
+                                      resources_path=self.resources_path, compression=self.compression)
+                result_list = converter.image_processing()
+                converter.convert_progress.connect(self.step_converter.emit())
+                self.file_converted.emit(tree_item, result_list)
 
-            # self.progress.setValue(step)
-            # step += 1
-            # if self.progress.wasCanceled():
-            #     abort = True
-            #     break
+        self.finished.emit()
+        # self.progress.setValue(step)
+        # step += 1
+        # if self.progress.wasCanceled():
+        #     abort = True
+        #     break
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -360,21 +370,45 @@ class MainWindow(QtWidgets.QMainWindow):
         out_location = 'file'
         resources = self.ctx.get_resource()
 
-        # self.progress = QtWidgets.QProgressDialog("Converting files ...", "Abort", 0, len(tree_item_list), self)
-        # self.progress.setWindowModality(QtCore.Qt.WindowModal)
-        # step = 0
-        # abort = False
-
         tree_item_list = self.list_tree_items()
-        self.thread = QtCore.QThread(self)
-        self.worker = Worker(tree_item_list, out_location, out_format, out_bitdepth, out_cs, out_odt,
-                             resources, out_compression)
+        if tree_item_list:
+            self.thread = QtCore.QThread(self)
+            self.worker = Worker(tree_item_list, out_location, out_format, out_bitdepth, out_cs, out_odt,
+                                 resources, out_compression)
 
-        self.worker.moveToThread(self.thread)
-        self.thread.started.connect(self.worker.convert_file)
-        self.thread.start()
-        # if not abort:
-        #     self.treewidget.clear()
+            self.worker.moveToThread(self.thread)
+            self.worker.file_converted.connect(self.result_conversion)
+            self.worker.finished.connect(self.thread.quit)
+            self.worker.step_converter.connect(self.progress_step)
+            self.thread.started.connect(self.worker.convert_file)
+            self.thread.start()
+
+            self.prg_dialog = QtWidgets.QProgressDialog("Converting files ...", "Abort", 1, len(tree_item_list)*3, self)
+            self.prg_dialog.setStyleSheet(""" background-color: rgb(30,30,30);""")
+            self.prg_dialog.canceled.connect(self.abort_convert)
+            self.prg_dialog.show()
+
+    def progress_step(self):
+        self.prg_dialog.setValue(self.prg_dialog.value() + 1)
+
+    def result_conversion(self, tree_item, result_list):
+        """
+        Method called each time a file is finished to be converted
+
+        Args:
+            tree_item: QTreeItem object
+            result_list: List[Bool, oiio error]
+
+        """
+        # self.prg_dialog.setValue(self.prg_dialog.value() + 1)
+        self.treewidget.takeTopLevelItem(self.treewidget.indexOfTopLevelItem(tree_item))
+
+    def abort_convert(self):
+        """
+        Stop the convert operation
+        """
+        self.worker.abort = True
+        self.thread.quit()
 
     def cbb_update(self):
         # TODO: Implement compression disable

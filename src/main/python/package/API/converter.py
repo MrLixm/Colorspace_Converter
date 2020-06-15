@@ -1,5 +1,7 @@
+
 import os
 
+from PySide2 import QtCore
 import colour
 from colour.algebra import table_interpolation_tetrahedral
 from oiio import OpenImageIO as oiio
@@ -32,34 +34,37 @@ class Converter:
         self.out_cs = out_cs
         self.odt = odt
         self.compression = compression
+        self.convert_progress = QtCore.Signal()
 
         oiio.attribute("threads", 0)
         oiio.attribute("exr_threads", 0)
-
-        self.errors = self.image_processing()
-        print("Errors:", self.errors)
 
     def image_processing(self):
         # Read Image
         in_buf_data = oiio.ImageBuf(self.in_img_path)
         in_buf_roi = oiio.get_roi(in_buf_data.spec())
         if in_buf_data.has_error:
-            return in_buf_data.geterror()
+            return [False, in_buf_data.geterror()]
 
         in_buf_rgb = oiio.ImageBufAlgo.channels(in_buf_data, (0, 1, 2))  # Remove other channels(multi-channels exr)
         if in_buf_rgb.has_error:
-            return in_buf_rgb.geterror()
+            return [False, in_buf_rgb.geterror()]
+        self.convert_progress.emit()
 
         in_array_rgb = in_buf_rgb.get_pixels()
         converted_array_rgba = self.pixel_processing(in_array_rgb)  # Apply colorspace conversion & various
         in_buf_rgb.set_pixels(in_buf_roi, converted_array_rgba)  # Replace the buffer with the converted pixels
+        self.convert_progress.emit()
 
         bitdepth = self.bitdepth_picker(in_buf_data.nativespec().format, self.out_bitdepth)
         in_buf_rgb.specmod().attribute("compression", self.compression.lower())
         in_buf_rgb.specmod().attribute("oiio:ColorSpace", self.out_cs if not ODT_DICO.get(self.odt) else self.odt)
-
         in_buf_rgb.set_write_format(bitdepth)
+        if in_buf_rgb.has_error:
+            return [False, in_buf_rgb.geterror()]
         in_buf_rgb.write(self.out_filePath)
+        self.convert_progress.emit()
+        return [True]
 
     def apply_odt_aces(self, in_rgb):
         """
