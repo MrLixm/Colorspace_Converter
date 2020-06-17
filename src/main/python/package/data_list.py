@@ -34,11 +34,20 @@ ODT_DICO = {
     'Rec709(ACES)': ['Log2_48_nits_Shaper.RRT.Rec.709.spi3d'],
     'P3D60(ACES)': ['Log2_48_nits_Shaper.RRT.P3-D60.spi3d'],
     'P3D65(ACES)': ['Log2_48_nits_Shaper.RRT.P3D65.spi3d'],
-    'sRGB(EOTF)': [],
-    'Gamma 2.2': [],  # don't know if really usefull
-    'Maybe filmic ?': [],
+    'sRGB(EOTF)': ['sRGB'],
+    'rec709(OETF)': ['ITU-R BT.709'],
+    'Gamma 2.2': ['Gamma 2.2'],
+    'Maybe filmic ?': [None],
 }
 
+"""
+Dictionnary of the Inputs Display Transform options
+keys: str: graphical element
+value: list: list of the API element and Icon
+        list[0]: input colorpsace
+        list[1]: apply cctf decoding
+        list[2]: icon path
+"""
 IDT_DICO = {
     'sRGB-Linear': ['sRGB', False, ':/idt/icon_idt_srgb_lin.png'],
     'sRGB-Texture': ['sRGB', True, ':/idt/icon_idt_srgb_tex.png'],

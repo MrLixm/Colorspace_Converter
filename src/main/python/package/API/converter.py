@@ -1,12 +1,17 @@
-
 import os
+import logging
 
-from PySide2 import QtCore
 import colour
 from colour.algebra import table_interpolation_tetrahedral
 from oiio import OpenImageIO as oiio
 
 from package.data_list import ODT_DICO, BITDEPTH_DICO
+
+
+logging.basicConfig(level=logging.DEBUG)
+#                    filename=r"L:\SCRIPT\Colour\OCIO_converter\tests\loggs.log",  # or specify the path+file
+#                    filemode="a",  # or w to replace data
+#                    format='%(asctime)s - %(levelname)S - %(message)s')
 
 
 class Converter:
@@ -24,26 +29,29 @@ class Converter:
             out_bitdepth: bitdepth for the output file: uint8,uint16,half,float, original
             in_cs: source colorspace
             out_cs: target colorspace
-            odt: the Output Display Transform to apply (False if not wanted)
             compression: Compression method for exr: none, rle, zip, zips, piz, pxr24, b44, b44a, dwaa, or dwab
+            odt: the Output Display Transform to apply (False if not wanted)
             cctf: Bool : Apply in cs decoding colour component transferfunction/electro-optical transferfunction.
 
         """
+        # logging.debug("C init")
         self.cctf = cctf
         self.resources_path = resources_path
         self.out_format = out_format
-        self.out_filePath = self.pathGeneration(in_img_path, out_location, out_format)
         self.in_img_path = in_img_path
         self.out_bitdepth = out_bitdepth
         self.in_cs = in_cs
         self.out_cs = out_cs
         self.odt = odt
         self.compression = compression
+        self.out_filePath = self.pathGeneration(in_img_path, out_location, out_format)
 
         oiio.attribute("threads", 0)
         oiio.attribute("exr_threads", 0)
 
     def image_processing(self):
+        logging.info("C Image processing")
+        # TODO: add Alpha channel copy to the final output
         # Read Image
         in_buf_data = oiio.ImageBuf(self.in_img_path)
         in_buf_roi = oiio.get_roi(in_buf_data.spec())
@@ -56,7 +64,7 @@ class Converter:
         # self.convert_progress.emit()
 
         in_array_rgb = in_buf_rgb.get_pixels()
-        converted_array_rgba = self.pixel_processing(in_array_rgb, cctf=self.cctf)  # Apply colorspace conversion & various
+        converted_array_rgba = self.pixel_processing(in_array_rgb, cctf=self.cctf)
         in_buf_rgb.set_pixels(in_buf_roi, converted_array_rgba)  # Replace the buffer with the converted pixels
         # self.convert_progress.emit()
 
@@ -92,12 +100,17 @@ class Converter:
         log_to_rrt = lut_rrt.apply(lin_to_log, interpolator=table_interpolation_tetrahedral)
         return log_to_rrt
 
+    def apply_odt_srgb(self, in_rgb):
+        pass
+
     def apply_odt(self, in_rgb):
         if ODT_DICO.get(self.odt):
-            odt_rgb = self.apply_odt_aces(in_rgb)
-            result = odt_rgb
+            if ODT_DICO.get(self.odt).endswith('(ACES)'):
+                odt_rgb = self.apply_odt_aces(in_rgb)
+                result = odt_rgb
+            else:
+
         else:
-            print("Converter: No odt")
             result = in_rgb
 
         return result
@@ -121,6 +134,7 @@ class Converter:
         Returns: pixel data converted with odt applied or not
 
         """
+        # TODO: implement XYZ conversion
         if self.in_cs != self.out_cs:
             input_colourspace = colour.RGB_COLOURSPACES[self.in_cs]
             output_colourspace = colour.RGB_COLOURSPACES[self.out_cs]
@@ -135,8 +149,7 @@ class Converter:
         odt_result = self.apply_odt(conversion_rgb)
         return odt_result
 
-    @staticmethod
-    def pathGeneration(in_path, out_location='file', out_format='.exr'):
+    def pathGeneration(self, in_path, out_location='file', out_format='.exr'):
         """
 
         Args:
@@ -147,6 +160,7 @@ class Converter:
         Returns: path of the output file
 
         """
+
         file_folder_path = os.path.dirname(in_path)
         filename_original = os.path.splitext(os.path.basename(in_path))[0]
         file_ext = os.path.splitext(in_path)[1]
@@ -154,8 +168,13 @@ class Converter:
             out_ext = file_ext
         else:
             out_ext = out_format
+        if ODT_DICO.get(self.odt):
+            cs_prefix = '_' + self.odt
+        else:
+            cs_prefix = '_' + self.out_cs.replace(" ", "")
+
         # TODO: think to remove vX_oiio
-        out_file_name = "v9_oiio_" + filename_original + '_ACEScg' + out_ext
+        out_file_name = "v1_oiio_" + filename_original + cs_prefix + out_ext
 
         if out_location == 'file':
             output_path = os.path.join(file_folder_path, out_file_name)
@@ -173,8 +192,15 @@ if __name__ == '__main__':
     filename2 = r"L:\SCRIPT\Colour\OCIO_converter\tests\artist_hdri\artist_workshop_4k.hdr"
     filename = r"L:\SCRIPT\Colour\OCIO_converter\tests\odt_test\cabin_render_original.exr"
 
-    Converter(filename, 'file', '.png', '8bit Int', 'ACEScg', 'ACEScg', 'sRGB(ACES)',
-              r'L:\SCRIPT\Colour\OCIO_converter\script\github\OCIO_Converter\src\main\resources\base', "none")
+    # c = Converter(filename, 'file', '.png', '8bit Int', 'ACEScg', 'ACEScg', 'sRGB(ACES)',
+    #           r'L:\SCRIPT\Colour\OCIO_converter\script\github\OCIO_Converter\src\main\resources\base', "none", False)
 
-    # Converter(filename, 'file', '.exr', '32bit Float', 'ACEScg', 'ACEScg', 'None',
-    #           r'L:\SCRIPT\Colour\OCIO_converter\script\github\OCIO_Converter\src\main\resources\base', "none")
+    # c = Converter(filename, 'file', '.exr', '32bit Float', 'ACEScg', 'ACEScg', 'None',
+    #               r'L:\SCRIPT\Colour\OCIO_converter\script\github\OCIO_Converter\src\main\resources\base', "dwaa:90",
+    #               False)
+
+    c = Converter(filename, 'file', '.jpg', '8bit Int', 'ACEScg', 'ACEScg', 'None',
+                  r'L:\SCRIPT\Colour\OCIO_converter\script\github\OCIO_Converter\src\main\resources\base', "dwaa:90",
+                  False)
+
+    c.image_processing()

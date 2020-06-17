@@ -419,3 +419,16 @@ QStatusBar::item {
     outline: none;
     border: none;
 }
+
+QProgressBar {
+    background-color: rgb(40,40,42);
+    color: #fafafa;
+    border: 2px solid grey;
+    border-radius: 5px;
+    text-align: center;
+}
+
+QProgressBar::chunk {
+    background-color: #05B8CC;
+    width: 20px;
+}

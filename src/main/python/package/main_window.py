@@ -8,14 +8,13 @@ from pathlib import Path
 from PySide2 import QtWidgets, QtCore, QtGui
 
 from package.API.converter import Converter
-from package.data_list import CS_TARGET_DICO, FORMAT_LIST, BITDEPTH_DICO, ODT_DICO, IDT_DICO, COMPRESSION_LIST, SUPPORTED_IN_FORMAT
+from package.data_list import CS_TARGET_DICO, FORMAT_LIST, BITDEPTH_DICO, ODT_DICO, IDT_DICO, COMPRESSION_LIST
 from package.info_window import InfoWindow
 from package.widget_frame_custom import FrameCustom
 
 
-# TODO: implement rightclick (clear all , delete selected,...)
-# TODO: implement loading bar when converting
 # TODO: implement settings menu
+# TODO: finish info window
 
 class Worker(QtCore.QObject):
     file_converted = QtCore.Signal(object, bool)
@@ -36,24 +35,27 @@ class Worker(QtCore.QObject):
         self.abort = False
 
     def convert_file(self):
+        print("func: convert files")
         for tree_item in self.tree_item_list:
+            print("Abort:", self.abort)
             if not self.abort:
+                print("not abort")
                 item_file_path = tree_item.text(2)
-                item_idt = IDT_DICO.get(tree_item.text(3))[0]  # Get the colorspace only
+                item_in_cs = IDT_DICO.get(tree_item.text(3))[0]  # Get the colorspace only
+                item_cctf = IDT_DICO.get(tree_item.text(3))[1]
 
                 converter = Converter(item_file_path, out_location=self.out_location, out_format=self.out_format,
-                                      out_bitdepth=self.out_bitdepth, in_cs=item_idt, out_cs=self.out_cs, odt=self.out_odt,
-                                      resources_path=self.resources_path, compression=self.compression)
+                                      out_bitdepth=self.out_bitdepth, in_cs=item_in_cs, out_cs=self.out_cs,
+                                      odt=self.out_odt, resources_path=self.resources_path,
+                                      compression=self.compression, cctf=item_cctf)
+                print("Instanced")
+
                 result_list = converter.image_processing()
+                print("Converted:", result_list)
                 # converter.convert_progress.connect(self.step_converter.emit())
                 self.file_converted.emit(tree_item, result_list)
 
         self.finished.emit()
-        # self.progress.setValue(step)
-        # step += 1
-        # if self.progress.wasCanceled():
-        #     abort = True
-        #     break
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -277,6 +279,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.cbb_exprt_bit.setMinimumHeight(30)
         self.cbb_exprt_compress.setMinimumHeight(30)
         self.spnb_exprt_compress.setMinimumHeight(30)
+        self.spnb_exprt_compress.setMaximum(100)
+        self.spnb_exprt_compress.setWrapping(True)
 
         self.lyt_exportOpt_grid.setRowMinimumHeight(1, 30)
         self.rb_exprt_folder.setIconSize(QtCore.QSize(90, 50))
@@ -376,7 +380,8 @@ class MainWindow(QtWidgets.QMainWindow):
         out_cs = CS_TARGET_DICO.get(self.cbb_target_cs.currentText())
         out_format = self.cbb_exprt_format.currentText()
         out_bitdepth = self.cbb_exprt_bit.currentText()
-        out_compression = self.cbb_exprt_compress.currentText().lower()
+        out_compression = self.cbb_exprt_compress.currentText().lower()+':'+str(self.spnb_exprt_compress.value())
+        print(out_compression)
         out_compression_amount = self.spnb_exprt_compress.value()
         out_odt = self.cbb_exprt_odt.currentText()
         out_location = 'file' if self.rb_exprt_file.isChecked() else 'folder'
@@ -385,27 +390,41 @@ class MainWindow(QtWidgets.QMainWindow):
         tree_item_list = self.list_tree_items()
         if not any([tree_item.text(3).endswith('None') for tree_item in tree_item_list]):
             if tree_item_list:
+                print("Tree item list existing")
                 self.thread = QtCore.QThread(self)
                 self.worker = Worker(tree_item_list, out_location, out_format, out_bitdepth, out_cs, out_odt,
                                      resources, out_compression)
 
                 self.worker.moveToThread(self.thread)
                 self.worker.file_converted.connect(self.convert_result)
-                self.worker.finished.connect(self.thread.quit)
+                self.worker.finished.connect(self.convert_finished)
                 # self.worker.step_converter.connect(self.progress_step)
                 self.thread.started.connect(self.worker.convert_file)
                 self.thread.start()
 
-                self.prg_dialog = QtWidgets.QProgressDialog("Converting files ...", "Abort", 1, len(tree_item_list), self)
-                self.prg_dialog.setStyleSheet(""" background-color: rgb(30,30,30);color: #fafafa""")
-                self.prg_dialog.setCancelButton(self.prg_dialog_pushButton())
-                self.prg_dialog.setContentsMargins(15, 15, 15, 15)
+                self.prg_dialog = QtWidgets.QProgressDialog("Converting files ...", "Abort", 0, len(tree_item_list), self)
+                self.prg_dialog.setStyleSheet(""" background-color: rgb(30,30,30); color: #fafafa; """)
+                # self.prg_dialog.setCancelButton(self.prg_dialog_pushButton())
+                # self.prg_dialog.setContentsMargins(15, 15, 15, 15)
                 self.prg_dialog.canceled.connect(self.abort_convert)
                 self.prg_dialog.show()
+            else:
+                msgbox = QtWidgets.QMessageBox()
+                msgbox.setText('No file to convert !')
+                msgbox.exec_()
         else:
             msgbox = QtWidgets.QMessageBox()
             msgbox.setText('Some files have unassigned IDT')
             msgbox.exec_()
+
+    def convert_finished(self):
+        """
+
+        Called when the converting process is finished
+
+        """
+        self.thread.quit()
+        self.prg_dialog.setValue(self.prg_dialog.maximum())
 
     def cbb_update_format(self):
         """
@@ -417,7 +436,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.cbb_exprt_bit.addItem('8bit Int')
             self.cbb_exprt_bit.setEnabled(False)
             self.cbb_exprt_compress.clear()
-            self.cbb_exprt_compress.addItem('jpg')
+            self.cbb_exprt_compress.addItem('jpeg')
             self.cbb_exprt_compress.setEnabled(False)
             self.spnb_exprt_compress.setEnabled(True)
         elif export_format == '.png':
