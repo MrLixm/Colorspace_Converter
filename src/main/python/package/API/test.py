@@ -1,4 +1,5 @@
 from pathlib import Path
+import colour
 
 
 class Window:
@@ -40,4 +41,5 @@ def foopath():
 
 
 if __name__ == '__main__':
-    foopath()
+    # foopath()
+    print(colour.RGB_COLOURSPACES['ITU-R BT.709'])

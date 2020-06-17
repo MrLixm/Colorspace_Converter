@@ -8,7 +8,7 @@ from pathlib import Path
 from PySide2 import QtWidgets, QtCore, QtGui
 
 from package.API.converter import Converter
-from package.data_list import CS_TARGET_LIST, FORMAT_LIST, BITDEPTH_DICO, ODT_DICO, IDT_DICO, COMPRESSION_LIST
+from package.data_list import CS_TARGET_DICO, FORMAT_LIST, BITDEPTH_DICO, ODT_DICO, IDT_DICO, COMPRESSION_LIST, SUPPORTED_IN_FORMAT
 from package.info_window import InfoWindow
 from package.widget_frame_custom import FrameCustom
 
@@ -45,7 +45,7 @@ class Worker(QtCore.QObject):
                                       out_bitdepth=self.out_bitdepth, in_cs=item_idt, out_cs=self.out_cs, odt=self.out_odt,
                                       resources_path=self.resources_path, compression=self.compression)
                 result_list = converter.image_processing()
-                converter.convert_progress.connect(self.step_converter.emit())
+                # converter.convert_progress.connect(self.step_converter.emit())
                 self.file_converted.emit(tree_item, result_list)
 
         self.finished.emit()
@@ -65,9 +65,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.setWindowTitle("PYCO ColorSpace")
         self.setup_ui()
-        # TODO: remove 2 lines below:
-        # self.lbl_placeholder.setHidden(True)
-        # self.treewidget.setHidden(False)
 
     def setup_ui(self):
         self.load_fonts()
@@ -77,7 +74,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.modify_widgets()
         self.add_actions_to_toolbar()
         self.add_cbb_items()
-        self.cbb_update()
+        self.cbb_update_format()
         self.setup_connections()
 
     def create_widgets(self):
@@ -85,6 +82,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.toolbar_top = QtWidgets.QToolBar()
         self.toolbar_opt = QtWidgets.QToolBar()
         self.status_bar = QtWidgets.QStatusBar()
+        self.stat_lbl_item = QtWidgets.QLabel("  File to convert: 0 ")
 
         # Left Frame
         self.treewidget = QtWidgets.QTreeWidget()
@@ -144,11 +142,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lyt_rFrame_top = QtWidgets.QVBoxLayout(self.frm_right_targetcs)
 
         self.lyt_exportOpt_grid = QtWidgets.QGridLayout()
-        self.lyt_exportOpt_grid.setContentsMargins(QtCore.QMargins(9, 9, 9, 9))
+        self.lyt_exportOpt_grid.setContentsMargins(QtCore.QMargins(15, 25, 15, 25))
         self.lyt_exportOpt_grid.setVerticalSpacing(0)
-        # self.lyt_exportOpt_grid.setRowMinimumHeight(0, 60)  # title row
         self.lyt_exportOpt_grid.setRowMinimumHeight(3, 15)  # Compress row
-        # self.lyt_exportOpt_grid.setRowMinimumHeight(5, 65)
+        self.lyt_exportOpt_grid.setRowMinimumHeight(6, 15)  # Location row
+        # self.lyt_exportOpt_grid.setRowMinimumHeight(8, 15)  # Location row
 
         self.lyt_in_grid = QtWidgets.QGridLayout(self.frm_right_input)
         self.lyt_in_grid.setContentsMargins(QtCore.QMargins(9, 9, 9, 9))
@@ -185,8 +183,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lyt_exportOpt_grid.addWidget(self.lbl_exprt_compress, 5, 0)
         self.lyt_exportOpt_grid.addWidget(self.spnb_exprt_compress, 4, 1)
         self.lyt_exportOpt_grid.addWidget(self.lbl_exprt_compress_qual, 5, 1)
-        # self.lyt_exportOpt_grid.addWidget(self.rb_exprt_folder, 6, 0, 1, 1)
-        # self.lyt_exportOpt_grid.addWidget(self.rb_exprt_file, 6, 1, 1, 1)
+        self.lyt_exportOpt_grid.addWidget(self.rb_exprt_folder, 7, 0, 1, 1)
+        self.lyt_exportOpt_grid.addWidget(self.rb_exprt_file, 7, 1, 1, 1)
 
         self.lyt_rightSide.addWidget(self.lbl_in_title, 5, 0)
         self.lyt_rightSide.addWidget(self.frm_right_input, 6, 0)
@@ -202,7 +200,8 @@ class MainWindow(QtWidgets.QMainWindow):
         stylesheet_var = self.stylesheetContent('stylesheet_variations')
         stylesheet_title = self.stylesheetContent('stylesheet_title')
 
-        self.status_bar.showMessage("Status Bar Is Ready", 3000)
+        # self.status_bar.showMessage("Status Bar Is Ready", 3000)
+        self.status_bar.addWidget(self.stat_lbl_item)
 
         # Styling controls
         self.frm_left.setStyleSheet("""QFrame{
@@ -294,6 +293,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # End of base Ui modification
 
+    def abort_convert(self):
+        """
+        Stop the convert operation (QProgress Dialog)
+        """
+        self.worker.abort = True
+        self.thread.quit()
+
     def add_actions_to_toolbar(self):
 
         # Add space before creating actions
@@ -312,7 +318,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.toolbar_opt.insertWidget(self.act_convert, self.widget_spacer2)
 
     def add_cbb_items(self):
-        self.cbb_target_cs.addItems(CS_TARGET_LIST)
+        """
+        Method to fill comboxbox at initialisation
+        """
+        self.cbb_target_cs.addItems(CS_TARGET_DICO.keys())
         self.cbb_exprt_format.addItems(FORMAT_LIST)
         self.cbb_exprt_bit.addItems(BITDEPTH_DICO.keys())
         self.cbb_exprt_bit.setCurrentIndex(2)
@@ -337,6 +346,8 @@ class MainWindow(QtWidgets.QMainWindow):
         item.setIcon(0, icon)
         item.setTextAlignment(0, QtCore.Qt.AlignHCenter)
 
+        self.status_bar_update()
+
     def apply_idt(self, target):
         """
         Apply the idt to the items with the select target (All or Selection only)
@@ -358,60 +369,48 @@ class MainWindow(QtWidgets.QMainWindow):
             icon = QtGui.QIcon(IDT_DICO.get(idt)[2])
             tree_item.setIcon(0, icon)
 
+    # def progress_step(self):
+    #     self.prg_dialog.setValue(self.prg_dialog.value() + 1)
+
     def convert(self):
-        # TODO: Implement Converter
-        # TODO: UI: Implement location option
-        out_cs = self.cbb_target_cs.currentText()
+        out_cs = CS_TARGET_DICO.get(self.cbb_target_cs.currentText())
         out_format = self.cbb_exprt_format.currentText()
         out_bitdepth = self.cbb_exprt_bit.currentText()
         out_compression = self.cbb_exprt_compress.currentText().lower()
         out_compression_amount = self.spnb_exprt_compress.value()
         out_odt = self.cbb_exprt_odt.currentText()
-        out_location = 'file'
+        out_location = 'file' if self.rb_exprt_file.isChecked() else 'folder'
         resources = self.ctx.get_resource()
 
         tree_item_list = self.list_tree_items()
-        if tree_item_list:
-            self.thread = QtCore.QThread(self)
-            self.worker = Worker(tree_item_list, out_location, out_format, out_bitdepth, out_cs, out_odt,
-                                 resources, out_compression)
+        if not any([tree_item.text(3).endswith('None') for tree_item in tree_item_list]):
+            if tree_item_list:
+                self.thread = QtCore.QThread(self)
+                self.worker = Worker(tree_item_list, out_location, out_format, out_bitdepth, out_cs, out_odt,
+                                     resources, out_compression)
 
-            self.worker.moveToThread(self.thread)
-            self.worker.file_converted.connect(self.result_conversion)
-            self.worker.finished.connect(self.thread.quit)
-            self.worker.step_converter.connect(self.progress_step)
-            self.thread.started.connect(self.worker.convert_file)
-            self.thread.start()
+                self.worker.moveToThread(self.thread)
+                self.worker.file_converted.connect(self.convert_result)
+                self.worker.finished.connect(self.thread.quit)
+                # self.worker.step_converter.connect(self.progress_step)
+                self.thread.started.connect(self.worker.convert_file)
+                self.thread.start()
 
-            self.prg_dialog = QtWidgets.QProgressDialog("Converting files ...", "Abort", 1, len(tree_item_list)*3, self)
-            self.prg_dialog.setStyleSheet(""" background-color: rgb(30,30,30);""")
-            self.prg_dialog.canceled.connect(self.abort_convert)
-            self.prg_dialog.show()
+                self.prg_dialog = QtWidgets.QProgressDialog("Converting files ...", "Abort", 1, len(tree_item_list), self)
+                self.prg_dialog.setStyleSheet(""" background-color: rgb(30,30,30);color: #fafafa""")
+                self.prg_dialog.setCancelButton(self.prg_dialog_pushButton())
+                self.prg_dialog.setContentsMargins(15, 15, 15, 15)
+                self.prg_dialog.canceled.connect(self.abort_convert)
+                self.prg_dialog.show()
+        else:
+            msgbox = QtWidgets.QMessageBox()
+            msgbox.setText('Some files have unassigned IDT')
+            msgbox.exec_()
 
-    def progress_step(self):
-        self.prg_dialog.setValue(self.prg_dialog.value() + 1)
-
-    def result_conversion(self, tree_item, result_list):
+    def cbb_update_format(self):
         """
-        Method called each time a file is finished to be converted
-
-        Args:
-            tree_item: QTreeItem object
-            result_list: List[Bool, oiio error]
-
+        Is called when the file format cbb change
         """
-        # self.prg_dialog.setValue(self.prg_dialog.value() + 1)
-        self.treewidget.takeTopLevelItem(self.treewidget.indexOfTopLevelItem(tree_item))
-
-    def abort_convert(self):
-        """
-        Stop the convert operation
-        """
-        self.worker.abort = True
-        self.thread.quit()
-
-    def cbb_update(self):
-        # TODO: Implement compression disable
         export_format = self.cbb_exprt_format.currentText()
         if export_format == '.jpg':
             self.cbb_exprt_bit.clear()
@@ -420,6 +419,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.cbb_exprt_compress.clear()
             self.cbb_exprt_compress.addItem('jpg')
             self.cbb_exprt_compress.setEnabled(False)
+            self.spnb_exprt_compress.setEnabled(True)
         elif export_format == '.png':
             self.cbb_exprt_bit.clear()
             self.cbb_exprt_bit.addItems(['8bit Int', '16bit Int'])
@@ -436,6 +436,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.cbb_exprt_compress.addItems([i.capitalize() for i in COMPRESSION_LIST])
             self.cbb_exprt_compress.setEnabled(True)
             self.cbb_exprt_compress.setCurrentText('Zip')
+            self.spnb_exprt_compress.setEnabled(False)
         elif export_format == 'Original':
             self.cbb_exprt_bit.clear()
             self.cbb_exprt_bit.addItem('Original')
@@ -443,20 +444,50 @@ class MainWindow(QtWidgets.QMainWindow):
             self.cbb_exprt_compress.clear()
             self.cbb_exprt_compress.addItem('/')
             self.cbb_exprt_compress.setEnabled(False)
+            self.spnb_exprt_compress.setEnabled(False)
 
         if export_format == '.exr' or export_format == 'Original':
-            print("No ODT")
             self.cbb_exprt_odt.setEnabled(False)
             self.cbb_exprt_odt.setCurrentText('None')
             self.cbb_exprt_odt.setHidden(True)
             self.lbl_exprt_odt.setHidden(True)
 
         else:
-            print("odt")
             self.cbb_exprt_odt.setEnabled(True)
             self.cbb_exprt_odt.setHidden(False)
             self.cbb_exprt_odt.setCurrentText('None')
             self.lbl_exprt_odt.setHidden(False)
+
+    def compression_update(self):
+        compression = self.cbb_exprt_compress.currentText()
+        print(compression)
+        if compression == 'Dwaa' or compression == 'Dwab':
+            print("equal")
+            self.spnb_exprt_compress.setEnabled(True)
+        else:
+            print("no compression")
+            self.spnb_exprt_compress.setEnabled(False)
+
+    def convert_result(self, tree_item, result_list):
+        """
+        Method called each time a file is finished to be converted
+
+        Args:
+            tree_item: QTreeItem object
+            result_list: List[Bool, oiio error]
+
+        """
+        self.prg_dialog.setValue(self.prg_dialog.value() + 1)
+        self.treewidget.takeTopLevelItem(self.treewidget.indexOfTopLevelItem(tree_item))
+
+        self.status_bar_update()
+
+    def delete_tree_item(self):
+        selection = self.treewidget.selectedItems()
+        for tree_items in selection:
+            self.treewidget.takeTopLevelItem(self.treewidget.indexOfTopLevelItem(tree_items))
+
+        self.status_bar_update()
 
     def load_fonts(self):
         path1 = self.ctx.get_resource("font/JosefinSans-SemiBold.ttf")
@@ -481,13 +512,50 @@ class MainWindow(QtWidgets.QMainWindow):
             items_list.append(root.child(i))
         return items_list
 
+    @staticmethod
+    def prg_dialog_pushButton():
+        btn = QtWidgets.QPushButton('Abort')
+        btn.setMinimumSize(70, 40)
+        btn.setContentsMargins(QtCore.QMargins(15, 15, 15, 15))
+        return btn
+
+    def open_file(self):
+        dialog = QtWidgets.QFileDialog(self)
+        # dialog.setC
+        dialog.setFileMode(QtWidgets.QFileDialog.ExistingFiles)
+        dialog.setNameFilter("Images (*.png *.exr *.jpg *.hdr *.jpeg)")
+
+        if dialog.exec_():
+            self.lbl_placeholder.setHidden(True)
+            self.treewidget.setHidden(False)
+            filenames = dialog.selectedFiles()
+            for file_path in filenames:
+                self.add_tree_widget_item(file_path)
+
+    def open_info_wind(self):
+        self.wind_info = InfoWindow(self.main_widget)
+        self.wind_info.exec_()
+
+    def select_all_tree_items(self):
+        self.treewidget.selectAll()
+
     def setup_connections(self):
         self.act_convert.triggered.connect(self.convert)
         self.act_info.triggered.connect(self.open_info_wind)
-        self.cbb_exprt_format.currentTextChanged.connect(self.cbb_update)
-        self.treewidget.itemClicked.connect(self.treeview_item_clicked)
+        self.act_open.triggered.connect(self.open_file)
+        self.cbb_exprt_format.currentTextChanged.connect(self.cbb_update_format)
+        self.cbb_exprt_compress.currentTextChanged.connect(self.compression_update)
         self.btn_in_apply.clicked.connect(partial(self.apply_idt, True))
         self.btn_in_apply_all.clicked.connect(partial(self.apply_idt, False))
+
+        QtWidgets.QShortcut(QtGui.QKeySequence('Delete'), self, self.delete_tree_item)
+        QtWidgets.QShortcut(QtGui.QKeySequence('Backspace'), self, self.delete_tree_item)
+        QtWidgets.QShortcut(QtGui.QKeySequence('Ctrl+A'), self, self.select_all_tree_items)
+
+    def status_bar_update(self):
+        root = self.treewidget.invisibleRootItem()
+        child_root_n = root.childCount()
+        self.stat_lbl_item.setText(f"  File to convert: {child_root_n}  ")
 
     def stylesheetContent(self, name):
         css_file = self.ctx.get_resource(f"{name}.css")
@@ -495,12 +563,3 @@ class MainWindow(QtWidgets.QMainWindow):
             content = f.read()
         return content
 
-    def treeview_item_clicked(self):
-        # TODO: delete this method
-        sel = self.treewidget.selectedItems()
-        for items in sel:
-            print(items.text(2), ':', items.text(3))
-
-    def open_info_wind(self):
-        self.wind_info = InfoWindow(self.main_widget)
-        self.wind_info.exec_()

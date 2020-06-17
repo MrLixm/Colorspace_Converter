@@ -1,5 +1,5 @@
 {
-    "app_name": "OCIO_converter",
+    "app_name": "Colorspace_converter",
     "author": "LiamCollod",
     "main_module": "src/main/python/main.py",
     "version": "0.0.1"

@@ -10,12 +10,15 @@ from package.data_list import ODT_DICO, BITDEPTH_DICO
 
 
 class Converter:
+
+    # convert_progress = QtCore.Signal()
+
     def __init__(self, in_img_path, out_location, out_format, out_bitdepth, in_cs, out_cs,
-                 odt, resources_path, compression):
+                 odt, resources_path, compression, cctf):
         """
 
         Args:
-            in_img_path: path \ name.ext of the file
+            in_img_path: path/name.ext of the file
             out_location: 'file' or 'folder'
             out_format: file extension like '.jpg'
             out_bitdepth: bitdepth for the output file: uint8,uint16,half,float, original
@@ -23,8 +26,10 @@ class Converter:
             out_cs: target colorspace
             odt: the Output Display Transform to apply (False if not wanted)
             compression: Compression method for exr: none, rle, zip, zips, piz, pxr24, b44, b44a, dwaa, or dwab
+            cctf: Bool : Apply in cs decoding colour component transferfunction/electro-optical transferfunction.
 
         """
+        self.cctf = cctf
         self.resources_path = resources_path
         self.out_format = out_format
         self.out_filePath = self.pathGeneration(in_img_path, out_location, out_format)
@@ -34,7 +39,6 @@ class Converter:
         self.out_cs = out_cs
         self.odt = odt
         self.compression = compression
-        self.convert_progress = QtCore.Signal()
 
         oiio.attribute("threads", 0)
         oiio.attribute("exr_threads", 0)
@@ -49,12 +53,12 @@ class Converter:
         in_buf_rgb = oiio.ImageBufAlgo.channels(in_buf_data, (0, 1, 2))  # Remove other channels(multi-channels exr)
         if in_buf_rgb.has_error:
             return [False, in_buf_rgb.geterror()]
-        self.convert_progress.emit()
+        # self.convert_progress.emit()
 
         in_array_rgb = in_buf_rgb.get_pixels()
-        converted_array_rgba = self.pixel_processing(in_array_rgb)  # Apply colorspace conversion & various
+        converted_array_rgba = self.pixel_processing(in_array_rgb, cctf=self.cctf)  # Apply colorspace conversion & various
         in_buf_rgb.set_pixels(in_buf_roi, converted_array_rgba)  # Replace the buffer with the converted pixels
-        self.convert_progress.emit()
+        # self.convert_progress.emit()
 
         bitdepth = self.bitdepth_picker(in_buf_data.nativespec().format, self.out_bitdepth)
         in_buf_rgb.specmod().attribute("compression", self.compression.lower())
@@ -63,7 +67,7 @@ class Converter:
         if in_buf_rgb.has_error:
             return [False, in_buf_rgb.geterror()]
         in_buf_rgb.write(self.out_filePath)
-        self.convert_progress.emit()
+        # self.convert_progress.emit()
         return [True]
 
     def apply_odt_aces(self, in_rgb):

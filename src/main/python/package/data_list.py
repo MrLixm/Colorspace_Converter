@@ -1,13 +1,13 @@
-CS_TARGET_LIST = [
-    'ACEScg',
-    'ACES2065-1',
-    'ACEScc',
-    'ACEScct',
-    'sRGB-Rec709',
-    'Adobe Wide Gamut RGB',
-    'Adobe RGB (1998)',
-    'ITU-R BT.2020',
-]
+CS_TARGET_DICO = {
+    'ACEScg': 'ACEScg',
+    'ACES2065-1': 'ACES2065-1',
+    'ACEScc': 'ACEScc',
+    'ACEScct': 'ACEScct',
+    'sRGB-Rec709': 'sRGB',
+    'Adobe Wide Gamut RGB': 'Adobe Wide Gamut RGB',
+    'Adobe RGB (1998)': 'Adobe RGB (1998)',
+    'Rec2020': 'ITU-R BT.2020'
+}
 
 FORMAT_LIST = [".exr", ".jpg", ".png", "Original"]
 
