@@ -141,7 +141,6 @@ QComboBox {
 	font-size: 13px;
 	font-weight: normal;
 }
-
 QComboBox QAbstractItemView {
 /*    background-color: rgb(45,45,47);*/
     background-color: transparent;
@@ -161,6 +160,11 @@ QComboBox QAbstractItemView {
 
     selection-background-color: rgb(224,212,61);
     selection-color: rgb(25, 25, 25);
+}
+
+QComboBox  QAbstractItemView:!enabled{
+    color: rgb(80,80,80)
+
 }
 
 QComboBox QListView {

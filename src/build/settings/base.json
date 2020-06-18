@@ -2,5 +2,5 @@
     "app_name": "Colorspace_converter",
     "author": "LiamCollod",
     "main_module": "src/main/python/main.py",
-    "version": "0.0.1"
+    "version": "1.0.0"
 }

@@ -35,11 +35,8 @@ class Worker(QtCore.QObject):
         self.abort = False
 
     def convert_file(self):
-        print("func: convert files")
         for tree_item in self.tree_item_list:
-            print("Abort:", self.abort)
             if not self.abort:
-                print("not abort")
                 item_file_path = tree_item.text(2)
                 item_in_cs = IDT_DICO.get(tree_item.text(3))[0]  # Get the colorspace only
                 item_cctf = IDT_DICO.get(tree_item.text(3))[1]
@@ -48,10 +45,8 @@ class Worker(QtCore.QObject):
                                       out_bitdepth=self.out_bitdepth, in_cs=item_in_cs, out_cs=self.out_cs,
                                       odt=self.out_odt, resources_path=self.resources_path,
                                       compression=self.compression, cctf=item_cctf)
-                print("Instanced")
 
                 result_list = converter.image_processing()
-                print("Converted:", result_list)
                 # converter.convert_progress.connect(self.step_converter.emit())
                 self.file_converted.emit(tree_item, result_list)
 
@@ -60,7 +55,6 @@ class Worker(QtCore.QObject):
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, ctx):
-        print("Init MainWindow")
         super().__init__()
 
         self.ctx = ctx
@@ -78,6 +72,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.add_cbb_items()
         self.cbb_update_format()
         self.setup_connections()
+        self.cbb_udpate_odt()
 
     def create_widgets(self):
         self.main_widget = QtWidgets.QWidget()
@@ -93,7 +88,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lbl_placeholder = QtWidgets.QLabel("Drag & Drop files here")
         self.frm_left = FrameCustom(self)
         self.cbb_exprt_odt = QtWidgets.QComboBox()
-        self.lbl_exprt_odt = QtWidgets.QLabel(" ODT")
+        self.lbl_exprt_odt = QtWidgets.QLabel(" ODT / TransferFunction")
 
         self.spltr_middle = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
 
@@ -381,7 +376,6 @@ class MainWindow(QtWidgets.QMainWindow):
         out_format = self.cbb_exprt_format.currentText()
         out_bitdepth = self.cbb_exprt_bit.currentText()
         out_compression = self.cbb_exprt_compress.currentText().lower()+':'+str(self.spnb_exprt_compress.value())
-        print(out_compression)
         out_compression_amount = self.spnb_exprt_compress.value()
         out_odt = self.cbb_exprt_odt.currentText()
         out_location = 'file' if self.rb_exprt_file.isChecked() else 'folder'
@@ -390,7 +384,6 @@ class MainWindow(QtWidgets.QMainWindow):
         tree_item_list = self.list_tree_items()
         if not any([tree_item.text(3).endswith('None') for tree_item in tree_item_list]):
             if tree_item_list:
-                print("Tree item list existing")
                 self.thread = QtCore.QThread(self)
                 self.worker = Worker(tree_item_list, out_location, out_format, out_bitdepth, out_cs, out_odt,
                                      resources, out_compression)
@@ -477,6 +470,17 @@ class MainWindow(QtWidgets.QMainWindow):
             self.cbb_exprt_odt.setCurrentText('None')
             self.lbl_exprt_odt.setHidden(False)
 
+    def cbb_udpate_odt(self):
+        current_out_cs = self.cbb_target_cs.currentText()
+        if current_out_cs != 'ACEScg':
+            for i in range(self.cbb_target_cs.count()):
+                if self.cbb_exprt_odt.itemText(i).endswith('(ACES)'):
+                    self.cbb_exprt_odt.model().item(i).setEnabled(False)
+        else:
+            for i in range(self.cbb_target_cs.count()):
+                if self.cbb_exprt_odt.itemText(i).endswith('(ACES)'):
+                    self.cbb_exprt_odt.model().item(i).setEnabled(True)
+
     def compression_update(self):
         compression = self.cbb_exprt_compress.currentText()
         print(compression)
@@ -531,13 +535,6 @@ class MainWindow(QtWidgets.QMainWindow):
             items_list.append(root.child(i))
         return items_list
 
-    @staticmethod
-    def prg_dialog_pushButton():
-        btn = QtWidgets.QPushButton('Abort')
-        btn.setMinimumSize(70, 40)
-        btn.setContentsMargins(QtCore.QMargins(15, 15, 15, 15))
-        return btn
-
     def open_file(self):
         dialog = QtWidgets.QFileDialog(self)
         # dialog.setC
@@ -552,8 +549,15 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.add_tree_widget_item(file_path)
 
     def open_info_wind(self):
-        self.wind_info = InfoWindow(self.main_widget)
+        self.wind_info = InfoWindow(self.main_widget, self.ctx)
         self.wind_info.exec_()
+
+    @staticmethod
+    def prg_dialog_pushButton():
+        btn = QtWidgets.QPushButton('Abort')
+        btn.setMinimumSize(70, 40)
+        btn.setContentsMargins(QtCore.QMargins(15, 15, 15, 15))
+        return btn
 
     def select_all_tree_items(self):
         self.treewidget.selectAll()
@@ -562,6 +566,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.act_convert.triggered.connect(self.convert)
         self.act_info.triggered.connect(self.open_info_wind)
         self.act_open.triggered.connect(self.open_file)
+        self.cbb_target_cs.currentTextChanged.connect(self.cbb_udpate_odt)
         self.cbb_exprt_format.currentTextChanged.connect(self.cbb_update_format)
         self.cbb_exprt_compress.currentTextChanged.connect(self.compression_update)
         self.btn_in_apply.clicked.connect(partial(self.apply_idt, True))
@@ -577,6 +582,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.stat_lbl_item.setText(f"  File to convert: {child_root_n}  ")
 
     def stylesheetContent(self, name):
+        main_yellow = '#E0D43D'
         css_file = self.ctx.get_resource(f"{name}.css")
         with open(css_file, "r") as f:
             content = f.read()

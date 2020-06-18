@@ -42,4 +42,10 @@ def foopath():
 
 if __name__ == '__main__':
     # foopath()
-    print(colour.RGB_COLOURSPACES['ITU-R BT.709'])
+    result = colour.RGB_COLOURSPACES['sRGB'].whitepoint
+    result2 = colour.RGB_COLOURSPACES['ACEScg'].whitepoint
+    result3 = colour.RGB_COLOURSPACES['ITU-R BT.709'].whitepoint
+    print("sRGB", result)
+    print("ACEScg", result2)
+    print("rec709", result3)
+    print(colour.ILLUMINANTS_SDS['D60'])

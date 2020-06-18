@@ -56,7 +56,7 @@ IDT_DICO = {
     'ACES2065-1': ['ACES2065-1', False, ':/idt/icon_idt_acesap0.png'],
     'ACEScc': ['ACEScc', False, ':/idt/icon_idt_acescc.png'],
     'ACEScct': ['ACEScct', False, ':/idt/icon_idt_acescct.png'],
-    'XYZ': ['XYZ', False, ':/idt/icon_idt_xyz.png'],
+    'XYZ D60': ['XYZ', False, ':/idt/icon_idt_xyz.png'],
     'ADOBE 1998': ['Adobe RGB (1998)', False, ':/idt/icon_idt_adobe.png'],
     'ADOBE WIDE GAMUT': ['Adobe Wide Gamut RGB', False, ':/idt/icon_idt_adobewg.png']
 }
