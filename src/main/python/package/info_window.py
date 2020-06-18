@@ -63,6 +63,8 @@ class InfoWindow(QtWidgets.QDialog):
         self.lbl_title.setStyleSheet(stylesheet_title)
         self.lbl_title.setAlignment(QtCore.Qt.AlignCenter)
         self.btn_madeby.setMinimumHeight(25)
+        self.btn_madeby.setEnabled(False)
+        self.lbl_request.setOpenExternalLinks(True)
         self.wdgt_line.setStyleSheet(stylesheet_line)
         self.wdgt_line.setMinimumHeight(1)
         self.lbl_thanks_color.setAlignment(QtCore.Qt.AlignCenter)
@@ -75,13 +77,21 @@ class InfoWindow(QtWidgets.QDialog):
         self.lyt_social = QtWidgets.QHBoxLayout()
 
     def create_social(self):
-        icon_list = {'twitter': 'https://twitter.com/MrLixm'}
+        icon_list = {'twitter': 'https://twitter.com/MrLixm',
+                     'artstation': 'https://www.artstation.com/monsieur_lixm',
+                     'linkedin':  'https://www.linkedin.com/in/liam-collod/',
+                     'github': 'https://github.com/MrLixm/Colorspace_Converter',
+                     'gumroad': 'https://gumroad.com/liam_collod'
+                     }
         for item in icon_list.keys():
             lbl = QtWidgets.QPushButton()
-            icon = QtGui.QIcon(':/cbb/icon_cbb_open_dark.png')
+            icon = QtGui.QIcon(f':/social/icon_social_{item}.png')
             lbl.setIcon(icon)
             lbl.setFixedSize(25 , 25)
             lbl.clicked.connect(partial(self.open_social, icon_list.get(item)))
+            lbl.setStyleSheet(""" QPushButton{ background-color: transparent;}
+             QPushButton:hover{ background-color: rgb(80,80,80);}}
+            """)
             self.lyt_social.addWidget(lbl)
 
     def open_social(self, link):
