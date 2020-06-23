@@ -59,7 +59,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.ctx = ctx
 
-        self.setWindowTitle("PYCO ColorSpace")
+        self.setWindowTitle("PYCO ColorSpace Converter")
         self.setup_ui()
 
     def setup_ui(self):
@@ -121,7 +121,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.btn_in_apply_all = QtWidgets.QPushButton('Apply to All')
 
         # Toolbar items
-        self.lbl_title = QtWidgets.QLabel(' IMAGE COLORSPACE CONVERTER')
+        self.lbl_title = QtWidgets.QLabel('')
         self.widget_spacer = QtWidgets.QWidget()
         self.widget_spacer2 = QtWidgets.QWidget()
 
@@ -220,14 +220,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lbl_cbb_target.setStyleSheet(stylesheet_title)
         self.cbb_target_cs.setStyleSheet(stylesheet_var)
         self.frm_right_targetcs.setStyleSheet(
-            """.QFrame{background-color: rgb(50,50,50) ;margin:0px; border-left: 3px solid #E0D43D;} """)
+            """.QFrame{background-color: rgb(50,50,50) ;margin:0px; border-left: 3px solid rgb(240,237,97);} """)
         self.cbb_exprt_odt.setStyleSheet("""QComboBox{background-color:rgb(40,40,40);}""")
         self.lbl_exportOptions.setStyleSheet(stylesheet_var)
         self.lbl_in_title.setStyleSheet(stylesheet_var)
 
         # ToolBar
-        self.lbl_title.setEnabled(False)
-        print(self.lbl_title.isEnabled())
+        # self.lbl_title.setEnabled(False)
+        title_pix = QtGui.QPixmap(":/root/title.png")
+        title_pix = title_pix.scaled(300, 150, QtCore.Qt.KeepAspectRatio, QtCore.Qt.TransformationMode.SmoothTransformation)
+        self.lbl_title.setPixmap(title_pix)
         self.widget_spacer.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.widget_spacer2.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.toolbar_top.setMovable(False)
@@ -309,9 +311,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.act_settings = QtWidgets.QAction(QtGui.QIcon(self.ctx.get_resource("icon_settings.png")), "Settings", self)
         self.toolbar_top.addAction(self.act_settings)
 
-        self.act_open = QtWidgets.QAction(QtGui.QIcon(self.ctx.get_resource("icon_open.png")), "Open image", self)
+        self.act_open = QtWidgets.QAction(QtGui.QIcon(self.ctx.get_resource("icon_open_2.png")), "Open image", self)
         self.toolbar_opt.addAction(self.act_open)
-        self.act_convert = QtWidgets.QAction(QtGui.QIcon(self.ctx.get_resource("icon_convert.png")), "Convert", self)
+        self.act_convert = QtWidgets.QAction(QtGui.QIcon(self.ctx.get_resource("icon_convert_2.png")), "Convert", self)
         self.toolbar_opt.addAction(self.act_convert)
 
         self.toolbar_opt.insertWidget(self.act_convert, self.widget_spacer2)
@@ -483,12 +485,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def compression_update(self):
         compression = self.cbb_exprt_compress.currentText()
-        print(compression)
         if compression == 'Dwaa' or compression == 'Dwab':
-            print("equal")
             self.spnb_exprt_compress.setEnabled(True)
         else:
-            print("no compression")
             self.spnb_exprt_compress.setEnabled(False)
 
     def convert_result(self, tree_item, result_list):

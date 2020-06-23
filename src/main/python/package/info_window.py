@@ -33,6 +33,7 @@ class InfoWindow(QtWidgets.QDialog):
             "Bug/Feature request: <a href= mailto:monsieurlixm@gmail.com style=color:rgb(36,221,121) "
             "style=text-decoration:none >monsieurlixm@gmail.com</a>")
 
+        self.btn_doc = QtWidgets.QPushButton("Documentation")
         self.wdgt_line = QtWidgets.QWidget()
         self.lbl_thanks = QtWidgets.QLabel("""Made possible thanks to : """)
         self.lbl_thanks_color = QtWidgets.QLabel("<a href=https://www.colour-science.org style=color:rgb(36,221,121) "
@@ -64,6 +65,7 @@ class InfoWindow(QtWidgets.QDialog):
         self.lbl_title.setAlignment(QtCore.Qt.AlignCenter)
         self.btn_madeby.setMinimumHeight(25)
         self.btn_madeby.setEnabled(False)
+        self.btn_doc.setMinimumHeight(30)
         self.lbl_request.setOpenExternalLinks(True)
         self.wdgt_line.setStyleSheet(stylesheet_line)
         self.wdgt_line.setMinimumHeight(1)
@@ -102,6 +104,7 @@ class InfoWindow(QtWidgets.QDialog):
         self.lyt_v_main.addWidget(self.lbl_title)
         self.lyt_v_main.addWidget(self.btn_madeby)
         self.lyt_v_main.addLayout(self.lyt_social)
+        self.lyt_v_main.addWidget(self.btn_doc)
         self.lyt_v_main.addWidget(self.lbl_request)
         self.lyt_v_main.addWidget(self.wdgt_line)
         self.lyt_v_main.addWidget(self.lbl_thanks)
@@ -109,4 +112,5 @@ class InfoWindow(QtWidgets.QDialog):
         self.lyt_v_main.addWidget(self.lbl_thanks_fred)
 
     def setup_connections(self):
-        pass
+        self.btn_doc.clicked.connect(partial(self.open_social,
+                                               'https://mrlixm.github.io/PYCO/standalone/ColorspaceConvert/home/'))

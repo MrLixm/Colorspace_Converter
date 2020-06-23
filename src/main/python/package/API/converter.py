@@ -7,6 +7,8 @@ from oiio import OpenImageIO as oiio
 
 from package.data_list import ODT_DICO, BITDEPTH_DICO
 
+# TODO: implemant logging
+# TODO: finish ODT/tf
 
 logging.basicConfig(level=logging.DEBUG)
 #                    filename=r"L:\SCRIPT\Colour\OCIO_converter\tests\loggs.log",  # or specify the path+file

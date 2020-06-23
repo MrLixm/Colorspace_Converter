@@ -43,18 +43,18 @@ QTreeView {
 QTreeWidget::item:selected{
     outline: 0;
     border: none;
-    background-color: rgba(54,150,220,150);
+    background-color: rgba(88,99,248,150);
 }
 QTreeWidget::item:selected:active{
     outline: 0;
     border: 0;
-    background-color: rgba(54,150,220,150);
+    background-color: rgba(88,99,248,150);
 }
 QTreeWidget::item:selected:!active{
     outline: 0;
     border: none;
     color: #fafafa;
-    background-color: rgba(54,150,220,80);
+    background-color: rgba(88,99,248,80);
 }
 QTreeWidget::item:active{
     outline:0;
@@ -63,9 +63,11 @@ QTreeWidget::item:active{
 
 QHeaderView{
     border: 1px solid rgb(80,80,80);
-    border-left: 3px solid  rgb(54, 150, 220);
+    border-left: 3px solid  rgb(88,99,248);
     border-radius: 15px;
     font-family: Josefin Sans;
+    /*padding: 6px;*/
+    /*margin:6px;*/
 }
 
 QHeaderView::section{
@@ -98,10 +100,10 @@ QPushButton {
 }
 
 QPushButton::hover {
-    background-color: rgba(54,150, 220,100);
+    background-color: rgba(88,99,248,100);
 }
 QPushButton::pressed {
-    border: 2px solid rgb(54, 150, 220)
+    border: 2px solid rgb(88,99,248)
 }
 
 QStatusBar {
@@ -144,7 +146,7 @@ QComboBox {
 QComboBox QAbstractItemView {
 /*    background-color: rgb(45,45,47);*/
     background-color: transparent;
-    color: #fafafa;
+    color: rgb(200,200,200);
 
     outline: 5px;
     outline-offset:0px;
@@ -158,8 +160,8 @@ QComboBox QAbstractItemView {
     padding: 5px;
     margin: 0px;
 
-    selection-background-color: rgb(224,212,61);
-    selection-color: rgb(25, 25, 25);
+    selection-background-color: rgba(80,80,90,50);
+    selection-color: #fafafa;
 }
 
 QComboBox  QAbstractItemView:!enabled{
@@ -174,7 +176,7 @@ QComboBox QListView {
 
 /* Opening item*/
 QComboBox::drop-down {
-	background-color:  rgb(224,212,61);
+	background-color:  rgb(240,237,97);
     subcontrol-origin: padding;
     subcontrol-position: top right;
     width: 20px;
@@ -182,7 +184,7 @@ QComboBox::drop-down {
 	border-radius: 5px;
 }
 QComboBox::drop-down:hover{
-    background-color: rgb(243,230,95);
+    background-color: rgba(240,237,97);
 }
 QComboBox::down-arrow:!on {
     image: url(":/cbb/icon_cbb_open_dark.png");
@@ -222,7 +224,7 @@ QScrollBar:vertical {
      border-radius: 5px
  }
  QScrollBar::handle:vertical {
-     background: #3696DC;
+     background: rgb(80,80,80);
      min-height: 20px;
      border-radius: 5px
  }
@@ -362,7 +364,7 @@ QRadioButton::indicator::unchecked {
 
 }
 QRadioButton::indicator::checked {
-    background-color: rgb(224,212,61);
+    background-color: rgb(240,237,97);
 
 }
 
@@ -380,7 +382,7 @@ QSpinBox:!enabled{
     color: rgb(80,80,80)
 }
 QSpinBox::up-button {
-    background-color: #E0D43D;
+    background-color: rgb(240,237,97);
     margin:1px;
     border-radius:2px;
 }
@@ -394,7 +396,7 @@ QSpinBox::up-button:pressed {
 }
 
 QSpinBox::down-button {
-    background-color: #E0D43D;
+    background-color: rgb(240,237,97);
     margin:1px;
     border-radius:2px;
 }

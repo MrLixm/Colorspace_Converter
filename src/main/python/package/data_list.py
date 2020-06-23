@@ -9,7 +9,7 @@ CS_TARGET_DICO = {
     'Rec2020': 'ITU-R BT.2020'
 }
 
-FORMAT_LIST = [".exr", ".jpg", ".png", "Original"]
+FORMAT_LIST = [".exr", ".jpg", ".png"]  # , "Original"]
 
 BITDEPTH_DICO = {
     "8bit Int": "uint8",
@@ -37,7 +37,6 @@ ODT_DICO = {
     'sRGB(EOTF)': ['sRGB'],
     'rec709(OETF)': ['ITU-R BT.709'],
     'Gamma 2.2': ['Gamma 2.2'],
-    'Maybe filmic ?': [None],
 }
 
 """

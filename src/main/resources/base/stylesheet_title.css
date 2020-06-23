@@ -9,7 +9,7 @@ QLabel[enabled="true"] {
  }
 
 QLabel[enabled="false"] {
-    background-color: rgb(224,212,61);
+    /*background-color: rgb(224,212,61);*/
     color: rgb(30,30,30);
     font-size: 20px;
     font-family: Josefin Sans;

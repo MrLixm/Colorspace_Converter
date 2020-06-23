@@ -64,7 +64,8 @@ class FrameCustom(QtWidgets.QFrame):
             # Return all the file in the subfolder:
             full_folder_file_list = [os.path.join(r, files) for r, d, f in os.walk(file_path_in) for files in f]
             for file_path_item in full_folder_file_list:
-                self.mainWind.add_tree_widget_item(file_path_item)
+                if os.path.splitext(file_path_item)[1] in SUPPORTED_IN_FORMAT:
+                    self.mainWind.add_tree_widget_item(file_path_item)
         else:
             self.mainWind.add_tree_widget_item(file_path_in)
             # item.setBackground(0, QtGui.QBrush(QtGui.QColor(30, 127, 30)))
