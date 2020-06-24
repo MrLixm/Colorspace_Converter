@@ -1,6 +1,10 @@
 """
-Create the GUI
+Create the QFrame widget that support drag & drop
+
+Author: Liam Collod
+Contact: lcollod@gmail.com
 """
+
 import os
 
 from PySide2 import QtWidgets, QtCore, QtGui

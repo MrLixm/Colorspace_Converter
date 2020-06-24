@@ -1,5 +1,8 @@
 """
-Create the GUI
+Create the GUI for the app
+
+Author: Liam Collod
+Contact: lcollod@gmail.com
 """
 import os
 from functools import partial
@@ -14,7 +17,6 @@ from package.widget_frame_custom import FrameCustom
 
 
 # TODO: implement settings menu
-# TODO: finish info window
 
 class Worker(QtCore.QObject):
     file_converted = QtCore.Signal(object, bool)
@@ -28,7 +30,8 @@ class Worker(QtCore.QObject):
         self.out_location = out_location
         self.out_format = out_format
         self.out_bitdepth = out_bitdepth
-        self.out_cs = out_cs
+        self.out_cs = CS_TARGET_DICO.get(out_cs)[0]
+        self.cctf_encoding = CS_TARGET_DICO.get(out_cs)[1]
         self.out_odt = odt
         self.resources_path = resources_path
         self.compression = compression
@@ -44,7 +47,7 @@ class Worker(QtCore.QObject):
                 converter = Converter(item_file_path, out_location=self.out_location, out_format=self.out_format,
                                       out_bitdepth=self.out_bitdepth, in_cs=item_in_cs, out_cs=self.out_cs,
                                       odt=self.out_odt, resources_path=self.resources_path,
-                                      compression=self.compression, cctf=item_cctf)
+                                      compression=self.compression, cctf=item_cctf, cctf_encoding=self.cctf_encoding)
 
                 result_list = converter.image_processing()
                 # converter.convert_progress.connect(self.step_converter.emit())
@@ -79,7 +82,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.toolbar_top = QtWidgets.QToolBar()
         self.toolbar_opt = QtWidgets.QToolBar()
         self.status_bar = QtWidgets.QStatusBar()
-        self.stat_lbl_item = QtWidgets.QLabel("  File to convert: 0 ")
+        self.stat_lbl_item = QtWidgets.QLabel("  Files to convert: 0 ")
 
         # Left Frame
         self.treewidget = QtWidgets.QTreeWidget()
@@ -309,7 +312,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.act_info = QtWidgets.QAction(QtGui.QIcon(self.ctx.get_resource("icon_info.png")), "About this app", self)
         self.toolbar_top.addAction(self.act_info)
         self.act_settings = QtWidgets.QAction(QtGui.QIcon(self.ctx.get_resource("icon_settings.png")), "Settings", self)
-        self.toolbar_top.addAction(self.act_settings)
+        # self.toolbar_top.addAction(self.act_settings)
 
         self.act_open = QtWidgets.QAction(QtGui.QIcon(self.ctx.get_resource("icon_open_2.png")), "Open image", self)
         self.toolbar_opt.addAction(self.act_open)
@@ -374,7 +377,7 @@ class MainWindow(QtWidgets.QMainWindow):
     #     self.prg_dialog.setValue(self.prg_dialog.value() + 1)
 
     def convert(self):
-        out_cs = CS_TARGET_DICO.get(self.cbb_target_cs.currentText())
+        out_cs = self.cbb_target_cs.currentText()
         out_format = self.cbb_exprt_format.currentText()
         out_bitdepth = self.cbb_exprt_bit.currentText()
         out_compression = self.cbb_exprt_compress.currentText().lower()+':'+str(self.spnb_exprt_compress.value())
@@ -578,7 +581,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def status_bar_update(self):
         root = self.treewidget.invisibleRootItem()
         child_root_n = root.childCount()
-        self.stat_lbl_item.setText(f"  File to convert: {child_root_n}  ")
+        self.stat_lbl_item.setText(f"  Files to convert: {child_root_n}  ")
 
     def stylesheetContent(self, name):
         main_yellow = '#E0D43D'

@@ -1,15 +1,31 @@
+"""
+Data list and dicos used through the app to determine features
+
+Author: Liam Collod
+Contact: lcollod@gmail.com
+"""
+
+"""
+Dictionnary of the output colorspaces
+keys: str: graphical element
+value: list: 
+        list[0]: API element
+        list[1]: Apply CCTF cctf_encoding
+"""
 CS_TARGET_DICO = {
-    'ACEScg': 'ACEScg',
-    'ACES2065-1': 'ACES2065-1',
-    'ACEScc': 'ACEScc',
-    'ACEScct': 'ACEScct',
-    'sRGB-Rec709': 'sRGB',
-    'Adobe Wide Gamut RGB': 'Adobe Wide Gamut RGB',
-    'Adobe RGB (1998)': 'Adobe RGB (1998)',
-    'Rec2020': 'ITU-R BT.2020'
+    'ACEScg':               ['ACEScg', False],
+    'ACES2065-1':           ['ACES2065-1', False],
+    'ACEScc':               ['ACEScc', True],
+    'ACEScct':              ['ACEScct', True],
+    'sRGB-Rec709':          ['sRGB', False],
+    'Adobe Wide Gamut RGB': ['Adobe Wide Gamut RGB', False],
+    'Adobe RGB (1998)':     ['Adobe RGB (1998)', False],
+    'Rec2020':              ['ITU-R BT.2020', False]
 }
 
+SUPPORTED_IN_FORMAT = ['.exr', '.png', '.jpg', '.jpeg', '.tiff', '.hdr']
 FORMAT_LIST = [".exr", ".jpg", ".png"]  # , "Original"]
+COMPRESSION_LIST = ['none', 'rle', 'zip', 'zips', 'piz', 'pxr24', 'b44', 'b44a', 'dwaa', 'dwab']
 
 BITDEPTH_DICO = {
     "8bit Int": "uint8",
@@ -20,7 +36,6 @@ BITDEPTH_DICO = {
 }
 
 """
-
 Dictionnary of the Outputs Display Transform options
 keys: str: graphical element
 value: list: list of lut corresponding to the odt
@@ -40,7 +55,7 @@ ODT_DICO = {
 }
 
 """
-Dictionnary of the Inputs Display Transform options
+Dictionnary of the Inputs Device Transform options
 keys: str: graphical element
 value: list: list of the API element and Icon
         list[0]: input colorpsace
@@ -48,18 +63,15 @@ value: list: list of the API element and Icon
         list[2]: icon path
 """
 IDT_DICO = {
-    'sRGB-Linear': ['sRGB', False, ':/idt/icon_idt_srgb_lin.png'],
-    'sRGB-Texture': ['sRGB', True, ':/idt/icon_idt_srgb_tex.png'],
-    'rec709-Texture': ['ITU-R BT.709', True, ':/idt/icon_idt_rec709_tex.png'],
+    'Utility - sRGB - Linear': ['sRGB', False, ':/idt/icon_idt_srgb_lin.png'],
+    'Utility - sRGB - Texture': ['sRGB', True, ':/idt/icon_idt_srgb_tex.png'],
+    'Utility - rec709 - Texture': ['ITU-R BT.709', True, ':/idt/icon_idt_rec709_tex.png'],
     'ACEScg': ['ACEScg', False, ':/idt/icon_idt_acescg.png'],
     'ACES2065-1': ['ACES2065-1', False, ':/idt/icon_idt_acesap0.png'],
-    'ACEScc': ['ACEScc', False, ':/idt/icon_idt_acescc.png'],
-    'ACEScct': ['ACEScct', False, ':/idt/icon_idt_acescct.png'],
+    'ACEScc': ['ACEScc', True, ':/idt/icon_idt_acescc.png'],
+    'ACEScct': ['ACEScct', True, ':/idt/icon_idt_acescct.png'],
     'XYZ D60': ['XYZ', False, ':/idt/icon_idt_xyz.png'],
-    'ADOBE 1998': ['Adobe RGB (1998)', False, ':/idt/icon_idt_adobe.png'],
-    'ADOBE WIDE GAMUT': ['Adobe Wide Gamut RGB', False, ':/idt/icon_idt_adobewg.png']
+    'ADOBE 1998 - Linear': ['Adobe RGB (1998)', False, ':/idt/icon_idt_adobe.png'],
+    'ADOBE WIDE GAMUT - Linear': ['Adobe Wide Gamut RGB', False, ':/idt/icon_idt_adobewg.png']
 }
 
-COMPRESSION_LIST = ['none', 'rle', 'zip', 'zips', 'piz', 'pxr24', 'b44', 'b44a', 'dwaa', 'dwab']
-
-SUPPORTED_IN_FORMAT = ['.exr', '.png', '.jpg', '.jpeg', '.tiff', '.hdr']

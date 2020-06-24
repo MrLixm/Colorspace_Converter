@@ -1,7 +1,8 @@
 import sys
 
-from  PySide2 import QtGui
+from PySide2 import QtGui
 from fbs_runtime.application_context.PySide2 import ApplicationContext, cached_property
+import pkg_resources.py2_warn
 
 from package.main_window import MainWindow
 

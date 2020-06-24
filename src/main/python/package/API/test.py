@@ -1,3 +1,7 @@
+"""
+File for running test with colour and OIIO
+"""
+
 from pathlib import Path
 import colour
 

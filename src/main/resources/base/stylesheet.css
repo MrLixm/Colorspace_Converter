@@ -62,8 +62,8 @@ QTreeWidget::item:active{
 }
 
 QHeaderView{
-    border: 1px solid rgb(80,80,80);
-    border-left: 3px solid  rgb(88,99,248);
+    border: 1px solid rgb(130, 135, 238);
+    /*border-left: 3px solid rgb(88, 99, 248);*/
     border-radius: 15px;
     font-family: Josefin Sans;
     /*padding: 6px;*/
@@ -71,7 +71,7 @@ QHeaderView{
 }
 
 QHeaderView::section{
-    background-color: rgb(50,50,50);
+    background-color: rgb(75, 85, 220);
     border:none;
     padding-left: 4px;
 }
@@ -83,7 +83,7 @@ QToolBar {
 	background-color: rgb(30,30,30);
     color: #fafafa;
 	border: none;
-	outline-top: 5px solid rgb(50,50,50);
+	/*outline-top: 5px solid rgb(50,50,50);*/
 	padding: 10px;
     /*min-width: 25px;
     min-height: 25px;*/
@@ -184,7 +184,7 @@ QComboBox::drop-down {
 	border-radius: 5px;
 }
 QComboBox::drop-down:hover{
-    background-color: rgba(240,237,97);
+    background-color: rgb(240,237,97);
 }
 QComboBox::down-arrow:!on {
     image: url(":/cbb/icon_cbb_open_dark.png");
