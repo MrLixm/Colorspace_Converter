@@ -4,6 +4,8 @@ File for running test with colour and OIIO
 
 from pathlib import Path
 import colour
+from package.data_list import CS_TARGET_DICO, FORMAT_LIST, BITDEPTH_DICO, ODT_DICO, IDT_DICO, COMPRESSION_LIST
+
 
 
 class Window:
@@ -46,10 +48,13 @@ def foopath():
 
 if __name__ == '__main__':
     # foopath()
-    result = colour.RGB_COLOURSPACES['sRGB'].whitepoint
-    result2 = colour.RGB_COLOURSPACES['ACEScg'].whitepoint
-    result3 = colour.RGB_COLOURSPACES['ITU-R BT.709'].whitepoint
-    print("sRGB", result)
-    print("ACEScg", result2)
-    print("rec709", result3)
-    print(colour.ILLUMINANTS_SDS['D60'])
+    # result = colour.RGB_COLOURSPACES['sRGB'].whitepoint
+    # result2 = colour.RGB_COLOURSPACES['ACEScg'].whitepoint
+    # result3 = colour.RGB_COLOURSPACES['ITU-R BT.709'].whitepoint
+    # print("sRGB", result)
+    # print("ACEScg", result2)
+    # print("rec709", result3)
+    # print(colour.ILLUMINANTS_SDS['D60'])
+    result = [k for k in CS_TARGET_DICO.keys()]
+    print(result)
+    print(type(result))
