@@ -144,11 +144,11 @@ QComboBox {
 	font-size: 13px;
 	font-weight: normal;
 }
-QComboBox QAbstractItemView {
-/*    background-color: rgb(45,45,47);*/
-    background-color: transparent;
-    color: rgb(200,200,200);
 
+QComboBox QAbstractItemView {
+    background-color: rgb(45,45,47);
+/*    background-color: transparent;*/
+    color: rgb(200,200,200);
     outline: 5px;
     outline-offset:0px;
     outline-radius: 5px;
@@ -166,8 +166,7 @@ QComboBox QAbstractItemView {
 }
 
 QComboBox  QAbstractItemView:!enabled{
-    color: rgb(80,80,80)
-
+    color: rgb(80,80,80);
 }
 
 QComboBox QListView {
@@ -329,13 +328,13 @@ QGroupBox::title {
 }
 
 QSplitter::handle:horizontal{
-    background-color: transparent;
+    background-color: rgb(60,60,60);
     border:none;
     border-radius: 0px;
 
     padding: 0px;
-    margin-left: 6px;
-    margin-right: 6px;
+    margin-left: 8px;
+    margin-right: 8px;
 
 }
 

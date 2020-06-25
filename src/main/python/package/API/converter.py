@@ -76,7 +76,8 @@ class Converter:
         in_buf_roi = oiio.get_roi(in_buf_data.spec())
         if in_buf_data.has_error:
             logging.error(f"Error in conversion: Read: {in_buf_data.geterror()}")
-            return [False, in_buf_data.geterror()]
+            return_list = [False, in_buf_data.geterror()]
+            return return_list
 
         in_buf_rgb = oiio.ImageBufAlgo.channels(in_buf_data, (0, 1, 2))  # Remove other channels(multi-channels exr)
 
@@ -86,7 +87,8 @@ class Converter:
 
         if in_buf_rgb.has_error:
             logging.error(f"Error in conversion: buf_rgb: {in_buf_rgb.geterror()}")
-            return [False, in_buf_rgb.geterror()]
+            return_list = [False, in_buf_rgb.geterror()]
+            return return_list
 
         if in_buf_data.spec().alpha_channel > 0:  # If image has an alpha channel
             in_buf_alpha = oiio.ImageBufAlgo.channels(in_buf_data, (3,))  # copy the Alpha channel
@@ -100,11 +102,13 @@ class Converter:
         in_buf_rgba.set_write_format(bitdepth)
         if in_buf_rgba.has_error:
             logging.error(f"Error in conversion: attributes: {in_buf_rgba.geterror()}")
-            return [False, in_buf_rgba.geterror()]
+            return_list = [False, in_buf_rgba.geterror()]
+            return return_list
 
         in_buf_rgba.write(self.out_filePath)
         # self.convert_progress.emit()
-        return [True]
+        return_list = [True]
+        return return_list
 
     def apply_odt_aces(self, in_rgb):
         """
@@ -130,24 +134,24 @@ class Converter:
 
     def apply_odt_cctf(self, in_rgb):
         cctf_func = ODT_DICO.get(self.odt)[0]
-        result = colour.cctf_encoding(in_rgb, cctf_func)
-        return result
+        result_cctf = colour.cctf_encoding(in_rgb, cctf_func)
+        return result_cctf
 
     def apply_odt(self, in_rgb):
         if ODT_DICO.get(self.odt):
             logging.info(f"ODT: {self.odt}")
             if self.odt.endswith('(ACES)'):
                 odt_rgb = self.apply_odt_aces(in_rgb)
-                result = odt_rgb
+                result_odt = odt_rgb
             else:
                 cctf = self.apply_odt_cctf(in_rgb)
-                result = cctf
+                result_odt = cctf
 
         else:
             logging.info(f"No ODT")
-            result = in_rgb
+            result_odt = in_rgb
 
-        return result
+        return result_odt
 
     @staticmethod
     def bitdepth_picker(in_bitdepth, out_bitdepth):

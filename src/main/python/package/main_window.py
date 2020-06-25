@@ -20,7 +20,7 @@ from package.widget_frame_custom import FrameCustom
 # TODO: implement settings menu
 
 class Worker(QtCore.QObject):
-    file_converted = QtCore.Signal(object, bool)
+    file_converted = QtCore.Signal(object, list)
     step_converter = QtCore.Signal()
     finished = QtCore.Signal()
 
@@ -155,7 +155,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def add_widgets_to_layouts(self):
         self.setCentralWidget(self.main_widget)
         self.addToolBar(QtCore.Qt.TopToolBarArea, self.toolbar_top)
-        self.addToolBar(QtCore.Qt.LeftToolBarArea, self.toolbar_opt)
+        self.addToolBar(QtCore.Qt.BottomToolBarArea, self.toolbar_opt)
         self.setStatusBar(self.status_bar)
         self.toolbar_top.addWidget(self.lbl_title)
 
@@ -165,15 +165,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lyt_lFrame.addWidget(self.lbl_placeholder)
         self.lyt_lFrame.setAlignment(QtCore.Qt.AlignHCenter)
 
-        self.lyt_rightSide.addWidget(self.frm_right_targetcs, 0, 0)
-        self.lyt_rFrame_top.addWidget(self.lbl_cbb_target)
-        self.lyt_rFrame_top.addWidget(self.cbb_target_cs)
-        self.lyt_rFrame_top.addWidget(self.cbb_exprt_odt)
-        self.lyt_rFrame_top.addWidget(self.lbl_exprt_odt)
+        self.lyt_rightSide.addWidget(self.lbl_in_title, 0, 0)
+        self.lyt_rightSide.addWidget(self.frm_right_input, 1, 0)
+        # self.lyt_in_grid.addWidget(self.lbl_in_title, 0, 0, 1, 1)
+        self.lyt_in_grid.addWidget(self.lbl_in_idt, 0, 0, 1, 2)
+        self.lyt_in_grid.addWidget(self.cbb_in_idt, 1, 0, 1, 2)
+        self.lyt_in_grid.addWidget(self.btn_in_apply, 2, 0)
+        self.lyt_in_grid.addWidget(self.btn_in_apply_all, 2, 1)
 
-        self.lyt_rightSide.addWidget(self.lbl_exportOptions, 2, 0)
-
-        self.lyt_rightSide.addWidget(self.frm_exprt_option, 3, 0)
+        self.lyt_rightSide.addWidget(self.lbl_exportOptions, 3, 0)
+        self.lyt_rightSide.addWidget(self.frm_exprt_option, 4, 0)
         self.lyt_frm_exprt_option.addLayout(self.lyt_exportOpt_grid)
         # self.lyt_exportOpt_grid.addWidget(self.lbl_exportOptions, 0, 0, 1, 2)
         self.lyt_exportOpt_grid.addWidget(self.cbb_exprt_format, 1, 0)
@@ -187,19 +188,17 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lyt_exportOpt_grid.addWidget(self.rb_exprt_folder, 7, 0, 1, 1)
         self.lyt_exportOpt_grid.addWidget(self.rb_exprt_file, 7, 1, 1, 1)
 
-        self.lyt_rightSide.addWidget(self.lbl_in_title, 5, 0)
-        self.lyt_rightSide.addWidget(self.frm_right_input, 6, 0)
-        # self.lyt_in_grid.addWidget(self.lbl_in_title, 0, 0, 1, 1)
-        self.lyt_in_grid.addWidget(self.lbl_in_idt, 0, 0, 1, 2)
-        self.lyt_in_grid.addWidget(self.cbb_in_idt, 1, 0, 1, 2)
-        self.lyt_in_grid.addWidget(self.btn_in_apply, 2, 0)
-        self.lyt_in_grid.addWidget(self.btn_in_apply_all, 2, 1)
+        self.lyt_rightSide.addWidget(self.frm_right_targetcs, 6, 0)
+        self.lyt_rFrame_top.addWidget(self.lbl_cbb_target)
+        self.lyt_rFrame_top.addWidget(self.cbb_target_cs)
+        self.lyt_rFrame_top.addWidget(self.cbb_exprt_odt)
+        self.lyt_rFrame_top.addWidget(self.lbl_exprt_odt)
 
     def modify_widgets(self):
         QtCore.QResource.registerResource(self.ctx.get_resource('qt_resources/icon_ressource.rcc'))
-        stylesheet_main = self.stylesheetContent('stylesheet')
         stylesheet_var = self.stylesheetContent('stylesheet_variations')
         stylesheet_title = self.stylesheetContent('stylesheet_title')
+        self.stylesheet_main = self.stylesheetContent('stylesheet')
 
         # self.status_bar.showMessage("Status Bar Is Ready", 3000)
         self.status_bar.addWidget(self.stat_lbl_item)
@@ -215,18 +214,20 @@ class MainWindow(QtWidgets.QMainWindow):
                 alternate-background-color: rgb(25, 25, 25);
                 color: #fafafa;
                 }""")
-        self.setStyleSheet(stylesheet_main)
+        self.setStyleSheet(self.stylesheet_main)
         self.main_widget.setStyleSheet(""".QWidget{background: rgb(40, 40, 42);}""")
         self.toolbar_opt.setStyleSheet(stylesheet_var)
-        self.lbl_placeholder.setStyleSheet(stylesheet_main)
-        self.treewidget.setStyleSheet(stylesheet_main)
-        self.treewidget.header().setStyleSheet(stylesheet_main)
+        self.lbl_placeholder.setStyleSheet(self.stylesheet_main)
+        self.treewidget.setStyleSheet(self.stylesheet_main)
+        self.treewidget.header().setStyleSheet(self.stylesheet_main)
         self.lbl_title.setStyleSheet(stylesheet_title)
         self.lbl_cbb_target.setStyleSheet(stylesheet_title)
         self.cbb_target_cs.setStyleSheet(stylesheet_var)
         self.frm_right_targetcs.setStyleSheet(
             """.QFrame{background-color: rgb(50,50,50) ;margin:0px; border-left: 3px solid rgb(240,237,97);} """)
-        self.cbb_exprt_odt.setStyleSheet("""QComboBox{background-color:rgb(40,40,40);}""")
+
+        self.cbb_exprt_odt.setStyleSheet(self.stylesheet_main)
+        # self.cbb_exprt_odt.setStyleSheet("""QComboBox{background-color:rgb(40,40,40);}""")
         self.lbl_exportOptions.setStyleSheet(stylesheet_var)
         self.lbl_in_title.setStyleSheet(stylesheet_var)
 
@@ -261,15 +262,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self.spltr_middle.addWidget(self.frm_left)
         self.spltr_middle.addWidget(self.widget_rightSide)
         self.spltr_middle.setSizes([400, 200])
-        self.spltr_middle.setHandleWidth(5)
+        self.spltr_middle.setHandleWidth(15)
         self.spltr_middle.setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding,
                                         QtWidgets.QSizePolicy.MinimumExpanding, )
 
         # ----------------- #
         # Right Frame
         # ----------------- #
-        self.lyt_rightSide.setRowMinimumHeight(1, 20)
-        self.lyt_rightSide.setRowMinimumHeight(4, 20)
+        self.lyt_rightSide.setRowMinimumHeight(2, 20)
+        self.lyt_rightSide.setRowMinimumHeight(5, 20)
 
         self.cbb_target_cs.setMinimumHeight(50)
         self.cbb_exprt_odt.setMinimumHeight(30)
@@ -470,12 +471,15 @@ class MainWindow(QtWidgets.QMainWindow):
             self.cbb_exprt_odt.setEnabled(False)
             self.cbb_exprt_odt.setCurrentText('None')
             self.cbb_exprt_odt.setHidden(True)
+            self.cbb_exprt_odt.setStyleSheet(self.stylesheet_main)
+
             self.lbl_exprt_odt.setHidden(True)
 
         else:
             self.cbb_exprt_odt.setEnabled(True)
             self.cbb_exprt_odt.setHidden(False)
             self.cbb_exprt_odt.setCurrentText('None')
+            self.cbb_exprt_odt.setStyleSheet(self.stylesheet_main)
             self.lbl_exprt_odt.setHidden(False)
 
     def cbb_udpate_odt(self):
@@ -506,7 +510,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         """
         self.prg_dialog.setValue(self.prg_dialog.value() + 1)
-        if result_list[0]:
+        if all(result_list):
             self.treewidget.takeTopLevelItem(self.treewidget.indexOfTopLevelItem(tree_item))
         else:
             logging.error(f"File not converted: {tree_item.text(2)}")
