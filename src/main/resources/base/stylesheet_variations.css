@@ -5,10 +5,10 @@ Colors:
 
 /*Implemanted for category title, */
 QLabel{
-    background-color: rgb(80,80,82);
+    background-color: rgb(30,30,32);
     padding-left:5px;
     padding-bottom: 2px;
-    border-radius: 4px;
+    /*border-radius: 4px;*/
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
     border-bottom-right-radius: 0px;
@@ -23,12 +23,25 @@ QLabel{
 
 QToolBar {
 
-	background-color: rgb(20,20,22);
+	background-color: rgb(30,30,32);
     color: #fafafa;
-	border: none;
-	padding: 8px;
-    margin: 0px;
+	border-bottom: 2px solid rgb(50,50,50);
 }
+QToolBar:bottom, QToolBar:top {
+    background-color: qlineargradient(spread:pad, x1:0.8, y1:1, x2:1, y2:1, stop:0 rgba(30,30,32, 255),
+                                        stop:1  rgba(52, 206, 75,200));
+    border-right: 2px solid rgb(52, 206, 75);
+}
+
+QToolBar::handle:bottom, QToolBar::handle:top {
+    border-right: 2px dotted rgb(50,50,50);
+    margin: 3px;
+}
+QToolBar::handle:left, QToolBar::handle:right {
+    border-top: 2px dotted rgb(50,50,50);
+    margin: 3px;
+}
+
 
 /*QToolBar::handle{
     border-top: 2px dotted rgb(50,50,50);

@@ -8,6 +8,7 @@ from package.data_list import CS_TARGET_DICO, FORMAT_LIST, BITDEPTH_DICO, ODT_DI
 from PySide2 import QtCore
 from oiio import OpenImageIO as oiio
 
+
 class Window:
     def __init__(self):
         print("WIndow init")

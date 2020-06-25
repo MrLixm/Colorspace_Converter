@@ -42,16 +42,16 @@ class Worker(QtCore.QObject):
     def convert_file(self):
         for tree_item in self.tree_item_list:
             if not self.abort:
-                item_file_path = tree_item.text(2)
-                item_in_cs = IDT_DICO.get(tree_item.text(3))[0]  # Get the colorspace only
-                item_cctf = IDT_DICO.get(tree_item.text(3))[1]
+                item_file_path = tree_item.text(3)
+                item_in_cs = IDT_DICO.get(tree_item.text(4))[0]  # Get the colorspace only
+                item_cctf = IDT_DICO.get(tree_item.text(4))[1]
                 output_path = self.pathGeneration(item_file_path, self.out_location, self.out_format,
                                                   self.out_location_path)
 
-                converter = Converter(item_file_path, out_location=self.out_location, out_format=self.out_format,
-                                      out_bitdepth=self.out_bitdepth, in_cs=item_in_cs, out_cs=self.out_cs,
-                                      odt=self.out_odt, resources_path=self.resources_path,
-                                      compression=self.compression, cctf=item_cctf, cctf_encoding=self.cctf_encoding)
+                converter = Converter(item_file_path, out_bitdepth=self.out_bitdepth, in_cs=item_in_cs,
+                                      out_cs=self.out_cs, odt=self.out_odt, resources_path=self.resources_path,
+                                      compression=self.compression, cctf=item_cctf, cctf_encoding=self.cctf_encoding,
+                                      out_file_path=output_path)
 
                 result_list = converter.image_processing()
                 # converter.convert_progress.connect(self.step_converter.emit())
@@ -263,17 +263,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.status_bar.addWidget(self.stat_lbl_item)
 
         # Styling controls
+        self.setStyleSheet(self.stylesheet_main)
         self.frm_left.setStyleSheet("""QFrame{
                 border-radius: 4px;
-                border-left: 3px solid rgb(60,60,64);
-                border-top-left-radius: 0px;
-                border-top-right-radius: 0px;
-                border-bottom-left-radius: 0px;
-                background-color: rgb(30, 30, 32);
+                border: 2px solid rgb(60,60,60);
+                background-color: rgb(45, 45, 48);
                 alternate-background-color: rgb(25, 25, 25);
                 color: #fafafa;
                 }""")
-        self.setStyleSheet(self.stylesheet_main)
         self.main_widget.setStyleSheet(""".QWidget{background: rgb(40, 40, 42);}""")
         self.toolbar_opt.setStyleSheet(stylesheet_var)
         self.lbl_placeholder.setStyleSheet(self.stylesheet_main)
@@ -284,14 +281,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.cbb_target_cs.setStyleSheet(stylesheet_var)
         self.frm_right_targetcs.setStyleSheet(
             """.QFrame{background-color: rgb(50,50,50) ;margin:0px; border-left: 3px solid rgb(240,237,97);} """)
-
-        # self.cbb_exprt_odt.setStyleSheet(self.stylesheet_main)
-        # self.cbb_exprt_odt.setStyleSheet("""QComboBox{background-color:rgb(40,40,40);}""")
         self.lbl_exportOptions.setStyleSheet(stylesheet_var)
         self.lbl_in_title.setStyleSheet(stylesheet_var)
 
         # ToolBar
-        # self.lbl_title.setEnabled(False)
         title_pix = QtGui.QPixmap(":/root/title.png")
         title_pix = title_pix.scaled(300, 150, QtCore.Qt.KeepAspectRatio,
                                      QtCore.Qt.TransformationMode.SmoothTransformation)
@@ -299,22 +292,25 @@ class MainWindow(QtWidgets.QMainWindow):
         self.widget_spacer.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.widget_spacer2.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.toolbar_top.setMovable(False)
+        self.toolbar_top.setMinimumHeight(45)
         self.toolbar_opt.setIconSize(QtCore.QSize(40, 40))
+        self.toolbar_opt.setMinimumHeight(55)
 
         # TreeView
         self.frm_left.setAcceptDrops(True)
         self.lbl_placeholder.setAcceptDrops(True)
         self.treewidget.setHeaderHidden(False)
         self.treewidget.setColumnCount(2)
-        self.treewidget.setHeaderLabels([' IDT', 'File Name'])
+        self.treewidget.setHeaderLabels(['', ' IDT', 'File Name'])
         self.treewidget.setAlternatingRowColors(True)
         self.treewidget.setSortingEnabled(True)
         self.treewidget.setIndentation(0)
         self.treewidget.setUniformRowHeights(True)
         self.treewidget.setMinimumHeight(50)
         self.treewidget.setIconSize(QtCore.QSize(35, 35))
-        self.header_treeview.setMinimumSectionSize(35)
+        self.header_treeview.setMinimumSectionSize(39)
         self.treewidget.setColumnWidth(0, 39)
+        self.treewidget.setColumnWidth(1, 39)
         self.treewidget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.treewidget.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
 
@@ -414,9 +410,13 @@ class MainWindow(QtWidgets.QMainWindow):
         # Add the item to the treeWidget
         file_name = os.path.basename(file_path)
         icon = QtGui.QIcon(":/idt/icon_idt_none.png")
-        item = QtWidgets.QTreeWidgetItem(self.treewidget, ['', file_name, file_path, 'None'])
-        item.setIcon(0, icon)
+        icon_statut = QtGui.QIcon(":/statut/icon_convert_wait.png")
+        item = QtWidgets.QTreeWidgetItem(self.treewidget, ['', '', file_name, file_path, 'None'])
+        item.setIcon(0, icon_statut)
+        item.setIcon(1, icon)
         item.setTextAlignment(0, QtCore.Qt.AlignHCenter)
+        item.setTextAlignment(1, QtCore.Qt.AlignHCenter)
+
 
         self.status_bar_update()
 
@@ -437,9 +437,9 @@ class MainWindow(QtWidgets.QMainWindow):
         for tree_item in sel:
             tree_item: QtWidgets.QTreeWidgetItem
             idt = self.cbb_in_idt.currentText()
-            tree_item.setText(3, idt)
+            tree_item.setText(4, idt)
             icon = QtGui.QIcon(IDT_DICO.get(idt)[2])
-            tree_item.setIcon(0, icon)
+            tree_item.setIcon(1, icon)
 
     # def progress_step(self):
     #     self.prg_dialog.setValue(self.prg_dialog.value() + 1)
@@ -456,7 +456,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
         tree_item_list = self.list_tree_items()
-        if not any([tree_item.text(3).endswith('None') for tree_item in tree_item_list]):
+        if not any([tree_item.text(4).endswith('None') for tree_item in tree_item_list]):
             if tree_item_list:
                 if os.path.exists(out_location_path) or not out_location_path:
                     self.thread = QtCore.QThread(self)
@@ -579,9 +579,13 @@ class MainWindow(QtWidgets.QMainWindow):
         """
         self.prg_dialog.setValue(self.prg_dialog.value() + 1)
         if all(result_list):
-            self.treewidget.takeTopLevelItem(self.treewidget.indexOfTopLevelItem(tree_item))
+            icon_check = QtGui.QIcon(":/statut/icon_convert_check.png")
+            tree_item.setIcon(0, icon_check)
+            # self.treewidget.takeTopLevelItem(self.treewidget.indexOfTopLevelItem(tree_item))
         else:
-            logging.error(f"File not converted: {tree_item.text(2)}")
+            icon_error = QtGui.QIcon(":/statut/icon_convert_error.png")
+            tree_item.setIcon(0, icon_error)
+            logging.error(f"File not converted: {tree_item.text(3)}")
 
         self.status_bar_update()
 

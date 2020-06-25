@@ -37,14 +37,12 @@ class Converter:
 
     # convert_progress = QtCore.Signal()
 
-    def __init__(self, in_img_path, out_location, out_format, out_bitdepth, in_cs, out_cs,
-                 odt, resources_path, compression, cctf, cctf_encoding):
+    def __init__(self, in_img_path, out_bitdepth, in_cs, out_cs,
+                 odt, resources_path, compression, cctf, cctf_encoding, out_file_path):
         """
 
         Args:
             in_img_path: path/name.ext of the file
-            out_location: 'file' or 'folder'
-            out_format: file extension like '.jpg'
             out_bitdepth: bitdepth for the output file: uint8,uint16,half,float, original
             in_cs: source colorspace [0] item from the IDT dico
             out_cs: target colorspace : key from the ODT dico
@@ -53,24 +51,24 @@ class Converter:
             cctf: Bool : Apply in cs decoding colour component transferfunction/electro-optical transferfunction.
 
         """
-        # logging.debug("C init")
         self.cctf = cctf
         self.cctf_encoding = cctf_encoding
         self.resources_path = resources_path
-        self.out_format = out_format
         self.in_img_path = in_img_path
         self.out_bitdepth = out_bitdepth
         self.in_cs = in_cs
         self.out_cs = out_cs
         self.odt = odt
         self.compression = compression
-        self.out_filePath = self.pathGeneration(in_img_path, out_location, out_format)
+        self.out_filePath = out_file_path
 
         oiio.attribute("threads", 0)
         oiio.attribute("exr_threads", 0)
 
     def image_processing(self):
-        logging.info(f"Image processing: {self.in_img_path}")
+        logging.info(f"\n Image processing: {self.in_img_path} \n -IDT:{self.in_cs}, cctf:{self.cctf} \n"
+                     f" --OutColorspace: {self.out_cs} \n"
+                     f" ---Export: Output:'{self.out_filePath}', Bitdepth:{self.out_bitdepth} \n ----ODT:{self.odt} ")
         # Read Image
         in_buf_data = oiio.ImageBuf(self.in_img_path)
         in_buf_roi = oiio.get_roi(in_buf_data.spec())
@@ -139,7 +137,6 @@ class Converter:
 
     def apply_odt(self, in_rgb):
         if ODT_DICO.get(self.odt):
-            logging.info(f"ODT: {self.odt}")
             if self.odt.endswith('(ACES)'):
                 odt_rgb = self.apply_odt_aces(in_rgb)
                 result_odt = odt_rgb
@@ -148,7 +145,6 @@ class Converter:
                 result_odt = cctf
 
         else:
-            logging.info(f"No ODT")
             result_odt = in_rgb
 
         return result_odt
@@ -174,7 +170,6 @@ class Converter:
 
         """
         if self.in_cs != self.out_cs:
-            input_colourspace = colour.RGB_COLOURSPACES[self.in_cs]
             output_colourspace = colour.RGB_COLOURSPACES[self.out_cs]
             cat = cat
             if self.in_cs == 'XYZ':
@@ -182,6 +177,7 @@ class Converter:
                                                    output_colourspace.XYZ_to_RGB_matrix, chromatic_adaptation_transform=
                                                    cat)
             else:
+                input_colourspace = colour.RGB_COLOURSPACES[self.in_cs]
                 conversion_rgb = colour.RGB_to_RGB(in_rgb, input_colourspace, output_colourspace,
                                                    chromatic_adaptation_transform=cat,
                                                    apply_cctf_decoding=cctf, apply_cctf_encoding=cctf_encoding)
@@ -190,43 +186,6 @@ class Converter:
 
         odt_result = self.apply_odt(conversion_rgb)
         return odt_result
-
-    def pathGeneration(self, in_path, out_location='file', out_format='.exr'):
-        """
-
-        Args:
-            in_path: path to the input file
-            out_location: user preference for the location of the output file
-            out_format: user preference for the output file format
-
-        Returns: path of the output file
-
-        """
-
-        file_folder_path = os.path.dirname(in_path)
-        filename_original = os.path.splitext(os.path.basename(in_path))[0]
-        file_ext = os.path.splitext(in_path)[1]
-        if out_format.lower() == 'original':
-            out_ext = file_ext
-        else:
-            out_ext = out_format
-        if ODT_DICO.get(self.odt):
-            cs_prefix = '_' + self.odt
-        else:
-            cs_prefix = '_' + self.out_cs.replace(" ", "")
-
-        # TODO: think to remove vX_oiio
-        out_file_name = filename_original + cs_prefix + out_ext
-
-        if out_location == 'file':
-            output_path = os.path.join(file_folder_path, out_file_name)
-            return output_path
-        if out_location == 'folder':
-            aces_folder_path = os.path.join(file_folder_path, 'ACEScg')
-            if not os.path.exists(aces_folder_path):
-                os.makedirs(aces_folder_path)
-            output_path = os.path.join(aces_folder_path, out_file_name)
-            return output_path
 
 
 if __name__ == '__main__':

@@ -28,5 +28,10 @@
   <qresource prefix="root">
     <file alias="title.png" >../script_colorspaceconverter_title.png</file>
   </qresource>
+  <qresource prefix="statut">
+    <file>../icon_convert_check.png</file>
+    <file>../icon_convert_error.png</file>
+    <file>../icon_convert_wait.png</file>
+  </qresource>
 
 </RCC>
