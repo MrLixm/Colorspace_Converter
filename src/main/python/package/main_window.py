@@ -25,10 +25,11 @@ class Worker(QtCore.QObject):
     finished = QtCore.Signal()
 
     def __init__(self, tree_item_list, out_location, out_format, out_bitdepth,
-                 out_cs, odt, resources_path, compression):
+                 out_cs, odt, resources_path, compression, out_location_path):
         super().__init__()
         self.tree_item_list = tree_item_list
         self.out_location = out_location
+        self.out_location_path = out_location_path
         self.out_format = out_format
         self.out_bitdepth = out_bitdepth
         self.out_cs = CS_TARGET_DICO.get(out_cs)[0]
@@ -44,6 +45,8 @@ class Worker(QtCore.QObject):
                 item_file_path = tree_item.text(2)
                 item_in_cs = IDT_DICO.get(tree_item.text(3))[0]  # Get the colorspace only
                 item_cctf = IDT_DICO.get(tree_item.text(3))[1]
+                output_path = self.pathGeneration(item_file_path, self.out_location, self.out_format,
+                                                  self.out_location_path)
 
                 converter = Converter(item_file_path, out_location=self.out_location, out_format=self.out_format,
                                       out_bitdepth=self.out_bitdepth, in_cs=item_in_cs, out_cs=self.out_cs,
@@ -55,6 +58,52 @@ class Worker(QtCore.QObject):
                 self.file_converted.emit(tree_item, result_list)
 
         self.finished.emit()
+
+    def pathGeneration(self, in_path, out_location, out_format, out_location_path):
+        """
+
+        Args:
+            out_location_path: Path of the user selected output folder
+            in_path: path to the input file
+            out_location: user preference for the location of the output file
+            out_format: user preference for the output file format
+
+        Returns: path of the output file
+
+        """
+
+        file_folder_path = os.path.dirname(in_path)
+        filename_original = os.path.splitext(os.path.basename(in_path))[0]
+        file_ext = os.path.splitext(in_path)[1]
+
+        # For the original options that has been removed
+        if out_format.lower() == 'original':
+            out_ext = file_ext
+        else:
+            out_ext = out_format
+
+        # If ODT is used, prefix it to the file name
+        if ODT_DICO.get(self.out_odt):
+            cs_prefix = '_' + self.out_odt
+        else:
+            # Use the output colorspace as prefix
+            cs_prefix = '_' + self.out_cs.replace(" ", "")
+
+        out_file_name = filename_original + cs_prefix + out_ext
+
+        if out_location == 'file':
+            output_path = os.path.join(file_folder_path, out_file_name)
+            return output_path
+        if out_location == 'folder':
+            if out_location_path:
+                output_path = os.path.join(out_location_path, out_file_name)
+                return output_path
+            else:
+                aces_folder_path = os.path.join(file_folder_path, 'ACEScg')
+                if not os.path.exists(aces_folder_path):
+                    os.makedirs(aces_folder_path)
+                output_path = os.path.join(aces_folder_path, out_file_name)
+                return output_path
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -75,8 +124,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.add_actions_to_toolbar()
         self.add_cbb_items()
         self.cbb_update_format()
+        self.rb_update_location()
         self.setup_connections()
-        self.cbb_udpate_odt()
+        # self.cbb_udpate_odt()
 
     def create_widgets(self):
         self.main_widget = QtWidgets.QWidget()
@@ -86,13 +136,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.stat_lbl_item = QtWidgets.QLabel("  Files to convert: 0 ")
 
         # Left Frame
-        self.treewidget = QtWidgets.QTreeWidget()
-        self.treewidget.setHidden(True)
-        self.header_treeview = self.treewidget.header()
         self.lbl_placeholder = QtWidgets.QLabel("Drag & Drop files here")
+        self.treewidget = QtWidgets.QTreeWidget()
+        self.header_treeview = self.treewidget.header()
+        self.treewidget.setHidden(True)
         self.frm_left = FrameCustom(self)
-        self.cbb_exprt_odt = QtWidgets.QComboBox()
-        self.lbl_exprt_odt = QtWidgets.QLabel(" ODT / TransferFunction")
 
         self.spltr_middle = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
 
@@ -102,6 +150,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.frm_right_targetcs = QtWidgets.QFrame()
         self.lbl_cbb_target = QtWidgets.QLabel('TARGET COLORSPACE')
         self.cbb_target_cs = QtWidgets.QComboBox()
+        self.cbb_exprt_odt = QtWidgets.QComboBox()
+        self.lbl_exprt_odt = QtWidgets.QLabel(" ODT / TransferFunction")
 
         self.lbl_exportOptions = QtWidgets.QLabel("Global Export Options")
         self.cbb_exprt_format = QtWidgets.QComboBox()
@@ -115,6 +165,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.rb_exprt_folder = QtWidgets.QRadioButton('Export in a new folder')
         self.rb_exprt_file = QtWidgets.QRadioButton('Export at the same location')
+        self.le_exprt_folder = QtWidgets.QLineEdit()
+        self.btn_exprt_explorer = QtWidgets.QPushButton(QtGui.QIcon(self.ctx.get_resource("icon_open_2.png")), '')
 
         # Input Options
         self.frm_right_input = QtWidgets.QFrame()
@@ -147,6 +199,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lyt_exportOpt_grid.setVerticalSpacing(0)
         self.lyt_exportOpt_grid.setRowMinimumHeight(3, 15)  # Compress row
         self.lyt_exportOpt_grid.setRowMinimumHeight(6, 15)  # Location row
+
+        self.lyt_exprt_folder = QtWidgets.QHBoxLayout()
+        self.lyt_exprt_folder.setSpacing(6)
+        self.lyt_exprt_folder.setContentsMargins(QtCore.QMargins(0, 9, 9, 0))
         # self.lyt_exportOpt_grid.setRowMinimumHeight(8, 15)  # Location row
 
         self.lyt_in_grid = QtWidgets.QGridLayout(self.frm_right_input)
@@ -187,6 +243,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lyt_exportOpt_grid.addWidget(self.lbl_exprt_compress_qual, 5, 1)
         self.lyt_exportOpt_grid.addWidget(self.rb_exprt_folder, 7, 0, 1, 1)
         self.lyt_exportOpt_grid.addWidget(self.rb_exprt_file, 7, 1, 1, 1)
+        self.lyt_exportOpt_grid.addLayout(self.lyt_exprt_folder, 8, 0, 1, 2)
+        self.lyt_exprt_folder.addWidget(self.le_exprt_folder)
+        self.lyt_exprt_folder.addWidget(self.btn_exprt_explorer)
 
         self.lyt_rightSide.addWidget(self.frm_right_targetcs, 6, 0)
         self.lyt_rFrame_top.addWidget(self.lbl_cbb_target)
@@ -226,7 +285,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.frm_right_targetcs.setStyleSheet(
             """.QFrame{background-color: rgb(50,50,50) ;margin:0px; border-left: 3px solid rgb(240,237,97);} """)
 
-        self.cbb_exprt_odt.setStyleSheet(self.stylesheet_main)
+        # self.cbb_exprt_odt.setStyleSheet(self.stylesheet_main)
         # self.cbb_exprt_odt.setStyleSheet("""QComboBox{background-color:rgb(40,40,40);}""")
         self.lbl_exportOptions.setStyleSheet(stylesheet_var)
         self.lbl_in_title.setStyleSheet(stylesheet_var)
@@ -290,6 +349,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.rb_exprt_folder.setIconSize(QtCore.QSize(90, 50))
         # self.rb_exprt_file.setFixedSize(25, 25)
         self.rb_exprt_file.setChecked(QtCore.Qt.Checked)
+        self.le_exprt_folder.setMinimumHeight(25)
+        self.le_exprt_folder.setMinimumWidth(300)
+        self.le_exprt_folder.setPlaceholderText('By default ./ACEScg')
+        self.btn_exprt_explorer.setFixedSize(25, 25)
 
         # Inputs options
         self.lbl_in_title.setMinimumHeight(30)
@@ -324,6 +387,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.toolbar_opt.addAction(self.act_convert)
 
         self.toolbar_opt.insertWidget(self.act_convert, self.widget_spacer2)
+
 
     def add_cbb_items(self):
         """
@@ -385,31 +449,37 @@ class MainWindow(QtWidgets.QMainWindow):
         out_format = self.cbb_exprt_format.currentText()
         out_bitdepth = self.cbb_exprt_bit.currentText()
         out_compression = self.cbb_exprt_compress.currentText().lower()+':'+str(self.spnb_exprt_compress.value())
-        out_compression_amount = self.spnb_exprt_compress.value()
         out_odt = self.cbb_exprt_odt.currentText()
         out_location = 'file' if self.rb_exprt_file.isChecked() else 'folder'
+        out_location_path = self.le_exprt_folder.text()
         resources = self.ctx.get_resource()
+
 
         tree_item_list = self.list_tree_items()
         if not any([tree_item.text(3).endswith('None') for tree_item in tree_item_list]):
             if tree_item_list:
-                self.thread = QtCore.QThread(self)
-                self.worker = Worker(tree_item_list, out_location, out_format, out_bitdepth, out_cs, out_odt,
-                                     resources, out_compression)
+                if os.path.exists(out_location_path) or not out_location_path:
+                    self.thread = QtCore.QThread(self)
+                    self.worker = Worker(tree_item_list, out_location, out_format, out_bitdepth, out_cs, out_odt,
+                                         resources, out_compression, out_location_path)
 
-                self.worker.moveToThread(self.thread)
-                self.worker.file_converted.connect(self.convert_result)
-                self.worker.finished.connect(self.convert_finished)
-                # self.worker.step_converter.connect(self.progress_step)
-                self.thread.started.connect(self.worker.convert_file)
-                self.thread.start()
+                    self.worker.moveToThread(self.thread)
+                    self.worker.file_converted.connect(self.convert_result)
+                    self.worker.finished.connect(self.convert_finished)
+                    # self.worker.step_converter.connect(self.progress_step)
+                    self.thread.started.connect(self.worker.convert_file)
+                    self.thread.start()
 
-                self.prg_dialog = QtWidgets.QProgressDialog("Converting files ...", "Abort", 0, len(tree_item_list), self)
-                self.prg_dialog.setStyleSheet(""" background-color: rgb(30,30,30); color: #fafafa; """)
-                # self.prg_dialog.setCancelButton(self.prg_dialog_pushButton())
-                # self.prg_dialog.setContentsMargins(15, 15, 15, 15)
-                self.prg_dialog.canceled.connect(self.abort_convert)
-                self.prg_dialog.show()
+                    self.prg_dialog = QtWidgets.QProgressDialog("Converting files ...", "Abort", 0, len(tree_item_list), self)
+                    self.prg_dialog.setStyleSheet(""" background-color: rgb(30,30,30); color: #fafafa; """)
+                    # self.prg_dialog.setCancelButton(self.prg_dialog_pushButton())
+                    # self.prg_dialog.setContentsMargins(15, 15, 15, 15)
+                    self.prg_dialog.canceled.connect(self.abort_convert)
+                    self.prg_dialog.show()
+                else:
+                    msgbox = QtWidgets.QMessageBox()
+                    msgbox.setText("Output folder path doesn't exist")
+                    msgbox.exec_()
             else:
                 msgbox = QtWidgets.QMessageBox()
                 msgbox.setText('No file to convert !')
@@ -471,7 +541,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.cbb_exprt_odt.setEnabled(False)
             self.cbb_exprt_odt.setCurrentText('None')
             self.cbb_exprt_odt.setHidden(True)
-            self.cbb_exprt_odt.setStyleSheet(self.stylesheet_main)
 
             self.lbl_exprt_odt.setHidden(True)
 
@@ -479,7 +548,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.cbb_exprt_odt.setEnabled(True)
             self.cbb_exprt_odt.setHidden(False)
             self.cbb_exprt_odt.setCurrentText('None')
-            self.cbb_exprt_odt.setStyleSheet(self.stylesheet_main)
             self.lbl_exprt_odt.setHidden(False)
 
     def cbb_udpate_odt(self):
@@ -549,7 +617,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def open_file(self):
         dialog = QtWidgets.QFileDialog(self)
-        # dialog.setC
         dialog.setFileMode(QtWidgets.QFileDialog.ExistingFiles)
         dialog.setNameFilter("Images (*.png *.exr *.jpg *.hdr *.jpeg *.tiff *.tif)")
 
@@ -559,6 +626,16 @@ class MainWindow(QtWidgets.QMainWindow):
             filenames = dialog.selectedFiles()
             for file_path in filenames:
                 self.add_tree_widget_item(file_path)
+
+    def open_folder(self):
+        dialog = QtWidgets.QFileDialog(self)
+        dialog.setFileMode(QtWidgets.QFileDialog.Directory)
+        dialog.setOption(QtWidgets.QFileDialog.ShowDirsOnly, True)
+        # dialog.setNameFilter("Images (*.png *.exr *.jpg *.hdr *.jpeg *.tiff *.tif)")
+        if dialog.exec_():
+            folder = dialog.selectedFiles()[0]
+            self.le_exprt_folder.setText(folder)
+
 
     def open_info_wind(self):
         self.wind_info = InfoWindow(self.main_widget, self.ctx)
@@ -571,6 +648,14 @@ class MainWindow(QtWidgets.QMainWindow):
         btn.setContentsMargins(QtCore.QMargins(15, 15, 15, 15))
         return btn
 
+    def rb_update_location(self):
+        if self.rb_exprt_file.isChecked():
+            self.le_exprt_folder.setVisible(False)
+            self.btn_exprt_explorer.setVisible(False)
+        else:
+            self.le_exprt_folder.setVisible(True)
+            self.btn_exprt_explorer.setVisible(True)
+
     def select_all_tree_items(self):
         self.treewidget.selectAll()
 
@@ -578,11 +663,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self.act_convert.triggered.connect(self.convert)
         self.act_info.triggered.connect(self.open_info_wind)
         self.act_open.triggered.connect(self.open_file)
+        self.btn_in_apply.clicked.connect(partial(self.apply_idt, True))
+        self.btn_in_apply_all.clicked.connect(partial(self.apply_idt, False))
         self.cbb_target_cs.currentTextChanged.connect(self.cbb_udpate_odt)
         self.cbb_exprt_format.currentTextChanged.connect(self.cbb_update_format)
         self.cbb_exprt_compress.currentTextChanged.connect(self.compression_update)
-        self.btn_in_apply.clicked.connect(partial(self.apply_idt, True))
-        self.btn_in_apply_all.clicked.connect(partial(self.apply_idt, False))
+
+        self.rb_exprt_file.toggled.connect(self.rb_update_location)
+        self.rb_exprt_folder.toggled.connect(self.rb_update_location)
+        self.btn_exprt_explorer.clicked.connect(self.open_folder)
 
         QtWidgets.QShortcut(QtGui.QKeySequence('Delete'), self, self.delete_tree_item)
         QtWidgets.QShortcut(QtGui.QKeySequence('Backspace'), self, self.delete_tree_item)

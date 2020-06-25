@@ -17,8 +17,6 @@ blue-light: rgb(54, 150, 220)
 	color: #fafafa;
 }
 
-
-
 QToolButton:hover {
     background-color: rgba(250,250,250,150);
     border-radius: 3px;
@@ -50,7 +48,7 @@ QTreeWidget::item:selected:active{
     border: 0;
     background-color: rgba(88,99,248,150);
 }
-QTreeWidget::item:selected:!active{
+QTreeWidget::item:selected:!active {
     outline: 0;
     border: none;
     color: #fafafa;
@@ -76,8 +74,6 @@ QHeaderView::section{
     border:none;
     padding-left: 4px;
 }
-
-
 
 QToolBar {
 
@@ -112,7 +108,6 @@ QStatusBar {
     color: #fafafa;
 }
 
-
 QLabel{
     border: none;
     background-color: transparent;
@@ -122,32 +117,25 @@ QLabel{
     font-family: Josefin Sans;
  }
 
-
 /*###########################
     QCOMBO BOX
 ###########################*/
-
-QComboBox {
+QComboBox{
     border: none;
 	color: rgb(250,250,250);
     background-color: rgb(40,40,42);
     border-radius: 5px;
     padding: 1px 3px 1px 3px;
     padding-left: 15px;
-/*
-    min-width: 4em;
-	min-height: 45px;*/
-
 	outline-style:none;
-
     font-family: Josefin Sans ;
 	font-size: 13px;
 	font-weight: normal;
 }
 
 QComboBox QAbstractItemView {
-    background-color: rgb(45,45,47);
-/*    background-color: transparent;*/
+    /*background-color: rgb(45,45,47);*/
+    background-color: transparent;
     color: rgb(200,200,200);
     outline: 5px;
     outline-offset:0px;
@@ -220,7 +208,7 @@ QScrollBar:vertical {
      border: none;
      background: #121212;
      width: 10px;
-     margin: 0px 0 0px 0;
+     margin: 0 0 0 0;
      border-radius: 5px
  }
  QScrollBar::handle:vertical {
@@ -437,4 +425,11 @@ QProgressBar {
 QProgressBar::chunk {
     background-color: #05B8CC;
     width: 20px;
+}
+
+QLineEdit{
+    background-color: rgb(40,40,40);
+    border-radius: 5px;
+    color: #fafafa;
+    font-family: "JetBrains Mono";
 }
