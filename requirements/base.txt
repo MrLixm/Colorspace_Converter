@@ -1,0 +1,4 @@
+PySide2==5.13.1
+colour-science==0.3.15
+'colour-science[optional]'
+fbs==0.8.6

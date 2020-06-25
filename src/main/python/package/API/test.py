@@ -1,11 +1,11 @@
 """
 File for running test with colour and OIIO
 """
-
+import os
 from pathlib import Path
 import colour
 from package.data_list import CS_TARGET_DICO, FORMAT_LIST, BITDEPTH_DICO, ODT_DICO, IDT_DICO, COMPRESSION_LIST
-
+from PySide2 import QtCore
 
 
 class Window:
@@ -55,6 +55,10 @@ if __name__ == '__main__':
     # print("ACEScg", result2)
     # print("rec709", result3)
     # print(colour.ILLUMINANTS_SDS['D60'])
-    result = [k for k in CS_TARGET_DICO.keys()]
+    document_path = QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.DocumentsLocation)
+    pyco_path = os.path.join(document_path, 'PYCO', 'ColorspaceConverter')
+
+    result = pyco_path
+
     print(result)
     print(type(result))

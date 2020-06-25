@@ -62,6 +62,7 @@ QTreeWidget::item:active{
 }
 
 QHeaderView{
+    background-color: rgb(75, 85, 220);
     border: 1px solid rgb(130, 135, 238);
     /*border-left: 3px solid rgb(88, 99, 248);*/
     border-radius: 15px;

@@ -10,6 +10,7 @@ import logging
 
 import colour
 from colour.algebra import table_interpolation_tetrahedral
+from PySide2 import QtCore
 from oiio import OpenImageIO as oiio
 
 from package.data_list import ODT_DICO, BITDEPTH_DICO
@@ -17,10 +18,19 @@ from package.data_list import ODT_DICO, BITDEPTH_DICO
 # TODO: implemant logging
 # TODO: finish ODT/tf
 
-logging.basicConfig(level=logging.DEBUG)
-#                    filename=r"L:\SCRIPT\Colour\OCIO_converter\tests\loggs.log",  # or specify the path+file
-#                    filemode="a",  # or w to replace data
-#                    format='%(asctime)s - %(levelname)S - %(message)s')
+document_path = QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.DocumentsLocation)
+pyco_path = os.path.join(document_path, 'PYCO', 'ColorspaceConverter')
+if not os.path.exists(pyco_path):
+    os.makedirs(pyco_path)
+pyco_file_path = os.path.join(pyco_path, 'log_file.log')
+if not os.path.exists(pyco_file_path):
+    with open(pyco_file_path, 'w'):
+        pass
+
+logging.basicConfig(level=logging.DEBUG,
+                    filename=pyco_file_path,
+                    filemode="a",
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 class Converter:
@@ -125,6 +135,7 @@ class Converter:
 
     def apply_odt(self, in_rgb):
         if ODT_DICO.get(self.odt):
+            logging.info(f"ODT: {self.odt}")
             if self.odt.endswith('(ACES)'):
                 odt_rgb = self.apply_odt_aces(in_rgb)
                 result = odt_rgb
@@ -133,6 +144,7 @@ class Converter:
                 result = cctf
 
         else:
+            logging.info(f"No ODT")
             result = in_rgb
 
         return result
@@ -224,7 +236,7 @@ if __name__ == '__main__':
 
     c = Converter(filename, 'file', '.exr', '32bit Float', 'sRGB', 'ACEScg', 'None',
                   r'L:\SCRIPT\Colour\OCIO_converter\script\github\OCIO_Converter\src\main\resources\base', "dwaa:45",
-                  False)
+                  False, False)
 
     # c = Converter(filename, 'file', '.jpg', '8bit Int', 'ACEScg', 'sRGB', 'sRGB(EOTF)',
     #               r'L:\SCRIPT\Colour\OCIO_converter\script\github\OCIO_Converter\src\main\resources\base', "jpeg:100",

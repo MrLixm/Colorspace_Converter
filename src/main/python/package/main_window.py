@@ -5,6 +5,7 @@ Author: Liam Collod
 Contact: lcollod@gmail.com
 """
 import os
+import logging
 from functools import partial
 from pathlib import Path
 
@@ -219,6 +220,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.toolbar_opt.setStyleSheet(stylesheet_var)
         self.lbl_placeholder.setStyleSheet(stylesheet_main)
         self.treewidget.setStyleSheet(stylesheet_main)
+        self.treewidget.header().setStyleSheet(stylesheet_main)
         self.lbl_title.setStyleSheet(stylesheet_title)
         self.lbl_cbb_target.setStyleSheet(stylesheet_title)
         self.cbb_target_cs.setStyleSheet(stylesheet_var)
@@ -231,7 +233,8 @@ class MainWindow(QtWidgets.QMainWindow):
         # ToolBar
         # self.lbl_title.setEnabled(False)
         title_pix = QtGui.QPixmap(":/root/title.png")
-        title_pix = title_pix.scaled(300, 150, QtCore.Qt.KeepAspectRatio, QtCore.Qt.TransformationMode.SmoothTransformation)
+        title_pix = title_pix.scaled(300, 150, QtCore.Qt.KeepAspectRatio,
+                                     QtCore.Qt.TransformationMode.SmoothTransformation)
         self.lbl_title.setPixmap(title_pix)
         self.widget_spacer.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.widget_spacer2.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
@@ -325,11 +328,11 @@ class MainWindow(QtWidgets.QMainWindow):
         """
         Method to fill comboxbox at initialisation
         """
-        self.cbb_target_cs.addItems(CS_TARGET_DICO.keys())
+        self.cbb_target_cs.addItems([k for k in CS_TARGET_DICO.keys()])
         self.cbb_exprt_format.addItems(FORMAT_LIST)
-        self.cbb_exprt_bit.addItems(BITDEPTH_DICO.keys())
+        self.cbb_exprt_bit.addItems([k for k in BITDEPTH_DICO.keys()])
         self.cbb_exprt_bit.setCurrentIndex(2)
-        self.cbb_exprt_odt.addItems(ODT_DICO)
+        self.cbb_exprt_odt.addItems([k for k in ODT_DICO.keys()])
         for keys in IDT_DICO.keys():
             icon = QtGui.QIcon(IDT_DICO.get(keys)[2])
             self.cbb_in_idt.addItem(icon, keys)
@@ -503,7 +506,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
         """
         self.prg_dialog.setValue(self.prg_dialog.value() + 1)
-        self.treewidget.takeTopLevelItem(self.treewidget.indexOfTopLevelItem(tree_item))
+        if result_list[0]:
+            self.treewidget.takeTopLevelItem(self.treewidget.indexOfTopLevelItem(tree_item))
+        else:
+            logging.error(f"File not converted: {tree_item.text(2)}")
 
         self.status_bar_update()
 
@@ -541,7 +547,7 @@ class MainWindow(QtWidgets.QMainWindow):
         dialog = QtWidgets.QFileDialog(self)
         # dialog.setC
         dialog.setFileMode(QtWidgets.QFileDialog.ExistingFiles)
-        dialog.setNameFilter("Images (*.png *.exr *.jpg *.hdr *.jpeg)")
+        dialog.setNameFilter("Images (*.png *.exr *.jpg *.hdr *.jpeg *.tiff *.tif)")
 
         if dialog.exec_():
             self.lbl_placeholder.setHidden(True)
