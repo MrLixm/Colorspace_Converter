@@ -21,6 +21,7 @@ class FrameCustom(QtWidgets.QFrame):
         self.ctx = parent.ctx
         self.treeview = parent.treewidget
         self.lbl_placeholder = parent.lbl_placeholder
+        self.widget_left_icons = parent.widget_left_icons
         self.mainWind = parent
 
         QtCore.QResource.registerResource(self.ctx.get_resource('qt_resources/icon_ressource.rcc'))
@@ -58,6 +59,7 @@ class FrameCustom(QtWidgets.QFrame):
     def import_files(self):
         self.lbl_placeholder.setHidden(True)
         self.treeview.setHidden(False)
+        self.widget_left_icons.setHidden(False)
         for file_path in self.drag_file_list:
             self.add_tree_item(file_path)
 

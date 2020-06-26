@@ -110,6 +110,7 @@ QPushButton::pressed {
 QStatusBar {
     background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0.3, y2:1, stop:0 rgba(88,99,248, 90), stop:1 rgba(30, 30, 32, 255));
     /*background-color: rgb(30, 30, 32);*/
+    border-top: 2px solid qlineargradient(spread:pad, x1:0, y1:1, x2:0.3, y2:1, stop:0 rgba(88,99,248, 250), stop:1 rgba(30, 30, 32, 255));
     color: #fafafa;
 }
 

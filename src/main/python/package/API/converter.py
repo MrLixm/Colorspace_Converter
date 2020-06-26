@@ -15,9 +15,9 @@ from oiio import OpenImageIO as oiio
 
 from package.data_list import ODT_DICO, BITDEPTH_DICO
 
-# TODO: implemant logging
 # TODO: finish ODT/tf
 
+# LOGGING
 document_path = QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.DocumentsLocation)
 pyco_path = os.path.join(document_path, 'PYCO', 'ColorspaceConverter')
 if not os.path.exists(pyco_path):

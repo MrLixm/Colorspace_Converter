@@ -10,7 +10,7 @@ from package.main_window import MainWindow
 class AppContext(ApplicationContext):
     def run(self):
         main_window = MainWindow(ctx=self)
-        main_window.resize(1200, 750)
+        main_window.resize(1300, 800)
         main_window.show()
         return self.app.exec_()
 

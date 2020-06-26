@@ -6,6 +6,8 @@ Contact: lcollod@gmail.com
 """
 import os
 import logging
+import subprocess
+import webbrowser
 from functools import partial
 from pathlib import Path
 
@@ -136,11 +138,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.stat_lbl_item = QtWidgets.QLabel("  Files to convert: 0 ")
 
         # Left Frame
+        self.widget_left_icons = QtWidgets.QWidget()
+        self.widget_left_icons.setHidden(True)
         self.lbl_placeholder = QtWidgets.QLabel("Drag & Drop files here")
+        self.btn_tw_deleteall = QtWidgets.QPushButton(QtGui.QIcon(self.ctx.get_resource("icon_tw_all.png")), '')
+        self.btn_tw_deleteall.setToolTip("Remove all items")
+        self.btn_tw_deletedone = QtWidgets.QPushButton(QtGui.QIcon(self.ctx.get_resource("icon_tw_done.png")), '')
+        self.btn_tw_deletedone.setToolTip("Remove all successfully converted items")
+        self.btn_tw_log = QtWidgets.QPushButton(QtGui.QIcon(self.ctx.get_resource("icon_tw_log.png")), '')
+        self.btn_tw_log.setToolTip("Open the log file")
         self.treewidget = QtWidgets.QTreeWidget()
         self.header_treeview = self.treewidget.header()
         self.treewidget.setHidden(True)
-        self.frm_left = FrameCustom(self)
+        self.frm_left = FrameCustom(self)  # need treewidget, lbl_placeholder and lyt_icons created
 
         self.spltr_middle = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
 
@@ -184,8 +194,11 @@ class MainWindow(QtWidgets.QMainWindow):
     def create_layouts(self):
         self.lyt_main = QtWidgets.QHBoxLayout(self.main_widget)
         self.lyt_main.setMargin(0)
+        self.lyt_left_top_icons = QtWidgets.QHBoxLayout(self.widget_left_icons)
+        self.lyt_left_top_icons.setContentsMargins(QtCore.QMargins(4, 4, 4, 4))
         self.lyt_lFrame = QtWidgets.QVBoxLayout(self.frm_left)
         self.lyt_lFrame.setSpacing(0)
+
         self.lyt_rightSide = QtWidgets.QGridLayout(self.widget_rightSide)
         self.lyt_rightSide.setContentsMargins(QtCore.QMargins(0, 0, 0, 0))
         self.lyt_rightSide.setSpacing(0)
@@ -217,6 +230,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.lyt_main.addWidget(self.spltr_middle)
 
+        self.lyt_left_top_icons.addWidget(self.btn_tw_deleteall)
+        self.lyt_left_top_icons.addWidget(self.btn_tw_deletedone)
+        self.lyt_left_top_icons.addStretch(1)
+        self.lyt_left_top_icons.addWidget(self.btn_tw_log)
+        self.lyt_lFrame.addWidget(self.widget_left_icons)
         self.lyt_lFrame.addWidget(self.treewidget)
         self.lyt_lFrame.addWidget(self.lbl_placeholder)
         self.lyt_lFrame.setAlignment(QtCore.Qt.AlignHCenter)
@@ -274,6 +292,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.main_widget.setStyleSheet(""".QWidget{background: rgb(40, 40, 42);}""")
         self.toolbar_opt.setStyleSheet(stylesheet_var)
         self.lbl_placeholder.setStyleSheet(self.stylesheet_main)
+        self.widget_left_icons.setStyleSheet(stylesheet_title)
         self.treewidget.setStyleSheet(self.stylesheet_main)
         self.treewidget.header().setStyleSheet(self.stylesheet_main)
         self.lbl_title.setStyleSheet(stylesheet_title)
@@ -297,6 +316,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.toolbar_opt.setMinimumHeight(55)
 
         # TreeView
+        self.btn_tw_deleteall.setIconSize(QtCore.QSize(25, 25))
+        self.btn_tw_deleteall.setFixedSize(25, 25)
+        self.btn_tw_deletedone.setIconSize(QtCore.QSize(25, 25))
+        self.btn_tw_deletedone.setFixedSize(25, 25)
+        self.btn_tw_log.setIconSize(QtCore.QSize(25, 25))
+        self.btn_tw_log.setFixedSize(25, 25)
+
         self.frm_left.setAcceptDrops(True)
         self.lbl_placeholder.setAcceptDrops(True)
         self.treewidget.setHeaderHidden(False)
@@ -384,7 +410,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.toolbar_opt.insertWidget(self.act_convert, self.widget_spacer2)
 
-
     def add_cbb_items(self):
         """
         Method to fill comboxbox at initialisation
@@ -411,12 +436,11 @@ class MainWindow(QtWidgets.QMainWindow):
         file_name = os.path.basename(file_path)
         icon = QtGui.QIcon(":/idt/icon_idt_none.png")
         icon_statut = QtGui.QIcon(":/statut/icon_convert_wait.png")
-        item = QtWidgets.QTreeWidgetItem(self.treewidget, ['', '', file_name, file_path, 'None'])
+        item = QtWidgets.QTreeWidgetItem(self.treewidget, ['none', '', file_name, file_path, 'None'])
         item.setIcon(0, icon_statut)
         item.setIcon(1, icon)
         item.setTextAlignment(0, QtCore.Qt.AlignHCenter)
         item.setTextAlignment(1, QtCore.Qt.AlignHCenter)
-
 
         self.status_bar_update()
 
@@ -448,12 +472,11 @@ class MainWindow(QtWidgets.QMainWindow):
         out_cs = self.cbb_target_cs.currentText()
         out_format = self.cbb_exprt_format.currentText()
         out_bitdepth = self.cbb_exprt_bit.currentText()
-        out_compression = self.cbb_exprt_compress.currentText().lower()+':'+str(self.spnb_exprt_compress.value())
+        out_compression = self.cbb_exprt_compress.currentText().lower() + ':' + str(self.spnb_exprt_compress.value())
         out_odt = self.cbb_exprt_odt.currentText()
         out_location = 'file' if self.rb_exprt_file.isChecked() else 'folder'
         out_location_path = self.le_exprt_folder.text()
         resources = self.ctx.get_resource()
-
 
         tree_item_list = self.list_tree_items()
         if not any([tree_item.text(4).endswith('None') for tree_item in tree_item_list]):
@@ -470,7 +493,8 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.thread.started.connect(self.worker.convert_file)
                     self.thread.start()
 
-                    self.prg_dialog = QtWidgets.QProgressDialog("Converting files ...", "Abort", 0, len(tree_item_list), self)
+                    self.prg_dialog = QtWidgets.QProgressDialog("Converting files ...", "Abort", 0, len(tree_item_list),
+                                                                self)
                     self.prg_dialog.setStyleSheet(""" background-color: rgb(30,30,30); color: #fafafa; """)
                     # self.prg_dialog.setCancelButton(self.prg_dialog_pushButton())
                     # self.prg_dialog.setContentsMargins(15, 15, 15, 15)
@@ -573,28 +597,58 @@ class MainWindow(QtWidgets.QMainWindow):
         Method called each time a file is finished to be converted
 
         Args:
-            tree_item: QTreeItem object
+            tree_item: QtWidgets.QTreeWidgetItem
             result_list: List[Bool, oiio error]
 
         """
+        tree_item: QtWidgets.QTreeWidgetItem
         self.prg_dialog.setValue(self.prg_dialog.value() + 1)
         if all(result_list):
             icon_check = QtGui.QIcon(":/statut/icon_convert_check.png")
             tree_item.setIcon(0, icon_check)
+            tree_item.setText(0, 'check')
             # self.treewidget.takeTopLevelItem(self.treewidget.indexOfTopLevelItem(tree_item))
         else:
             icon_error = QtGui.QIcon(":/statut/icon_convert_error.png")
             tree_item.setIcon(0, icon_error)
+            tree_item.setText(0, 'error')
             logging.error(f"File not converted: {tree_item.text(3)}")
 
         self.status_bar_update()
 
-    def delete_tree_item(self):
+    def delete_tree_items_selected(self):
         selection = self.treewidget.selectedItems()
         for tree_items in selection:
             self.treewidget.takeTopLevelItem(self.treewidget.indexOfTopLevelItem(tree_items))
 
         self.status_bar_update()
+
+    def icons_treewidget_actions(self, action):
+        if action == "all":
+            self.treewidget.clear()
+            self.status_bar_update()
+
+        elif action == "done":
+            root = self.treewidget.invisibleRootItem()
+            item_list = []
+            for i in range(root.childCount()):
+                item_list.append(self.treewidget.topLevelItem(i))
+
+            for items in item_list:
+                if items.text(0) == 'check':
+                    index = self.treewidget.indexOfTopLevelItem(items)
+                    self.treewidget.takeTopLevelItem(index)
+
+            self.status_bar_update()
+
+        elif action == "log":
+            document_path = QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.DocumentsLocation)
+            pyco_path = os.path.join(document_path, 'PYCO', 'ColorspaceConverter')
+            if os.path.exists(pyco_path):
+                pyco_file_path = os.path.join(pyco_path, 'log_file.log')
+                if os.path.exists(pyco_file_path):
+                    print("PATH:", pyco_file_path)
+                    webbrowser.open(pyco_file_path)
 
     def load_fonts(self):
         path1 = self.ctx.get_resource("font/JosefinSans-SemiBold.ttf")
@@ -627,6 +681,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if dialog.exec_():
             self.lbl_placeholder.setHidden(True)
             self.treewidget.setHidden(False)
+            self.widget_left_icons.setHidden(False)
             filenames = dialog.selectedFiles()
             for file_path in filenames:
                 self.add_tree_widget_item(file_path)
@@ -639,7 +694,6 @@ class MainWindow(QtWidgets.QMainWindow):
         if dialog.exec_():
             folder = dialog.selectedFiles()[0]
             self.le_exprt_folder.setText(folder)
-
 
     def open_info_wind(self):
         self.wind_info = InfoWindow(self.main_widget, self.ctx)
@@ -667,6 +721,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.act_convert.triggered.connect(self.convert)
         self.act_info.triggered.connect(self.open_info_wind)
         self.act_open.triggered.connect(self.open_file)
+
+        self.btn_tw_deleteall.clicked.connect(partial(self.icons_treewidget_actions, "all"))
+        self.btn_tw_deletedone.clicked.connect(partial(self.icons_treewidget_actions, "done"))
+        self.btn_tw_log.clicked.connect(partial(self.icons_treewidget_actions, "log"))
+
         self.btn_in_apply.clicked.connect(partial(self.apply_idt, True))
         self.btn_in_apply_all.clicked.connect(partial(self.apply_idt, False))
         self.cbb_target_cs.currentTextChanged.connect(self.cbb_udpate_odt)
@@ -677,8 +736,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.rb_exprt_folder.toggled.connect(self.rb_update_location)
         self.btn_exprt_explorer.clicked.connect(self.open_folder)
 
-        QtWidgets.QShortcut(QtGui.QKeySequence('Delete'), self, self.delete_tree_item)
-        QtWidgets.QShortcut(QtGui.QKeySequence('Backspace'), self, self.delete_tree_item)
+        QtWidgets.QShortcut(QtGui.QKeySequence('Delete'), self, self.delete_tree_items_selected)
+        QtWidgets.QShortcut(QtGui.QKeySequence('Backspace'), self, self.delete_tree_items_selected)
         QtWidgets.QShortcut(QtGui.QKeySequence('Ctrl+A'), self, self.select_all_tree_items)
 
     def status_bar_update(self):
@@ -692,4 +751,3 @@ class MainWindow(QtWidgets.QMainWindow):
         with open(css_file, "r") as f:
             content = f.read()
         return content
-

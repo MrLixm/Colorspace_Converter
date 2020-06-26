@@ -33,5 +33,10 @@
     <file>../icon_convert_error.png</file>
     <file>../icon_convert_wait.png</file>
   </qresource>
+  <qresource prefix="tw">
+    <file>../icon_tw_all.png</file>
+    <file>../icon_tw_done.png</file>
+    <file>../icon_tw_log.png</file>
+  </qresource>
 
 </RCC>

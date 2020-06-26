@@ -28,9 +28,17 @@ QToolBar {
 	border-bottom: 2px solid rgb(50,50,50);
 }
 QToolBar:bottom, QToolBar:top {
-    background-color: qlineargradient(spread:pad, x1:0.8, y1:1, x2:1, y2:1, stop:0 rgba(30,30,32, 255),
+    border-top: 2px solid qlineargradient(spread:pad, x1:0.6, y1:1, x2:1, y2:1, stop:0 rgba(30,30,32, 255),
                                         stop:1  rgba(52, 206, 75,200));
-    border-right: 2px solid rgb(52, 206, 75);
+    border-bottom: 2px solid qlineargradient(spread:pad, x1:0.6, y1:1, x2:1, y2:1, stop:0 rgba(30,30,32, 255),
+                                    stop:1  rgba(52, 206, 75,200));
+    border-right: 2px solid rgba(52, 206, 75,180);
+
+    /*background-color: qlineargradient(spread:pad, x1:0.96, y1:1, x2:1, y2:1, stop:0 rgba(30,30,32, 255),*/
+    /*                                    stop:1  rgba(52, 206, 75,255));*/
+
+    /*border-top: 3px solid rgba(52, 206, 75,200);*/
+    /*border-right: 2px solid rgb(52, 206, 75);*/
 }
 
 QToolBar::handle:bottom, QToolBar::handle:top {

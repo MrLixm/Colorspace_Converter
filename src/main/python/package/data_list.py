@@ -63,9 +63,9 @@ value: list: list of the API element and Icon
         list[2]: icon path
 """
 IDT_DICO = {
-    'Utility - sRGB - Linear': ['sRGB', False, ':/idt/icon_idt_srgb_lin.png'],
-    'Utility - sRGB - Texture': ['sRGB', True, ':/idt/icon_idt_srgb_tex.png'],
-    'Utility - rec709 - Texture': ['ITU-R BT.709', True, ':/idt/icon_idt_rec709_tex.png'],
+    'Utility - Linear - sRGB': ['sRGB', False, ':/idt/icon_idt_srgb_lin.png'],
+    'Utility - Texture - sRGB': ['sRGB', True, ':/idt/icon_idt_srgb_tex.png'],
+    'Utility - Texture - rec709': ['ITU-R BT.709', True, ':/idt/icon_idt_rec709_tex.png'],
     'ACEScg': ['ACEScg', False, ':/idt/icon_idt_acescg.png'],
     'ACES2065-1': ['ACES2065-1', False, ':/idt/icon_idt_acesap0.png'],
     'ACEScc': ['ACEScc', True, ':/idt/icon_idt_acescc.png'],
