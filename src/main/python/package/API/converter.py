@@ -193,17 +193,18 @@ if __name__ == '__main__':
     filename3 = r"L:\SCRIPT\Colour\OCIO_converter\tests\bob-ross.jpg"
     filename = r"L:\SCRIPT\Colour\OCIO_converter\tests\artist_hdri\artist_workshop_4k.hdr"
     filename2 = r"L:\SCRIPT\Colour\OCIO_converter\tests\odt_test\cabin_render_original.exr"
+    txfile = r"L:\SCRIPT\Colour\OCIO_converter\tests\tx\bb8_acescg_Diffuse Color_1001.tx"
 
     # c = Converter(filename, 'file', '.png', '8bit Int', 'ACEScg', 'ACEScg', 'None',
     #           r'L:\SCRIPT\Colour\OCIO_converter\script\github\OCIO_Converter\src\main\resources\base', "none", False)
 
-    c = Converter(filename, 'file', '.exr', '32bit Float', 'sRGB', 'ACEScg', 'None',
-                  r'L:\SCRIPT\Colour\OCIO_converter\script\github\OCIO_Converter\src\main\resources\base', "dwaa:45",
-                  False, False)
+    c = Converter(txfile, '32bit Float', 'ACEScg', 'sRGB', 'None',
+                  r'L:\SCRIPT\Colour\OCIO_converter\script\github\OCIO_Converter\src\main\resources\base', "None",
+                  False, False, r"L:\SCRIPT\Colour\OCIO_converter\tests\tx\bb8_acescg_Diffuse Color_1001_oiio.exr")
 
-    # c = Converter(filename, 'file', '.jpg', '8bit Int', 'ACEScg', 'sRGB', 'sRGB(EOTF)',
+    # c = Converter(txfile, '8bit Int', 'ACEScg', 'sRGB', 'sRGB(EOTF)',
     #               r'L:\SCRIPT\Colour\OCIO_converter\script\github\OCIO_Converter\src\main\resources\base', "jpeg:100",
-    #               False)
+    #               False, False, r"L:\SCRIPT\Colour\OCIO_converter\tests\tx\bb8_acescg_Diffuse Color_1001_oiio.jpg")
 
     result = c.image_processing()
     print(result)

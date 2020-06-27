@@ -96,3 +96,30 @@ if __name__ == '__main__':
     # print(type(result))
 
     converter(r"L:\temp\xyz\test0.exr")
+
+row_dico_1 = {
+    'black': [1, (0, 0, 0)],
+    'dark grey': [2, (.2, .2, .2)],
+    'light grey': [3, (.6, .6, .6)]
+}
+wv= 25
+for item in row_dico_1.keys():
+    cmds.button(lbl='', ann= row_dico_1.get(item)[0], w= wv, cmd=)
+
+
+cmds.button(label='', ann='dark green', width=wv, command=partial(setNurbOverrideColor,7), bgc=(.3,.6,.3))
+cmds.button(label='', ann='soft green', width=wv, command=partial(setNurbOverrideColor,23), bgc=(.4,.7,.4))
+cmds.button(label='', ann='lime green', width=wv, command=partial(setNurbOverrideColor,26), bgc=(.6,.8,.4))
+cmds.button(label='', ann='light green', width=wv, command=partial(setNurbOverrideColor,14), bgc=(.4,.9,.2))
+cmds.button(label='', ann='light green', width=wv, command=partial(setNurbOverrideColor,27), bgc=(.4,.8,.4))
+cmds.button(label='', ann='light green', width=wv, command=partial(setNurbOverrideColor,19), bgc=(.6,1,.7))
+
+cmds.button(label='', ann='dark purple', width=wv, command=partial(setNurbOverrideColor,30), bgc=(.4,.3,.7))
+cmds.button(label='', ann='navy', width=wv, command=partial(setNurbOverrideColor,15), bgc=(.2,.3,.5))
+cmds.button(label='', ann='dark blue', width=wv, command=partial(setNurbOverrideColor,5), bgc=(.2,.2,.7))
+cmds.button(label='', ann='blue', width=wv, command=partial(setNurbOverrideColor,6), bgc=(.2,.3,1))
+cmds.button(label='', ann='soft blue', width=wv, command=partial(setNurbOverrideColor,29), bgc=(.4,.5,.6))
+cmds.button(label='', ann='light blue', width=wv, command=partial(setNurbOverrideColor,18), bgc=(.6,.7,1))
+cmds.button(label='', ann='soft light blue', width=wv, command=partial(setNurbOverrideColor,28), bgc=(.3,.8,.8))
+cmds.setParent('..')
+

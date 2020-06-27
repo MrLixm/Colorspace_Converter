@@ -275,6 +275,7 @@ class MainWindow(QtWidgets.QMainWindow):
         QtCore.QResource.registerResource(self.ctx.get_resource('qt_resources/icon_ressource.rcc'))
         stylesheet_var = self.stylesheetContent('stylesheet_variations')
         stylesheet_title = self.stylesheetContent('stylesheet_title')
+        stylesheet_frm_left = self.stylesheetContent('stylesheet_frm_left')
         self.stylesheet_main = self.stylesheetContent('stylesheet')
 
         # self.status_bar.showMessage("Status Bar Is Ready", 3000)
@@ -282,13 +283,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Styling controls
         self.setStyleSheet(self.stylesheet_main)
-        self.frm_left.setStyleSheet("""QFrame{
-                border-radius: 4px;
-                border: 2px solid rgb(60,60,60);
-                background-color: rgb(45, 45, 48);
-                alternate-background-color: rgb(25, 25, 25);
-                color: #fafafa;
-                }""")
+        self.frm_left.setStyleSheet(stylesheet_frm_left)
         self.main_widget.setStyleSheet(""".QWidget{background: rgb(40, 40, 42);}""")
         self.toolbar_opt.setStyleSheet(stylesheet_var)
         self.lbl_placeholder.setStyleSheet(self.stylesheet_main)
@@ -298,8 +293,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lbl_title.setStyleSheet(stylesheet_title)
         self.lbl_cbb_target.setStyleSheet(stylesheet_title)
         self.cbb_target_cs.setStyleSheet(stylesheet_var)
-        self.frm_right_targetcs.setStyleSheet(
-            """.QFrame{background-color: rgb(50,50,50) ;margin:0px; border-left: 3px solid rgb(240,237,97);} """)
+        # self.frm_right_targetcs.setStyleSheet(
+        #     """.QFrame{background-color: rgb(50,50,50) ;margin:0px; border-left: 3px solid rgb(240,237,97);} """)
+        self.cbb_exprt_odt.setStyleSheet(self.stylesheet_main)
         self.lbl_exportOptions.setStyleSheet(stylesheet_var)
         self.lbl_in_title.setStyleSheet(stylesheet_var)
 
@@ -676,7 +672,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def open_file(self):
         dialog = QtWidgets.QFileDialog(self)
         dialog.setFileMode(QtWidgets.QFileDialog.ExistingFiles)
-        dialog.setNameFilter("Images (*.png *.exr *.jpg *.hdr *.jpeg *.tiff *.tif)")
+        dialog.setNameFilter("Images (*.png *.exr *.jpg *.hdr *.jpeg *.tiff *.tif *.tx)")
 
         if dialog.exec_():
             self.lbl_placeholder.setHidden(True)

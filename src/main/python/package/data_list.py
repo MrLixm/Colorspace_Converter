@@ -23,7 +23,7 @@ CS_TARGET_DICO = {
     'Rec2020':              ['ITU-R BT.2020', False]
 }
 
-SUPPORTED_IN_FORMAT = ['.exr', '.png', '.jpg', '.jpeg', '.tiff', '.tif', '.hdr']
+SUPPORTED_IN_FORMAT = ['.exr', '.png', '.jpg', '.jpeg', '.tiff', '.tif', '.hdr', '.tx']
 FORMAT_LIST = [".exr", ".jpg", ".png"]  # , "Original"]
 COMPRESSION_LIST = ['none', 'rle', 'zip', 'zips', 'piz', 'pxr24', 'b44', 'b44a', 'dwaa', 'dwab']
 

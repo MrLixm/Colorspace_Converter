@@ -121,7 +121,7 @@ QLabel {
     font-size: 12px;
     /*font-weight: bold;*/
     font-family: Josefin Sans;
- }
+}
 
 /*###########################
     QCOMBO BOX
@@ -177,23 +177,28 @@ QComboBox::drop-down {
 	margin: 3px;
 	border-radius: 5px;
 }
+
 QComboBox::drop-down:hover{
     background-color: rgb(240,237,97);
 }
+
 QComboBox::down-arrow:!on {
     image: url(":/cbb/icon_cbb_open_dark.png");
     width: 10px;
     height: 10px;
 }
+
 QComboBox::down-arrow:on {
     image: url(":/cbb/icon_cbb_close_dark.png");
     width: 10px;
     height: 10px;
 }
+
 QComboBox::drop-down:!enabled {
     background-color: rgb(50,50,50);
     border: none;
 }
+
 QComboBox::down-arrow:!on:!enabled {
     image: none;
     background-color: transparent;
@@ -202,103 +207,10 @@ QComboBox::down-arrow:!on:!enabled {
     width: 5px;
     height: 5px;
 }
+
 QComboBox:!enabled {
     color: rgb(125,125,125);
 }
-
-/*####################
-    SCROLL BAR Vertical
-######################*/
-
-QScrollBar:vertical {
-     border: none;
-     background: #121212;
-     width: 10px;
-     margin: 0 0 0 0;
-     border-radius: 5px
- }
- QScrollBar::handle:vertical {
-     background: rgb(80,80,80);
-     min-height: 20px;
-     border-radius: 5px
- }
-
- QScrollBar::add-line:vertical {
-     border: none;
-     background: #32CC99;
-     height: 0px;
-     subcontrol-position: bottom;
-     subcontrol-origin: margin;
- }
-
- QScrollBar::sub-line:vertical {
-     border: none;
-     background: #32CC99;
-     height: 0px;
-     subcontrol-position: top;
-     subcontrol-origin: margin;
- }
-
- QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
-     border: 2px solid grey;
-     width: 3px;
-     height: 3px;
-     background: white;
- }
-
- QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
-    background: none;
-    height: 0px;
-    subcontrol-position: top;
-    subcontrol-origin: margin;
-}
-
-/*####################
-    SCROLL BAR Horizontal
-######################*/
-
-QScrollBar:horizontal {
-    border: none;
-    background: #121212;
-    height: 10px;
-    margin: 0px 0px 0 0px;
-    border-radius: 4px;
-
-}
-
-QScrollBar::handle:horizontal {
-    background: gray;
-    min-width: 20px;
-    border-radius: 4px;
-}
-
-QScrollBar::add-line:horizontal {
-    background: none;
-    width: 0px;
-    height: 0px;
-    border: none;
-}
-
-QScrollBar::sub-line:horizontal {
-    background: none;
-    width: 0px;
-    height: 0px;
-    border: none;
-}
-
-QScrollBar:left-arrow:horizontal, QScrollBar::right-arrow:horizontal {
-    width: 0px;
-    height: 0px;
-    background: pink;
-}
-
-QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
-    background: none;
-    width: 0px;
-    height: 0px;
-
-}
-/*##########################*/
 
 QGroupBox{
     border: 2px solid rgb(80,80,80);
@@ -311,15 +223,6 @@ QGroupBox{
     font-weight: bold;
     font-family: JetBrains Mono;
 }
-QGroupBox::title {
-	left: 15px;
-	color: rgb(180,180,180);
-	border-right:15px;
-    padding: 0 8px;
-	subcontrol-origin: margin;
-    subcontrol-position: top left;
-
-}
 
 QSplitter::handle:horizontal{
     background-color: rgb(60,60,60);
@@ -329,37 +232,36 @@ QSplitter::handle:horizontal{
     padding: 0px;
     margin-left: 8px;
     margin-right: 8px;
-
 }
 
 QSplitter{
     margin: 15px;
     padding: 6px;
     border-radius: 6px;
-
 }
+
 /*
 QSplitter::handle:pressed {
     background-color: rgb(79, 77, 58 );
 }*/
-
 QRadioButton{
     color: #fafafa;
     font-family: Josefin Sans;
 }
+
 QRadioButton::indicator {
     height: 18px;
     width: 18px;
     border: 2px solid rgb(50,50,52);
     border-radius: 10px;
 }
+
 QRadioButton::indicator::unchecked {
     background-color: rgb(25,25,27);
-
 }
+
 QRadioButton::indicator::checked {
     background-color: rgb(240,237,97);
-
 }
 
 QSpinBox{
@@ -372,6 +274,7 @@ QSpinBox{
     font-family: Josefin Sans;
     font-size: 13px
 }
+
 QSpinBox:!enabled{
     color: rgb(80,80,80)
 }
@@ -384,7 +287,6 @@ QSpinBox::up-button:!enabled {
     background-color: rgb(50,50,50);
     margin:0px;
 }
-
 QSpinBox::up-button:pressed {
     background-color: rgba(250,250,250,200);
 }
@@ -394,6 +296,7 @@ QSpinBox::down-button {
     margin:1px;
     border-radius:2px;
 }
+
 QSpinBox::down-button:!enabled {
     background-color: rgb(50,50,50);
     margin:0px;
@@ -402,18 +305,18 @@ QSpinBox::down-button:!enabled {
 QSpinBox::down-button:pressed {
     background-color: rgba(250,250,250,200);
 }
+
 QSpinBox::up-arrow {
     image: url(":/cbb/icon_cbb_close_dark.png");
     width: 7px;
     height: 7px;
 }
+
 QSpinBox::down-arrow {
     image: url(":/cbb/icon_cbb_open_dark.png");
     width: 7px;
     height: 7px;
 }
-
-
 
 QStatusBar::item {
     outline: none;
@@ -439,3 +342,14 @@ QLineEdit{
     color: #fafafa;
     font-family: "JetBrains Mono";
 }
+
+
+
+/*QGroupBox::title {*/
+/*    left: 15px;*/
+/*    color: rgb(180,180,180);*/
+/*    border-right:15px;*/
+/*    padding: 0 8px;*/
+/*    subcontrol-origin: margin;*/
+/*    subcontrol-position: top left;*/
+/*}*/
