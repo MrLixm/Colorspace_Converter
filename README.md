@@ -10,11 +10,15 @@ You can find the documentation here: <https://mrlixm.github.io/PYCO/standalone/C
 
 ### Development 
 
-Python Version: *Python 3.6* - OS: Windows 10
+OS: Windows 10
+Python version 3.6.8
 
-Packages used: 
-
-- PySide 2 (version 5.15.0)
-- Colour-science (version 0.3.15)
-- Fbs (version 0.8.6)
-- OpenImageIO (version 2.8.0)
+VirtualEnvironment:
+```
+$ pip install PySide2==5.13.1
+$ pip install colour-science==0.3.15
+$ pip install 'colour-science[optional]'
+$ pip install fbs==0.8.6
+$ pip install "..\oiio-2.0.5-cp36-none-win_amd64.whl"
+```
+The oiio Python wheel can be downloaded here: <https://github.com/fredrikaverpil/oiio-python/releases>
