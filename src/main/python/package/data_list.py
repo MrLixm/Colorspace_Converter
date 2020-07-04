@@ -17,7 +17,7 @@ CS_TARGET_DICO = {
     'ACES2065-1':           ['ACES2065-1', False],
     'ACEScc':               ['ACEScc', True],
     'ACEScct':              ['ACEScct', True],
-    'sRGB-Rec709':          ['sRGB', False],
+    'sRGB-Rec709 (linear)':          ['sRGB', False],
     'Adobe Wide Gamut RGB': ['Adobe Wide Gamut RGB', False],
     'Adobe RGB (1998)':     ['Adobe RGB (1998)', False],
     'Rec2020':              ['ITU-R BT.2020', False]
@@ -58,14 +58,15 @@ ODT_DICO = {
 Dictionnary of the Inputs Device Transform options
 keys: str: graphical element
 value: list: list of the API element and Icon
-        list[0]: input colorpsace
-        list[1]: apply cctf decoding
+        list[0]: input colorpsace (self.in_cs)
+        list[1]: apply cctf_decoding decoding
         list[2]: icon path
 """
 IDT_DICO = {
     'Utility - Linear - sRGB': ['sRGB', False, ':/idt/icon_idt_srgb_lin.png'],
     'Utility - Texture - sRGB': ['sRGB', True, ':/idt/icon_idt_srgb_tex.png'],
     'Utility - Texture - rec709': ['ITU-R BT.709', True, ':/idt/icon_idt_rec709_tex.png'],
+    'Utility - Raw': [False, False, ':/idt/icon_idt_raw.png'],
     'ACEScg': ['ACEScg', False, ':/idt/icon_idt_acescg.png'],
     'ACES2065-1': ['ACES2065-1', False, ':/idt/icon_idt_acesap0.png'],
     'ACEScc': ['ACEScc', True, ':/idt/icon_idt_acescc.png'],

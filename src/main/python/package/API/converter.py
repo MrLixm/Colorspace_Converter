@@ -66,7 +66,7 @@ class Converter:
         oiio.attribute("exr_threads", 0)
 
     def image_processing(self):
-        logging.info(f"\n Image processing: {self.in_img_path} \n -IDT:{self.in_cs}, cctf:{self.cctf} \n"
+        logging.info(f"\n Image processing: {self.in_img_path} \n -IDT:{self.in_cs}, cctf_decoding:{self.cctf} \n"
                      f" --OutColorspace: {self.out_cs} \n"
                      f" ---Export: Output:'{self.out_filePath}', Bitdepth:{self.out_bitdepth} \n ----ODT:{self.odt} ")
         # Read Image
@@ -80,7 +80,7 @@ class Converter:
         in_buf_rgb = oiio.ImageBufAlgo.channels(in_buf_data, (0, 1, 2))  # Remove other channels(multi-channels exr)
 
         in_array_rgb = in_buf_rgb.get_pixels()
-        converted_array_rgba = self.pixel_processing(in_array_rgb, cctf=self.cctf, cctf_encoding=self.cctf_encoding)
+        converted_array_rgba = self.pixel_processing(in_array_rgb, cctf_decoding=self.cctf, cctf_encoding=self.cctf_encoding)
         in_buf_rgb.set_pixels(in_buf_roi, converted_array_rgba)  # Replace the buffer with the converted pixels
 
         if in_buf_rgb.has_error:
@@ -157,30 +157,36 @@ class Converter:
             output = BITDEPTH_DICO.get(out_bitdepth)
         return output
 
-    def pixel_processing(self, in_rgb, cctf=False, cat='Bradford', cctf_encoding=False):
+    def pixel_processing(self, in_rgb, cctf_decoding=False, cat='Bradford', cctf_encoding=False):
         """
 
         Args:
             in_rgb: pixel data (numpy array)
-            cctf: bool: apply_cctf_decoding
+            cctf_decoding: bool: apply_cctf_decoding
             cat: chromatic adaptation model
             cctf_encoding: bool
 
         Returns: pixel data converted with odt applied or not
 
         """
-        if self.in_cs != self.out_cs:
-            output_colourspace = colour.RGB_COLOURSPACES[self.out_cs]
-            cat = cat
-            if self.in_cs == 'XYZ':
-                conversion_rgb = colour.XYZ_to_RGB(in_rgb, output_colourspace.whitepoint, output_colourspace.whitepoint,
-                                                   output_colourspace.XYZ_to_RGB_matrix, chromatic_adaptation_transform=
-                                                   cat)
+        if self.in_cs:
+            if self.in_cs != self.out_cs or cctf_decoding:
+                output_colourspace = colour.RGB_COLOURSPACES[self.out_cs]
+                cat = cat
+                if self.in_cs == 'XYZ':
+                    conversion_rgb = colour.XYZ_to_RGB(in_rgb, output_colourspace.whitepoint,
+                                                       output_colourspace.whitepoint,
+                                                       output_colourspace.XYZ_to_RGB_matrix,
+                                                       chromatic_adaptation_transform=cat)
+                else:
+                    print("colorspace conversion")
+                    input_colourspace = colour.RGB_COLOURSPACES[self.in_cs]
+                    conversion_rgb = colour.RGB_to_RGB(in_rgb, input_colourspace, output_colourspace,
+                                                       chromatic_adaptation_transform=cat,
+                                                       apply_cctf_decoding=cctf_decoding,
+                                                       apply_cctf_encoding=cctf_encoding)
             else:
-                input_colourspace = colour.RGB_COLOURSPACES[self.in_cs]
-                conversion_rgb = colour.RGB_to_RGB(in_rgb, input_colourspace, output_colourspace,
-                                                   chromatic_adaptation_transform=cat,
-                                                   apply_cctf_decoding=cctf, apply_cctf_encoding=cctf_encoding)
+                conversion_rgb = in_rgb
         else:
             conversion_rgb = in_rgb
 
@@ -198,13 +204,13 @@ if __name__ == '__main__':
     # c = Converter(filename, 'file', '.png', '8bit Int', 'ACEScg', 'ACEScg', 'None',
     #           r'L:\SCRIPT\Colour\OCIO_converter\script\github\OCIO_Converter\src\main\resources\base', "none", False)
 
-    c = Converter(txfile, '32bit Float', 'ACEScg', 'sRGB', 'None',
-                  r'L:\SCRIPT\Colour\OCIO_converter\script\github\OCIO_Converter\src\main\resources\base', "None",
-                  False, False, r"L:\SCRIPT\Colour\OCIO_converter\tests\tx\bb8_acescg_Diffuse Color_1001_oiio.exr")
+    # c = Converter(txfile, '32bit Float', 'ACEScg', 'sRGB', 'None',
+    #               r'L:\SCRIPT\Colour\OCIO_converter\script\github\OCIO_Converter\src\main\resources\base', "None",
+    #               False, False, r"L:\SCRIPT\Colour\OCIO_converter\tests\tx\bb8_acescg_Diffuse Color_1001_oiio.exr")
 
-    # c = Converter(txfile, '8bit Int', 'ACEScg', 'sRGB', 'sRGB(EOTF)',
-    #               r'L:\SCRIPT\Colour\OCIO_converter\script\github\OCIO_Converter\src\main\resources\base', "jpeg:100",
-    #               False, False, r"L:\SCRIPT\Colour\OCIO_converter\tests\tx\bb8_acescg_Diffuse Color_1001_oiio.jpg")
+    c = Converter(filename2, '8bit Int', 'ACEScg', 'sRGB', 'sRGB(EOTF)',
+                  r'L:\SCRIPT\Colour\OCIO_converter\script\github\OCIO_Converter\src\main\resources\base', "jpeg:100",
+                  False, False, r"L:\SCRIPT\Colour\OCIO_converter\tests\odt_test\cabin_render_converted_v1.jpg")
 
     result = c.image_processing()
     print(result)

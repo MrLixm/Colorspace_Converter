@@ -376,6 +376,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lbl_in_title.setMinimumHeight(30)
         self.cbb_in_idt.setMinimumHeight(30)
         self.cbb_in_idt.setIconSize(QtCore.QSize(30, 30))
+        self.cbb_in_idt.setMaxVisibleItems(11)
         self.btn_in_apply.setMinimumHeight(30)
         self.btn_in_apply_all.setMinimumHeight(30)
         self.lyt_in_grid.setRowStretch(4, 1)
@@ -560,15 +561,14 @@ class MainWindow(QtWidgets.QMainWindow):
         if export_format == '.exr' or export_format == 'Original':
             self.cbb_exprt_odt.setEnabled(False)
             self.cbb_exprt_odt.setCurrentText('None')
-            self.cbb_exprt_odt.setHidden(True)
-
-            self.lbl_exprt_odt.setHidden(True)
+            # self.cbb_exprt_odt.setHidden(True)
+            # self.lbl_exprt_odt.setHidden(True)
 
         else:
             self.cbb_exprt_odt.setEnabled(True)
-            self.cbb_exprt_odt.setHidden(False)
             self.cbb_exprt_odt.setCurrentText('None')
-            self.lbl_exprt_odt.setHidden(False)
+            # self.cbb_exprt_odt.setHidden(False)
+            # self.lbl_exprt_odt.setHidden(False)
 
     def cbb_udpate_odt(self):
         current_out_cs = self.cbb_target_cs.currentText()
