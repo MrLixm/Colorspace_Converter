@@ -22,3 +22,8 @@ $ pip install fbs==0.8.6
 $ pip install "..\oiio-2.0.5-cp36-none-win_amd64.whl"
 ```
 The oiio Python wheel can be downloaded here: <https://github.com/fredrikaverpil/oiio-python/releases>
+
+**Shared under CC BY-SA 4.0 license.**
+BY – Credit must be given to the creator
+SA – Adaptations must be shared under the same terms
+https://creativecommons.org/licenses/by-sa/4.0/
