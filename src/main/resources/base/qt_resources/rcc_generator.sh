@@ -1,0 +1,1 @@
+"L:\SCRIPT\Colour\venvColour\Lib\site-packages\PySide2\rcc.exe" -binary "L:\SCRIPT\Colour\OCIO_converter\script\github\OCIO_Converter\src\main\resources\base\qt_resources\qt_resource.qrc" -o icon_ressource.rcc

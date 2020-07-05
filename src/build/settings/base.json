@@ -1,0 +1,7 @@
+{
+    "app_name": "Colorspace_converter",
+    "author": "LiamCollod",
+    "main_module": "src/main/python/main.py",
+    "version": "1.0.0",
+    "hidden_import": ["PyQt5_sip","PyQt5_QtCore", "PyQt5.sip", "PyQt5.QtCore"]
+}
