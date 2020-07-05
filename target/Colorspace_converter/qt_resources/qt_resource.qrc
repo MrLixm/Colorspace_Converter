@@ -1,0 +1,43 @@
+<RCC>
+  <qresource prefix="cbb">
+    <file>../icon_cbb_close_white.png</file>
+    <file>../icon_cbb_open_white.png</file>
+    <file>../icon_cbb_close_dark.png</file>
+    <file>../icon_cbb_open_dark.png</file>
+  </qresource>
+  <qresource prefix="idt">
+    <file>../icon_idt_none.png</file>
+    <file>../icon_idt_raw.png</file>
+    <file>../icon_idt_srgb_lin.png</file>
+    <file>../icon_idt_srgb_tex.png</file>
+    <file>../icon_idt_rec709_tex.png</file>
+    <file>../icon_idt_acescg.png</file>
+    <file>../icon_idt_acesap0.png</file>
+    <file>../icon_idt_acescc.png</file>
+    <file>../icon_idt_acescct.png</file>
+    <file>../icon_idt_xyz.png</file>
+    <file>../icon_idt_adobe.png</file>
+    <file>../icon_idt_adobewg.png</file>
+  </qresource>
+  <qresource prefix="social">
+    <file>../icon_social_artstation.png</file>
+    <file>../icon_social_github.png</file>
+    <file>../icon_social_gumroad.png</file>
+    <file>../icon_social_linkedin.png</file>
+    <file>../icon_social_twitter.png</file>
+  </qresource>
+  <qresource prefix="root">
+    <file alias="title.png" >../script_colorspaceconverter_title.png</file>
+  </qresource>
+  <qresource prefix="statut">
+    <file>../icon_convert_check.png</file>
+    <file>../icon_convert_error.png</file>
+    <file>../icon_convert_wait.png</file>
+  </qresource>
+  <qresource prefix="tw">
+    <file>../icon_tw_all.png</file>
+    <file>../icon_tw_done.png</file>
+    <file>../icon_tw_log.png</file>
+  </qresource>
+
+</RCC>
