@@ -4,6 +4,8 @@ This application was intended to be use for cgi production and especially when w
 
 The application provide an interface and functions to convert 2d image inputs to a target RGB colorspace.
 
+The code is here if it could be of any use to someone but now I look at it with more experience it looks like trash and developing anything with this will look like a mess. SO wait for the v2 ...
+
 ### DOCUMENTATION
 
 You can find the documentation here: <https://mrlixm.github.io/PYCO/standalone/ColorspaceConvert/home/>
