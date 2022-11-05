@@ -1,16 +1,19 @@
-## ColorSpace Converter
+# ColorSpace Converter
+
+> **Warning** This application is archived and not maintained anymore.
+>
+> You can still browse the code but it is not production-quality and I do not recommend to even use it as learning material.
+
 
 This application was intended to be use for cgi production and especially when working with [ACES](https://acescentral.com/) 
 
 The application provide an interface and functions to convert 2d image inputs to a target RGB colorspace.
 
-The code is here if it could be of any use to someone but now I look at it with more experience it looks like trash and developing anything with this will look like a mess. SO wait for the v2 ...
-
-### DOCUMENTATION
+## Documentation
 
 You can find the documentation here: <https://mrlixm.github.io/PYCO/standalone/ColorspaceConvert/home/>
 
-### Development 
+## Development 
 
 OS: Windows 10
 Python version 3.6.8
